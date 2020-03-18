@@ -204,7 +204,7 @@ def stopSession ():
     mainWindow.stopButton.setEnabled(False)
     mainWindow.lockButton.setEnabled(True)
 
-#Takes a screenshot and saves it to the root folder of the project
+#Takes a screenshot, opens a "Save As" window, and then saves as expected (unless user clicks cancel)
 def captureScreen ():
     #Take shot of entire screen/desktop
     #screenshot = QApplication.primaryScreen().grabWindow(0)
@@ -214,7 +214,30 @@ def captureScreen ():
 
     #Take shot of graph
     #screenshot = mainWindow.graphWidget.grab()
+    
+    #Pop up "Save As" window to retrieve file name and type to save as
+    nameAndType = QtGui.QFileDialog.getSaveFileName(parent = mainWindow.centralwidget,
+                                                    caption = 'Save Screen Capture As',
+                                                    filter = 'PNG (*.png);;JPG (*.jpg)')
 
-    #Save screenshot
-    screenshot.save('screenshot.jpg', 'jpg')
+    #If user didn't click cancel on "Save As", save screenshot using "Save As" options
+    if len(nameAndType[0]) > 0:
+        screenshot.save(nameAndType[0], extractFileType(nameAndType[1]))
 
+#Extracts "jpg" from "JPG (*.jpg)" for example.
+#The "JPG (*.jpg)" is returned from QtGui.QFileDialog.getSaveFileName as second element in string tuple, but...
+#QPixMap.save() requires ".jpg", thus this function performs the conversion.
+def extractFileType (filter):
+    #Default substring limits in case we can't find them in the string
+    period = 0  #Start of substring
+    closeParen = len(filter) #End of substring
+
+    #Find substring limits in string
+    for x in range(0, len(filter)):
+        if filter[x] == '.':
+            period = x
+        elif filter[x] == ')':
+            closeParen = x
+
+    #Perform substring operation and return result
+    return filter[(period + 1):closeParen]

@@ -3,7 +3,7 @@ import numpy as np
 import pyqtgraph as pg
 import TheSession as ts
 import datetime as dt
-import DataWizard as dw
+import NoiseWizard as dw
 
 #Helper methods used later on
 def clamp(value, minimum, maximum):
@@ -94,8 +94,8 @@ def createGraph():
     barGraph.setMouseEnabled(x = False, y = False)
     barGraph.enableAutoRange('xy', False)
     barGraph.setXRange(0, 1)
-    barGraph.setYRange(0, 10)
-    barGraph.setLimits(xMin = 0, xMax = 1, yMin = 0, yMax = 10)
+    barGraph.setYRange(0, 7)
+    barGraph.setLimits(xMin = 0, xMax = 1, yMin = 0, yMax = 7)
     barGraph.hideButtons()
 
     #Create arrays of size 1 for both x location of bars and bar heights (both with values initialized to 0)
@@ -108,7 +108,10 @@ def createGraph():
 
     #Create data array (this array will be displayed as the line on the graph)
     dataSize = ts.currentSession.trialLengthInSamples #Array size
-    data = np.full(dataSize, -10, np.float32) #Create array with all elements initialized to -10 (so they're off-screen)
+    data = np.full(shape = dataSize,
+                   fill_value = -7,
+                   dtype = np.dtype(float)) #Create array with all elements initialized to -7 (so they're off-screen)
+    #If you don't specify the data type here^, it assumes integers
     
     #Create empty graph
     stimulusGraph = graphWindow.addPlot()
@@ -130,7 +133,7 @@ def createGraph():
     stimulusGraph.getAxis('left').setPen(axisColor)
 
     #Axis limits on graph
-    stimulusGraph.setLimits(xMin = 0, xMax = dataSize, yMin = 0, yMax = 10, minXRange = 10, minYRange = 10)
+    stimulusGraph.setLimits(xMin = 0, xMax = dataSize, yMin = 0, yMax = 7, minXRange = 10, minYRange = 7)
 
     #Scale x axis ticks to measure milliseconds instead of samples
     stimulusGraph.getAxis('bottom').setScale(ts.currentSession.sampleInterval)
@@ -149,7 +152,7 @@ def createGraph():
     csName = ts.currentSession.csName
     csLabel = pg.TextItem(html = "<span style = \"font-size: 16pt;\">" + csName + "</span>", color = textColor, anchor = (0.5, 0))
     stimulusGraph.addItem(csLabel)
-    csLabel.setPos((csStart + csEnd) / 2, 10)
+    csLabel.setPos((csStart + csEnd) / 2, 7)
 
     #Same for US
     usStart = ts.currentSession.usStartInSamples
@@ -162,7 +165,7 @@ def createGraph():
     usName = ts.currentSession.usName
     usLabel = pg.TextItem(html = "<span style = \"font-size: 16pt;\">" + usName + "</span>", color = textColor, anchor = (0.5, 0))
     stimulusGraph.addItem(usLabel)
-    usLabel.setPos((usStart + usEnd) / 2, 10)
+    usLabel.setPos((usStart + usEnd) / 2, 7)
 
     #Regularly sample data (according to sample rate defined in session settings)
     iteration = 0
@@ -204,8 +207,13 @@ def sampleUpdate():
 
 #Create timer to run sample update function (start is called on the timer in createGraph function above)
 sampleTimer = QtCore.QTimer()
-sampleTimer.setTimerType(0) #0 = precise timer (default = 1 = coarse timer)
 sampleTimer.timeout.connect(sampleUpdate)
+
+#From https://doc.qt.io/qtforpython/PySide2/QtCore/QTimer.html#PySide2.QtCore.PySide2.QtCore.QTimer.setTimerType...
+#"The accuracy also depends on the timer type.
+#For PreciseTimer, QTimer will try to keep the accuracy at 1 millisecond.
+#Precise timers will also never time out earlier than expected."
+sampleTimer.setTimerType(QtCore.Qt.PreciseTimer)
 
 #Updates the display
 def displayUpdate():

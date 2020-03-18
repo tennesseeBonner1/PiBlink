@@ -64,8 +64,8 @@ from dac8552 import DAC8552, DAC_A, DAC_B, MODE_POWER_DOWN_100K
 dac = DAC8552()
 
 #Calibrate it
-dac.v_ref = 5.0
-highVoltage = int(5.0 * dac.digit_per_v)
+dac.v_ref = 3.3
+highVoltage = int(3.3 * dac.digit_per_v)
 
 def setCSAmplitude(high):
     if high:
