@@ -110,7 +110,7 @@ def createGraph():
     dataSize = ts.currentSession.trialLengthInSamples #Array size
     data = np.full(shape = dataSize,
                    fill_value = -7,
-                   dtype = np.dtype(float)) #Create array with all elements initialized to -7 (so they're off-screen)
+                   dtype = np.float32) #Create array with all elements initialized to -7 (so they're off-screen)
     #If you don't specify the data type here^, it assumes integers
     
     #Create empty graph
