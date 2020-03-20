@@ -3,6 +3,7 @@ import numpy as np
 import pyqtgraph as pg
 import TheSession as ts
 import datetime as dt
+import DisplaySettingsManager as dsm
 import NoiseWizard as dw
 
 #Helper methods used later on
@@ -15,11 +16,13 @@ def htmlColorString(qtColor):
 
 #Initializes global variables that need to have default values or references to objects in main window
 def initialSetUp (theMainWindow):
-    global graphInitialized, playing, mainWindow, graphWindow
+    global graphInitialized, playing, duringITI, mainWindow, graphWindow
     global startedCS, csInProgress, startedUS, usInProgress
-    
+
     graphInitialized = False
     playing = False
+    duringITI = False
+
     mainWindow = theMainWindow
     graphWindow = theMainWindow.graphWidget
 
@@ -32,23 +35,22 @@ def initialSetUp (theMainWindow):
 def isPlaying ():
     return playing
 
-#Sets the graph to playing if it isnt already will also pause if play is false
+#Sets the graph's play status to parameter (i.e. true = playing, false = paused)
 def setPlaying (play):
-    global graphInitialized, playing
+    global playing, duringITI, graphInitialized
     
-    if play:
-        playing = True
+    playing = play
 
-        if graphInitialized == False:
-           createGraph()
-    
-    else:
-        playing = False
-        assessAverage()
+    if not duringITI:
+        if play:
+            if graphInitialized == False:
+               createGraph()
+        else:
+            assessAverage()
 
 #Resets the graph (i.e. removes graph window and is ready for new call to createGraph)
 def resetGraph ():
-    global playing, graphInitialized
+    global playing, graphInitialized, duringITI
     global startedCS, csInProgress, startedUS, usInProgress
 
     #Reset variables
@@ -68,23 +70,31 @@ def resetGraph ():
     #Since the graph controls the analog outputs, it must turn them off when the graph is cleared
     dw.setCSAmplitude(False)
     dw.setUSAmplitude(False)
-    
+
+    #In case this was called during ITI, stop ITI
+    if duringITI:
+        duringITI = False
+        itiTimer.stop()
+
 #Creates the graph
 def createGraph():
-    #Variables that need to be survive across multiple calls to update function
+    #Variables that persist outside this function call
     global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing
 
+    #Update the session info label in the main window to reflect trial number
+    labelText = "DATA ACQUISITION\n\nTRIAL " + str(ts.currentSession.currentTrial) + " / " + str(ts.currentSession.trialCount)
+    mainWindow.sessionInfoLabel.setText(labelText)
+
     #Define settings
-    shadeArea = False
-    graphColor = pg.mkBrush(0, 0, 255, 255)
-    backgroundColor = pg.mkBrush(255, 255, 255, 255)
-    textColor = QtGui.QColor(0, 0, 0, 255)
-    axisColor = pg.mkPen(color = textColor, width = 1)
-    intervalColor = pg.mkBrush(100, 100, 100, 100)
-    graphWindow.setBackground(backgroundColor)
+    dataColor = dsm.colors[dsm.ColorAttribute.DATA.value]
+    textColor = dsm.colors[dsm.ColorAttribute.TEXT.value]
+    stimulusColor = dsm.colors[dsm.ColorAttribute.STIMULUS.value]
+    stimulusColor.setAlpha(75) #Give it some transparency since it renders on top of data curve
+    axisColor = pg.mkPen(color = dsm.colors[dsm.ColorAttribute.AXIS.value], width = 1)
+    graphWindow.setBackground(dsm.colors[dsm.ColorAttribute.BACKGROUND.value])
 
     #Enable antialiasing for prettier plots
-    pg.setConfigOptions(antialias = False)
+    pg.setConfigOptions(antialias = dsm.antiAliasing)
 
     #Create bar graph
     barGraph = graphWindow.addPlot()
@@ -103,7 +113,7 @@ def createGraph():
     barHeights = np.zeros(1)
 
     #Add that bar data to the graph along with other settings like width and color
-    bars = pg.BarGraphItem(x = barXs, height = barHeights, width = 1.0, brush = graphColor)
+    bars = pg.BarGraphItem(x = barXs, height = barHeights, width = 1.0, brush = dataColor)
     barGraph.addItem(bars)
 
     #Create data array (this array will be displayed as the line on the graph)
@@ -117,10 +127,10 @@ def createGraph():
     stimulusGraph = graphWindow.addPlot()
 
     #Plot line in graph
-    if shadeArea:
-        curve = stimulusGraph.plot(y = data, fillLevel = -0.3, brush = graphColor)
+    if dsm.shading:
+        curve = stimulusGraph.plot(y = data, fillLevel = -0.3, brush = dataColor)
     else:
-        curve = stimulusGraph.plot(y = data, fillLevel = -0.3, pen = 'b')
+        curve = stimulusGraph.plot(y = data, fillLevel = -0.3, pen = dataColor)
 
     #Add graph labels
     stimulusGraph.setLabel('bottom',
@@ -143,27 +153,27 @@ def createGraph():
     #Create CS lines and shaded area between lines
     csStart = ts.currentSession.csStartInSamples
     csEnd = ts.currentSession.csEndInSamples
-    csRegion = pg.LinearRegionItem(values = [csStart, csEnd], brush = intervalColor, movable = False)
-    csRegion.lines[0].setPen(axisColor)
-    csRegion.lines[1].setPen(axisColor)
+    csRegion = pg.LinearRegionItem(values = [csStart, csEnd], brush = stimulusColor, movable = False)
+    csRegion.lines[0].setPen(stimulusColor)
+    csRegion.lines[1].setPen(stimulusColor)
     stimulusGraph.addItem(csRegion)
 
     #Add CS label to middle of shaded area
-    csName = ts.currentSession.csName
-    csLabel = pg.TextItem(html = "<span style = \"font-size: 16pt;\">" + csName + "</span>", color = textColor, anchor = (0.5, 0))
+    csLabel = pg.TextItem(html = "<span style = \"font-size: 16pt; color: " + 
+                        htmlColorString(textColor) + "\">CS</span>", color = textColor, anchor = (0.5, 0))
     stimulusGraph.addItem(csLabel)
     csLabel.setPos((csStart + csEnd) / 2, 7)
 
     #Same for US
     usStart = ts.currentSession.usStartInSamples
     usEnd = ts.currentSession.usEndInSamples
-    usRegion = pg.LinearRegionItem(values = [usStart, usEnd], brush = intervalColor, movable = False)
-    usRegion.lines[0].setPen(axisColor)
-    usRegion.lines[1].setPen(axisColor)
+    usRegion = pg.LinearRegionItem(values = [usStart, usEnd], brush = stimulusColor, movable = False)
+    usRegion.lines[0].setPen(stimulusColor)
+    usRegion.lines[1].setPen(stimulusColor)
     stimulusGraph.addItem(usRegion)
 
-    usName = ts.currentSession.usName
-    usLabel = pg.TextItem(html = "<span style = \"font-size: 16pt;\">" + usName + "</span>", color = textColor, anchor = (0.5, 0))
+    usLabel = pg.TextItem(html = "<span style = \"font-size: 16pt; color: " + 
+                        htmlColorString(textColor) + "\">US</span>", anchor = (0.5, 0))
     stimulusGraph.addItem(usLabel)
     usLabel.setPos((usStart + usEnd) / 2, 7)
 
@@ -171,8 +181,8 @@ def createGraph():
     iteration = 0
     sampleTimer.start(ts.currentSession.sampleInterval) #Parameter is millisecond interval between updates
 
-    #Regularly update display (at say, 10 times a second)
-    displayTimer.start(100)
+    #Regularly update display (according to display rate defined in display settings)
+    displayTimer.start(1000 / dsm.displayRate)
 
     #Done initializing/creating the graph
     graphInitialized = True
@@ -201,6 +211,9 @@ def sampleUpdate():
 
         #Controls output of tone/airpuff (OUTPUT)
         manageOutputs()
+    else: #End of trial
+        if ts.currentSession.currentTrial < ts.currentSession.trialCount:
+            endTrialStartITI()  #still have more trials to go so begin ITI
 
     #End of iteration
     iteration += 1
@@ -267,6 +280,82 @@ def manageOutputs ():
         usInProgress = True
         dw.setUSAmplitude(True)
 
+def endTrialStartITI():
+    global itiProgress, itiInterval, duringITI
+
+    #Stop current trial
+    resetGraph()
+
+    #Determine ITI duration
+    generateITISize()
+    
+    #Restart ITI progress (indicates how long ITI has been going for in ms)
+    itiProgress = 0
+
+    #Establish how long to wait between calls to itiUpdate (in ms)
+    itiInterval = 100
+
+    #Begin ITI
+    duringITI = True
+    setPlaying(True)
+    itiTimer.start(itiInterval) #Parameter is millisecond interval between updates
+
+def itiUpdate():
+    global itiProgress
+
+    #ITI can be paused
+    if not playing:
+        return
+
+    #Update how long ITI has been going
+    itiProgress += itiInterval
+
+    #print('tick')
+
+    #Determine if ITI is over
+    if itiProgress >= itiSize:
+        endITIStartTrial()
+
+#Create timer to run ITI (start is called on the timer in startITI function above)
+itiTimer = QtCore.QTimer()
+itiTimer.timeout.connect(itiUpdate)
+
+def endITIStartTrial():
+    global duringITI
+
+    #Stop ITI
+    duringITI = False
+    itiTimer.stop()
+
+    #Increment trial count
+    ts.currentSession.currentTrial += 1
+
+    #Begin new trial (calls createGraph for us since no graph currently exists)
+    setPlaying(True)
+
+#Computes the itiSize global variable, using current session's ITI and ITI variance durations
+def generateITISize():
+    global itiSize
+
+    #Base ITI
+    itiSize = ts.currentSession.iti * 1000
+    
+    #Apply ITI variance
+    if ts.currentSession.itiVariance > 0:
+        #Generate variance (Size = 1 indicates to only generate one number, i.e. not a sequence of numbers)
+        itiVariance = np.random.randint(low = -ts.currentSession.itiVariance,
+                                        high = ts.currentSession.itiVariance, size = 1)
+        
+        #Scale variance from s to ms
+        itiVariance *= 1000
+
+        #Apply variance
+        itiSize += itiVariance
+
+        #Ensure ITI isn't negative (variance could be larger in magnitude than base duration and be subtracted)
+        if itiSize < 0:
+            itiSize = 0
+
 #Everything below is for tracking the actual sample rate for performance monitoring...
 lastSampleTime = dt.datetime.now()
 realSampleIntervalTotal = 0
@@ -290,7 +379,7 @@ def measureRealSampleInterval():
     lastSampleTime = newSampleTime
 
 #Compute average sample interval duration based on accumulated totals from function above
-def assessAverage ():
+def assessAverage():
     global realSampleIntervalTotal, totalSampleCount
 
     #Nothing to compute

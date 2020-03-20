@@ -2,6 +2,7 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import QMessageBox, QApplication
 import TheGraph as tg
 import TheSession as ts
+import DisplaySettingsManager as dsm
 
 #Called on start of program to perform all needed initialization
 #Need initialization for default values, references, button icons, and button handlers
@@ -34,9 +35,12 @@ def connectButtons ():
     mainWindow.stopButton.clicked.connect(stopButtonPressed)
     mainWindow.lockButton.clicked.connect(lockButtonPressed)
 
-    #Detects menu actions such as "File -> Close" and "File -> Screencapture"
+    #Detects menu actions such as "File -> Close" and "Edit -> Display Settings"
     mainWindow.actionClose.triggered.connect(closeWindow)
-    mainWindow.actionScreenCapture.triggered.connect(captureScreen)
+    mainWindow.actionCaptureGraph.triggered.connect(lambda: capture("Graph"))
+    mainWindow.actionCaptureWindow.triggered.connect(lambda: capture("Window"))
+    mainWindow.actionCaptureScreen.triggered.connect(lambda: capture("Screen"))
+    mainWindow.actionDisplaySettings.triggered.connect(dsm.openDisplaySettingsMenu)
 
     #Override close event function of QMainWindow for purpose of adding "are you sure you want to quit?" prompt
     mainWindow.centralwidget.parentWidget().closeEvent = closeEvent
@@ -70,7 +74,7 @@ def stopButtonPressed ():
 
     #Pauses when stop is pressed
     if (tg.isPlaying()):    
-        setPlaying(not tg.isPlaying())
+        setPlaying(False)
 
     #Confirm that this is what the user wants
     confirmStop = QMessageBox()
@@ -89,7 +93,7 @@ def closeWindow ():
 
 #Whenever the window is supposed to close, this event intercepts/overrides the default close event
 def closeEvent (event):
-    #If there is an ongoing session
+    #If there is an ongoing session, then let's make sure we really want to close
     if ts.currentSession:
         #Display a "are you sure?" message
         confirmClose = QMessageBox()
@@ -108,8 +112,7 @@ def closeEvent (event):
 
 #Defines whether or not the trial is playing
 def setPlaying (play):
-
-    #Gets the current session
+    #Creates a session if one is not already running (there must be a current session to control)
     if not ts.currentSession:
         ts.currentSession = ts.TheSession(mainWindow)
 
@@ -135,6 +138,7 @@ def setLockModeForSettings (lock):
     
     #Changes the locked setting to the value that is passed to the function
     global settingsLocked
+
     settingsLocked = lock
 
     #If the system is locked, play can be pressed 
@@ -196,29 +200,33 @@ def stopSession ():
     #Resets the graph
     tg.resetGraph()
 
-    #Stops playing the graph
-    tg.setPlaying(False)
-
     #Resets the play, stop, and lock buttons
     mainWindow.playButton.setIcon(playIcon)
     mainWindow.stopButton.setEnabled(False)
     mainWindow.lockButton.setEnabled(True)
 
+    #Removes session info since session is now gone
+    mainWindow.sessionInfoLabel.setText("DATA ACQUISITION\n\n")
+
 #Takes a screenshot, opens a "Save As" window, and then saves as expected (unless user clicks cancel)
-def captureScreen ():
-    #Take shot of entire screen/desktop
-    #screenshot = QApplication.primaryScreen().grabWindow(0)
+#What it captures (graph, window, or whole screen) is determined via parameter
+def capture (captureType):
+    #Take shot of graph
+    if captureType == "Graph":
+        screenshot = mainWindow.graphWidget.grab()
 
     #Take shot of main window
-    screenshot = mainWindow.centralwidget.grab()
+    elif captureType == "Window":
+        screenshot = mainWindow.centralwidget.grab()
 
-    #Take shot of graph
-    #screenshot = mainWindow.graphWidget.grab()
+    #Take shot of entire screen/desktop
+    else:
+        screenshot = QApplication.primaryScreen().grabWindow(0)
     
     #Pop up "Save As" window to retrieve file name and type to save as
     nameAndType = QtGui.QFileDialog.getSaveFileName(parent = mainWindow.centralwidget,
-                                                    caption = 'Save Screen Capture As',
-                                                    filter = 'PNG (*.png);;JPG (*.jpg)')
+                                                    caption = "Save " + captureType + " Capture As",
+                                                    filter = "PNG (*.png);;JPG (*.jpg)")
 
     #If user didn't click cancel on "Save As", save screenshot using "Save As" options
     if len(nameAndType[0]) > 0:
