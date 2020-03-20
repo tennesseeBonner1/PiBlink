@@ -591,9 +591,7 @@ class Ui_MainWindow(object):
         self.usDurationLabel.setText(_translate("MainWindow", "US Duration (ms)"))
         self.subjectAgeLabel.setText(_translate("MainWindow", "Subject Age (yr)"))
         self.subjectSexLabel.setText(_translate("MainWindow", "Subject Sex"))
-        self.sessionInfoLabel.setText(_translate("MainWindow", "DATA ACQUISITION\n"
-"\n"
-"TRIAL 1 / 60"))
+        self.sessionInfoLabel.setText(_translate("MainWindow", "DATA ACQUISITION\n""\n""TRIAL 000 / 000"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         self.actionOpen.setText(_translate("MainWindow", "Open..."))

@@ -5,6 +5,7 @@ import TheSession as ts
 import datetime as dt
 import DisplaySettingsManager as dsm
 import NoiseWizard as dw
+import threading
 
 #Helper methods used later on
 def clamp(value, minimum, maximum):
@@ -190,7 +191,7 @@ def createGraph():
 #Called once every sample (manages analog input and outputs)
 def sampleUpdate():
     #Variables that need to be survive across multiple calls to update function
-    global iteration, dataSize, data, playing
+    global iteration, itiiteration, dataSize, data, playing, graphInitialized
 
     #Pause functionality
     if not playing:
@@ -217,6 +218,12 @@ def sampleUpdate():
 
     #End of iteration
     iteration += 1
+
+def interTrialInterval():
+    resetGraph()
+    graphInitialized = False
+    setPlaying(True)
+
 
 #Create timer to run sample update function (start is called on the timer in createGraph function above)
 sampleTimer = QtCore.QTimer()
