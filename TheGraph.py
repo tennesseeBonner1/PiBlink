@@ -4,6 +4,7 @@ import pyqtgraph as pg
 import TheSession as ts
 import datetime as dt
 import NoiseWizard as dw
+import threading
 
 #Helper methods used later on
 def clamp(value, minimum, maximum):
@@ -16,7 +17,9 @@ def htmlColorString(qtColor):
 #Initializes global variables that need to have default values or references to objects in main window
 def initialSetUp (theMainWindow):
     global graphInitialized, playing, mainWindow, graphWindow
-    global startedCS, csInProgress, startedUS, usInProgress
+    global startedCS, csInProgress, startedUS, usInProgress, trialNum
+
+    trialNum = 0
     
     graphInitialized = False
     playing = False
@@ -34,15 +37,16 @@ def isPlaying ():
 
 #Sets the graph to playing if it isnt already will also pause if play is false
 def setPlaying (play):
-    global graphInitialized, playing
+    global graphInitialized, playing, trialNum
     
     if play:
         playing = True
 
         if graphInitialized == False:
-           createGraph()
+                createGraph()
     
     else:
+        trialNum = 0;
         playing = False
         assessAverage()
 
@@ -68,119 +72,141 @@ def resetGraph ():
     #Since the graph controls the analog outputs, it must turn them off when the graph is cleared
     dw.setCSAmplitude(False)
     dw.setUSAmplitude(False)
-    
+
+def generateITI():
+    global itiSize
+
+    itiSize = (ts.currentSession.iti) * 1000
+    if ts.currentSession.itiVariance > 0:
+        itiSize = np.random.randint(0, ts.currentSession.itiVariance, 1)
+        for i in itiSize:
+            testr = i
+        itiSize = (testr + ts.currentSession.iti) * 1000
+
 #Creates the graph
 def createGraph():
+
     #Variables that need to be survive across multiple calls to update function
-    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing
+    global iteration, itiiteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, trialNum, mainWindow
 
-    #Define settings
-    shadeArea = False
-    graphColor = pg.mkBrush(0, 0, 255, 255)
-    backgroundColor = pg.mkBrush(255, 255, 255, 255)
-    textColor = QtGui.QColor(0, 0, 0, 255)
-    axisColor = pg.mkPen(color = textColor, width = 1)
-    intervalColor = pg.mkBrush(100, 100, 100, 100)
-    graphWindow.setBackground(backgroundColor)
-
-    #Enable antialiasing for prettier plots
-    pg.setConfigOptions(antialias = False)
-
-    #Create bar graph
-    barGraph = graphWindow.addPlot()
-    barGraph.setMaximumWidth(100)
-    barGraph.hideAxis('bottom')
-    barGraph.getAxis('left').setPen(axisColor)
-    barGraph.setMouseEnabled(x = False, y = False)
-    barGraph.enableAutoRange('xy', False)
-    barGraph.setXRange(0, 1)
-    barGraph.setYRange(0, 7)
-    barGraph.setLimits(xMin = 0, xMax = 1, yMin = 0, yMax = 7)
-    barGraph.hideButtons()
-
-    #Create arrays of size 1 for both x location of bars and bar heights (both with values initialized to 0)
-    barXs = np.zeros(1)
-    barHeights = np.zeros(1)
-
-    #Add that bar data to the graph along with other settings like width and color
-    bars = pg.BarGraphItem(x = barXs, height = barHeights, width = 1.0, brush = graphColor)
-    barGraph.addItem(bars)
-
-    #Create data array (this array will be displayed as the line on the graph)
-    dataSize = ts.currentSession.trialLengthInSamples #Array size
-    data = np.full(shape = dataSize,
-                   fill_value = -7,
-                   dtype = np.float32) #Create array with all elements initialized to -7 (so they're off-screen)
-    #If you don't specify the data type here^, it assumes integers
+    trialNum += 1
     
-    #Create empty graph
-    stimulusGraph = graphWindow.addPlot()
+    if trialNum <= ts.currentSession.trialCount:
+        labelText = "DATA ACQUISITION\n""\n""TRIAL "
+        labelText += str(trialNum)
+        labelText += " / "
+        labelText += str(ts.currentSession.trialCount)
+        mainWindow.sessionInfoLabel.setText(labelText)
+        generateITI()       
 
-    #Plot line in graph
-    if shadeArea:
-        curve = stimulusGraph.plot(y = data, fillLevel = -0.3, brush = graphColor)
-    else:
-        curve = stimulusGraph.plot(y = data, fillLevel = -0.3, pen = 'b')
+        #Define settings
+        shadeArea = False
+        graphColor = pg.mkBrush(0, 0, 255, 255)
+        backgroundColor = pg.mkBrush(255, 255, 255, 255)
+        textColor = QtGui.QColor(0, 0, 0, 255)
+        axisColor = pg.mkPen(color = textColor, width = 1)
+        intervalColor = pg.mkBrush(100, 100, 100, 100)
+        graphWindow.setBackground(backgroundColor)
 
-    #Add graph labels
-    stimulusGraph.setLabel('bottom',
-        "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Time (ms)</span>")
-    stimulusGraph.setLabel('left',
-        "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Eyeblink Amplitude (VDC)</span>")
+        #Enable antialiasing for prettier plots
+        pg.setConfigOptions(antialias = False)
 
-    #Axis line/tick color
-    stimulusGraph.getAxis('bottom').setPen(axisColor)
-    stimulusGraph.getAxis('left').setPen(axisColor)
+        #Create bar graph
+        barGraph = graphWindow.addPlot()
+        barGraph.setMaximumWidth(100)
+        barGraph.hideAxis('bottom')
+        barGraph.getAxis('left').setPen(axisColor)
+        barGraph.setMouseEnabled(x = False, y = False)
+        barGraph.enableAutoRange('xy', False)
+        barGraph.setXRange(0, 1)
+        barGraph.setYRange(0, 7)
+        barGraph.setLimits(xMin = 0, xMax = 1, yMin = 0, yMax = 7)
+        barGraph.hideButtons()
 
-    #Axis limits on graph
-    stimulusGraph.setLimits(xMin = 0, xMax = dataSize, yMin = 0, yMax = 7, minXRange = 10, minYRange = 7)
+        #Create arrays of size 1 for both x location of bars and bar heights (both with values initialized to 0)
+        barXs = np.zeros(1)
+        barHeights = np.zeros(1)
 
-    #Scale x axis ticks to measure milliseconds instead of samples
-    stimulusGraph.getAxis('bottom').setScale(ts.currentSession.sampleInterval)
+        #Add that bar data to the graph along with other settings like width and color
+        bars = pg.BarGraphItem(x = barXs, height = barHeights, width = 1.0, brush = graphColor)
+        barGraph.addItem(bars)
 
-    #Add CS and US start/end lines in graph...
+        #Create data array (this array will be displayed as the line on the graph)
+        dataSize = ts.currentSession.trialLengthInSamples #Array size
+        data = np.full(shape = dataSize,
+                       fill_value = -7,
+                       dtype = np.float32) #Create array with all elements initialized to -7 (so they're off-screen)
+        #If you don't specify the data type here^, it assumes integers
 
-    #Create CS lines and shaded area between lines
-    csStart = ts.currentSession.csStartInSamples
-    csEnd = ts.currentSession.csEndInSamples
-    csRegion = pg.LinearRegionItem(values = [csStart, csEnd], brush = intervalColor, movable = False)
-    csRegion.lines[0].setPen(axisColor)
-    csRegion.lines[1].setPen(axisColor)
-    stimulusGraph.addItem(csRegion)
+        #Create empty graph
+        stimulusGraph = graphWindow.addPlot()
 
-    #Add CS label to middle of shaded area
-    csName = ts.currentSession.csName
-    csLabel = pg.TextItem(html = "<span style = \"font-size: 16pt;\">" + csName + "</span>", color = textColor, anchor = (0.5, 0))
-    stimulusGraph.addItem(csLabel)
-    csLabel.setPos((csStart + csEnd) / 2, 7)
+        #Plot line in graph
+        if shadeArea:
+            curve = stimulusGraph.plot(y = data, fillLevel = -0.3, brush = graphColor)
+        else:
+            curve = stimulusGraph.plot(y = data, fillLevel = -0.3, pen = 'b')
 
-    #Same for US
-    usStart = ts.currentSession.usStartInSamples
-    usEnd = ts.currentSession.usEndInSamples
-    usRegion = pg.LinearRegionItem(values = [usStart, usEnd], brush = intervalColor, movable = False)
-    usRegion.lines[0].setPen(axisColor)
-    usRegion.lines[1].setPen(axisColor)
-    stimulusGraph.addItem(usRegion)
+        #Add graph labels
+        stimulusGraph.setLabel('bottom',
+            "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Time (ms)</span>")
+        stimulusGraph.setLabel('left',
+            "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Eyeblink Amplitude (VDC)</span>")
 
-    usName = ts.currentSession.usName
-    usLabel = pg.TextItem(html = "<span style = \"font-size: 16pt;\">" + usName + "</span>", color = textColor, anchor = (0.5, 0))
-    stimulusGraph.addItem(usLabel)
-    usLabel.setPos((usStart + usEnd) / 2, 7)
+        #Axis line/tick color
+        stimulusGraph.getAxis('bottom').setPen(axisColor)
+        stimulusGraph.getAxis('left').setPen(axisColor)
 
-    #Regularly sample data (according to sample rate defined in session settings)
-    iteration = 0
-    sampleTimer.start(ts.currentSession.sampleInterval) #Parameter is millisecond interval between updates
+        #Axis limits on graph
+        stimulusGraph.setLimits(xMin = 0, xMax = dataSize, yMin = 0, yMax = 7, minXRange = 10, minYRange = 7)
 
-    #Regularly update display (at say, 10 times a second)
-    displayTimer.start(100)
+        #Scale x axis ticks to measure milliseconds instead of samples
+        stimulusGraph.getAxis('bottom').setScale(ts.currentSession.sampleInterval)
 
-    #Done initializing/creating the graph
-    graphInitialized = True
+        #Add CS and US start/end lines in graph...
+
+        #Create CS lines and shaded area between lines
+        csStart = ts.currentSession.csStartInSamples
+        csEnd = ts.currentSession.csEndInSamples
+        csRegion = pg.LinearRegionItem(values = [csStart, csEnd], brush = intervalColor, movable = False)
+        csRegion.lines[0].setPen(axisColor)
+        csRegion.lines[1].setPen(axisColor)
+        stimulusGraph.addItem(csRegion)
+
+        #Add CS label to middle of shaded area
+        csName = ts.currentSession.csName
+        csLabel = pg.TextItem(html = "<span style = \"font-size: 16pt;\">" + csName + "</span>", color = textColor, anchor = (0.5, 0))
+        stimulusGraph.addItem(csLabel)
+        csLabel.setPos((csStart + csEnd) / 2, 7)
+
+        #Same for US
+        usStart = ts.currentSession.usStartInSamples
+        usEnd = ts.currentSession.usEndInSamples
+        usRegion = pg.LinearRegionItem(values = [usStart, usEnd], brush = intervalColor, movable = False)
+        usRegion.lines[0].setPen(axisColor)
+        usRegion.lines[1].setPen(axisColor)
+        stimulusGraph.addItem(usRegion)
+
+        usName = ts.currentSession.usName
+        usLabel = pg.TextItem(html = "<span style = \"font-size: 16pt;\">" + usName + "</span>", color = textColor, anchor = (0.5, 0))
+        stimulusGraph.addItem(usLabel)
+        usLabel.setPos((usStart + usEnd) / 2, 7)
+
+        #Regularly sample data (according to sample rate defined in session settings)
+        iteration = 0
+        sampleTimer.start(ts.currentSession.sampleInterval) #Parameter is millisecond interval between updates
+
+        itiiteration = 0
+        #Regularly update display (at say, 10 times a second)
+        displayTimer.start(100)
+
+        #Done initializing/creating the graph
+        graphInitialized = True
 
 #Called once every sample (manages analog input and outputs)
 def sampleUpdate():
     #Variables that need to be survive across multiple calls to update function
-    global iteration, dataSize, data, playing
+    global iteration, itiiteration, dataSize, data, playing, graphInitialized
 
     #Pause functionality
     if not playing:
@@ -201,9 +227,20 @@ def sampleUpdate():
 
         #Controls output of tone/airpuff (OUTPUT)
         manageOutputs()
+    
+    else:
+        itiiteration += 1
+        if (itiiteration == itiSize):
+            interTrialInterval()
 
     #End of iteration
     iteration += 1
+
+def interTrialInterval():
+    resetGraph()
+    graphInitialized = False
+    setPlaying(True)
+
 
 #Create timer to run sample update function (start is called on the timer in createGraph function above)
 sampleTimer = QtCore.QTimer()
