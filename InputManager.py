@@ -135,6 +135,7 @@ def setLockModeForSettings (lock):
     
     #Changes the locked setting to the value that is passed to the function
     global settingsLocked
+
     settingsLocked = lock
 
     #If the system is locked, play can be pressed 
