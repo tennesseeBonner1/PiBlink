@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\NMOne\NMOne\PhoenixSystem.ui'
+# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\NMOne\NMOne\MainUI.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -499,11 +499,11 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.actionOpen.setFont(font)
         self.actionOpen.setObjectName("actionOpen")
-        self.actionPrint = QtWidgets.QAction(MainWindow)
+        self.actionCaptureWindow = QtWidgets.QAction(MainWindow)
         font = QtGui.QFont()
         font.setPointSize(14)
-        self.actionPrint.setFont(font)
-        self.actionPrint.setObjectName("actionPrint")
+        self.actionCaptureWindow.setFont(font)
+        self.actionCaptureWindow.setObjectName("actionCaptureWindow")
         self.actionClose = QtWidgets.QAction(MainWindow)
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -514,15 +514,21 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.actionDisplaySettings.setFont(font)
         self.actionDisplaySettings.setObjectName("actionDisplaySettings")
-        self.actionScreenCapture = QtWidgets.QAction(MainWindow)
+        self.actionCaptureGraph = QtWidgets.QAction(MainWindow)
         font = QtGui.QFont()
         font.setPointSize(14)
-        self.actionScreenCapture.setFont(font)
-        self.actionScreenCapture.setObjectName("actionScreenCapture")
+        self.actionCaptureGraph.setFont(font)
+        self.actionCaptureGraph.setObjectName("actionCaptureGraph")
+        self.actionCaptureScreen = QtWidgets.QAction(MainWindow)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.actionCaptureScreen.setFont(font)
+        self.actionCaptureScreen.setObjectName("actionCaptureScreen")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addSeparator()
-        self.menuFile.addAction(self.actionScreenCapture)
-        self.menuFile.addAction(self.actionPrint)
+        self.menuFile.addAction(self.actionCaptureGraph)
+        self.menuFile.addAction(self.actionCaptureWindow)
+        self.menuFile.addAction(self.actionCaptureScreen)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionClose)
         self.menuEdit.addAction(self.actionDisplaySettings)
@@ -554,6 +560,10 @@ class Ui_MainWindow(object):
         #Set up the graph
         import TheGraph as tg
         tg.initialSetUp(self)
+
+        #Set up the display settings
+        import DisplaySettingsManager as dsm
+        dsm.initialSetUp()
         
         #Complete set up of the main window (this file)
         self.subjectSexComboBox.addItem("MALE")
@@ -586,14 +596,16 @@ class Ui_MainWindow(object):
         self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         self.actionOpen.setText(_translate("MainWindow", "Open..."))
         self.actionOpen.setShortcut(_translate("MainWindow", "Ctrl+O"))
-        self.actionPrint.setText(_translate("MainWindow", "Print..."))
-        self.actionPrint.setShortcut(_translate("MainWindow", "Ctrl+P"))
-        self.actionClose.setText(_translate("MainWindow", "Close Program"))
-        self.actionClose.setShortcut(_translate("MainWindow", "Ctrl+C"))
+        self.actionCaptureWindow.setText(_translate("MainWindow", "Capture Window..."))
+        self.actionCaptureWindow.setShortcut(_translate("MainWindow", "Ctrl+W"))
+        self.actionClose.setText(_translate("MainWindow", "Close"))
+        self.actionClose.setShortcut(_translate("MainWindow", "Ctrl+Q"))
         self.actionDisplaySettings.setText(_translate("MainWindow", "Display Settings..."))
         self.actionDisplaySettings.setShortcut(_translate("MainWindow", "Ctrl+D"))
-        self.actionScreenCapture.setText(_translate("MainWindow", "Screen Capture"))
-        self.actionScreenCapture.setShortcut(_translate("MainWindow", "Ctrl+S"))
+        self.actionCaptureGraph.setText(_translate("MainWindow", "Capture Graph..."))
+        self.actionCaptureGraph.setShortcut(_translate("MainWindow", "Ctrl+G"))
+        self.actionCaptureScreen.setText(_translate("MainWindow", "Capture Screen..."))
+        self.actionCaptureScreen.setShortcut(_translate("MainWindow", "Ctrl+S"))
 from pyqtgraph import GraphicsLayoutWidget
 
 

@@ -10,7 +10,7 @@ class Sex(Enum):
 
 class TheSession(object):
     #Default session settings
-    sessionName = "Sample Session Name"
+    sessionName = ""
     subjectAge = 30
     subjectSex = Sex.MALE
     sampleInterval = 100

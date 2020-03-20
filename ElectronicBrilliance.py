@@ -11,9 +11,15 @@
         #Set up the graph
         import TheGraph as tg
         tg.initialSetUp(self)
+
+        #Set up the display settings
+        import DisplaySettingsManager as dsm
+        dsm.initialSetUp()
         
         #Complete set up of the main window (this file)
         self.subjectSexComboBox.addItem("MALE")
         self.subjectSexComboBox.addItem("FEMALE")
 '''
 #-------------------------------------------------------------------------------------------------------
+
+#For the DisplaySettings.py regeneration, simply delete the main method at the bottom of the file.

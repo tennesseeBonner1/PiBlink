@@ -18,12 +18,12 @@ def getEyeblinkAmplitude():
     global eyeblinkAmplitude
 
     if eyeblinkAmplitude == -1:
-        eyeblinkAmplitude = np.random.uniform(0, 8)
+        eyeblinkAmplitude = np.random.uniform(0, 6)
         return eyeblinkAmplitude
     else:
         eyeblinkAmplitude = clamp(value = np.random.uniform(-1, 1) + eyeblinkAmplitude,
                               minimum = 0,
-                              maximum = 7)
+                              maximum = 5)
         return eyeblinkAmplitude
 
 def setCSAmplitude(high):
