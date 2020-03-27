@@ -4,6 +4,7 @@ from enum import Enum
 #Singleton instance of session
 currentSession = None
 
+# set gender for trial
 class Sex(Enum):
     MALE = 0
     FEMALE = 1
@@ -53,6 +54,7 @@ class TheSession(object):
         self.iti = mainWindow.itiSpinBox.value()
         self.itiVariance = mainWindow.itiVarianceSpinBox.value()
 
+        #Trial duration settings
         self.trialDuration = mainWindow.trialDurationSpinBox.value()
         self.baselineDuration = mainWindow.baselineDurationSpinBox.value()
         self.csName = mainWindow.csNameLineEdit.text()

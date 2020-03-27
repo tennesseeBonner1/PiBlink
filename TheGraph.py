@@ -23,6 +23,7 @@ def initialSetUp (theMainWindow):
     playing = False
     duringITI = False
 
+    # Graph settings on main window
     mainWindow = theMainWindow
     graphWindow = theMainWindow.graphWidget
 
