@@ -26,6 +26,7 @@ def initialSetUp ():
     antiAliasing = False
     shading = False
 
+    #set color to QtGui
     colors = (QtGui.QColor(100, 100, 100, 100),
                 QtGui.QColor(100, 100, 100, 100),
                 QtGui.QColor(100, 100, 100, 100),
@@ -135,6 +136,7 @@ def restoreDisplayDefaults():
     displaySettingsWrapper.antiAliasingComboBox.setCurrentIndex(0)
     displaySettingsWrapper.shadingComboBox.setCurrentIndex(0)
 
+    # set color to buttons
     displaySettingsWrapper.backgroundColorButton.setStyleSheet("background-color: white")
     displaySettingsWrapper.dataColorButton.setStyleSheet("background-color: blue")
     displaySettingsWrapper.textColorButton.setStyleSheet("background-color: black")
@@ -189,6 +191,7 @@ def showDisplaySettings():
     displaySettingsWrapper.antiAliasingComboBox.setCurrentIndex(int(antiAliasing))
     displaySettingsWrapper.shadingComboBox.setCurrentIndex(int(shading))
 
+    # set color to button in background
     for x in range(0, 5):
         colorButtons[x].setStyleSheet("background-color: " + colors[x].name())
 
