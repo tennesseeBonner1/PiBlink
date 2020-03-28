@@ -20,18 +20,18 @@ class ColorAttribute(Enum):
 def initialSetUp ():
     global displayRate, antiAliasing, shading, colors
 
-    #Give default values to all settings first...
+    #Give default values to all settings first (in case loading settings from file fails)...
     displayRate = 10
     
     antiAliasing = False
     shading = False
 
-    #set color to QtGui
-    colors = (QtGui.QColor(100, 100, 100, 100),
-                QtGui.QColor(100, 100, 100, 100),
-                QtGui.QColor(100, 100, 100, 100),
-                QtGui.QColor(100, 100, 100, 100),
-                QtGui.QColor(100, 100, 100, 100))
+    #Default colors for each of the five color categories (see ColorAttribute enum for ordering)
+    colors = (QtGui.QColor(255, 255, 255),
+                QtGui.QColor(0, 0, 255),
+                QtGui.QColor(0, 0, 0),
+                QtGui.QColor(75, 75, 75),
+                QtGui.QColor(0, 0, 0))
 
     #Then try to read in settings from file...
     try:
@@ -39,8 +39,8 @@ def initialSetUp ():
         displaySettingsFile = open(file = "Display Settings.txt", mode = "r")
     except Exception as e: #Error
         print("Error opening display settings file...\n")
-        print(e)
-        print() #Extra empty line for spacing
+        print(e) #Detailed error message
+        print() #Extra line for spacing
     else: #Executed only if there is no error with opening the file
         #Parse line by line for settings
         for line in displaySettingsFile:
@@ -136,7 +136,7 @@ def restoreDisplayDefaults():
     displaySettingsWrapper.antiAliasingComboBox.setCurrentIndex(0)
     displaySettingsWrapper.shadingComboBox.setCurrentIndex(0)
 
-    # set color to buttons
+    #Set color to buttons
     displaySettingsWrapper.backgroundColorButton.setStyleSheet("background-color: white")
     displaySettingsWrapper.dataColorButton.setStyleSheet("background-color: blue")
     displaySettingsWrapper.textColorButton.setStyleSheet("background-color: black")
@@ -165,7 +165,7 @@ def saveDisplaySettings():
         displaySettingsFile = open(file = "Display Settings.txt", mode = "w")
     except Exception as e: #Error
         print("Error opening display settings file...\n")
-        print(e)
+        print(e) #Detailed error message
         print() #Extra empty line for spacing
     else: #Executed only if there is no error with opening the file
         displaySettingsFile.write("Note: Don't comment this file because it is regenerated on save.")
@@ -191,7 +191,7 @@ def showDisplaySettings():
     displaySettingsWrapper.antiAliasingComboBox.setCurrentIndex(int(antiAliasing))
     displaySettingsWrapper.shadingComboBox.setCurrentIndex(int(shading))
 
-    # set color to button in background
+    #Set color to button in background
     for x in range(0, 5):
         colorButtons[x].setStyleSheet("background-color: " + colors[x].name())
 

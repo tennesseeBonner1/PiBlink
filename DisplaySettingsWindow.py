@@ -43,7 +43,9 @@ class Ui_displaySettingsWindow(object):
         font = QtGui.QFont()
         font.setPointSize(14)
         self.displayRateSpinBox.setFont(font)
+        self.displayRateSpinBox.setMinimum(1)
         self.displayRateSpinBox.setMaximum(120)
+        self.displayRateSpinBox.setSingleStep(5)
         self.displayRateSpinBox.setProperty("value", 10)
         self.displayRateSpinBox.setObjectName("displayRateSpinBox")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.displayRateSpinBox)
@@ -166,3 +168,13 @@ class Ui_displaySettingsWindow(object):
         self.stimulusColorLabel.setText(_translate("displaySettingsWindow", "Stimulus Color"))
         self.axisColorLabel.setText(_translate("displaySettingsWindow", "Axis Color"))
         self.displaySettingsLabel.setText(_translate("displaySettingsWindow", "Graph Display Settings"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    displaySettingsWindow = QtWidgets.QDialog()
+    ui = Ui_displaySettingsWindow()
+    ui.setupUi(displaySettingsWindow)
+    displaySettingsWindow.show()
+    sys.exit(app.exec_())

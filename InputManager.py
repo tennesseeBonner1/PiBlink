@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QMessageBox, QApplication
 import TheGraph as tg
 import TheSession as ts
 import DisplaySettingsManager as dsm
+import GraphExporter
 
 #Called on start of program to perform all needed initialization
 #Need initialization for default values, references, button icons, and button handlers
@@ -213,7 +214,23 @@ def stopSession ():
 def capture (captureType):
     #Take shot of graph
     if captureType == "Graph":
-        screenshot = mainWindow.graphWidget.grab()
+        #Cases where graph capture fails
+        if (not tg.graphInitialized) or tg.duringITI:
+            #Notify user there is no graph to capture
+            noGraph = QMessageBox()
+            noGraph.setText("There is no graph to capture.")
+            noGraph.setWindowTitle("Graph Capture Failed")
+            noGraph.setStandardButtons(QMessageBox.Ok)
+            noGraph.exec()
+
+            #Do not proceed with graph capture
+            return
+        
+        #This only takes a shot of the stimulus graph (excludes bar graph on side)
+        screenshot = GraphExporter.captureItem(tg.stimulusGraph)
+        
+        #This includes the bar graph on the side
+        #screenshot = mainWindow.graphWidget.grab()
 
     #Take shot of main window
     elif captureType == "Window":

@@ -1,6 +1,7 @@
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
+import pyqtgraph.exporters
 import TheSession as ts
 import datetime as dt
 import DisplaySettingsManager as dsm
@@ -23,7 +24,7 @@ def initialSetUp (theMainWindow):
     playing = False
     duringITI = False
 
-    # Graph settings on main window
+    #Graph settings on main window
     mainWindow = theMainWindow
     graphWindow = theMainWindow.graphWidget
 
@@ -42,12 +43,13 @@ def setPlaying (play):
     
     playing = play
 
+    #if not play:
+    #    assessAverage()
+
     if not duringITI:
         if play:
             if graphInitialized == False:
                createGraph()
-        else:
-            assessAverage()
 
 #Resets the graph (i.e. removes graph window and is ready for new call to createGraph)
 def resetGraph ():
@@ -71,6 +73,9 @@ def resetGraph ():
     #Since the graph controls the analog outputs, it must turn them off when the graph is cleared
     dw.setCSAmplitude(False)
     dw.setUSAmplitude(False)
+
+    #Reset totals for measuring sampling rate accuracy
+    assessAverage()
 
     #In case this was called during ITI, stop ITI
     if duringITI:
@@ -108,6 +113,7 @@ def createGraph():
     barGraph.setYRange(0, 7)
     barGraph.setLimits(xMin = 0, xMax = 1, yMin = 0, yMax = 7)
     barGraph.hideButtons()
+    barGraph.setMenuEnabled(False)
 
     #Create arrays of size 1 for both x location of bars and bar heights (both with values initialized to 0)
     barXs = np.zeros(1)
@@ -148,6 +154,12 @@ def createGraph():
 
     #Scale x axis ticks to measure milliseconds instead of samples
     stimulusGraph.getAxis('bottom').setScale(ts.currentSession.sampleInterval)
+
+    #Removes default "A" button on bottom left corner used for resetting the zoom on the graph
+    stimulusGraph.hideButtons()
+
+    #Disables the context menu you see when right-clicking on the graph
+    stimulusGraph.setMenuEnabled(False)
 
     #Add CS and US start/end lines in graph...
 
@@ -282,7 +294,7 @@ def manageOutputs ():
         dw.setUSAmplitude(True)
 
 def endTrialStartITI():
-    global itiProgress, itiInterval, duringITI
+    global itiCountdown, itiInterval, duringITI, countdownLabel
 
     #Stop current trial
     resetGraph()
@@ -290,8 +302,22 @@ def endTrialStartITI():
     #Determine ITI duration
     generateITISize()
     
-    #Restart ITI progress (indicates how long ITI has been going for in ms)
-    itiProgress = 0
+    #Restart countdown timer (indicates how long ITI has left in ms)
+    itiCountdown = itiSize
+
+    #Create countdown label "Next trial in..."
+    graphWindow.addLabel(text = "Next trial in...",
+                         size = "20pt",
+                         color = dsm.colors[dsm.ColorAttribute.TEXT.value].name(),
+                         row = 0,
+                         col = 0)
+
+    #Create countdown label "X.X"
+    countdownLabel = graphWindow.addLabel(text = "{:5.1f}".format(itiCountdown),
+                         size = "69pt",
+                         color = dsm.colors[dsm.ColorAttribute.TEXT.value].name(),
+                         row = 1,
+                         col = 0)
 
     #Establish how long to wait between calls to itiUpdate (in ms)
     itiInterval = 100
@@ -302,31 +328,32 @@ def endTrialStartITI():
     itiTimer.start(itiInterval) #Parameter is millisecond interval between updates
 
 def itiUpdate():
-    global itiProgress
+    global itiCountdown
 
     #ITI can be paused
     if not playing:
         return
 
-    #Update how long ITI has been going
-    itiProgress += itiInterval
+    measureRealSampleInterval()
 
-    #print('tick')
+    #Update how long ITI has been going (countdown is in seconds, interval is in ms)
+    itiCountdown -= itiInterval / 1000
+
+    #Display updated countdown (format countdown from int to string with 1 decimal point precision)
+    countdownLabel.setText(text = "{:5.1f}".format(itiCountdown))
 
     #Determine if ITI is over
-    if itiProgress >= itiSize:
+    if itiCountdown <= 0:
         endITIStartTrial()
 
 #Create timer to run ITI (start is called on the timer in startITI function above)
 itiTimer = QtCore.QTimer()
 itiTimer.timeout.connect(itiUpdate)
+itiTimer.setTimerType(QtCore.Qt.PreciseTimer)
 
 def endITIStartTrial():
-    global duringITI
-
-    #Stop ITI
-    duringITI = False
-    itiTimer.stop()
+    #Stop ITI (does the following: clear countdown from graph, duringITI = False, itiTimer.stop())
+    resetGraph()
 
     #Increment trial count
     ts.currentSession.currentTrial += 1
@@ -338,18 +365,16 @@ def endITIStartTrial():
 def generateITISize():
     global itiSize
 
-    #Base ITI
-    itiSize = ts.currentSession.iti * 1000
+    #Base ITI (in seconds)
+    itiSize = ts.currentSession.iti
     
     #Apply ITI variance
     if ts.currentSession.itiVariance > 0:
-        #Generate variance (Size = 1 indicates to only generate one number, i.e. not a sequence of numbers)
+        #Generate variance
+        #Returns numpy.ndarray of size 1 so we index that array at 0 to get random number
         itiVariance = np.random.randint(low = -ts.currentSession.itiVariance,
-                                        high = ts.currentSession.itiVariance, size = 1)
+                                        high = ts.currentSession.itiVariance, size = 1)[0]
         
-        #Scale variance from s to ms
-        itiVariance *= 1000
-
         #Apply variance
         itiSize += itiVariance
 
@@ -386,14 +411,20 @@ def assessAverage():
     #Nothing to compute
     if totalSampleCount == 0 or not ts.currentSession:
         return
+
+    print("ITI" if duringITI else "Trial")
     
     #Average sample interval duration
     average = realSampleIntervalTotal / totalSampleCount
-    print("Average: " + str(average))
 
-    #Accuracy of that duration as compared to target sample interval duration
-    accuracy = ((average - ts.currentSession.sampleInterval) / ts.currentSession.sampleInterval) * 100
-    print("Accuracy: %" + str(accuracy))
+    if duringITI:
+        print("Avg Latency: " + str(average - itiTimer.interval()) + " ms\n")
+    else:
+        print("Avg Latency: " + str(average - sampleTimer.interval()) + " ms\n")
+
+    #Error of that duration as compared to target sample interval duration
+    #error = ((average - ts.currentSession.sampleInterval) / ts.currentSession.sampleInterval) * 100
+    #print("Error: %" + str(error) + "\n")
 
     #Reset totals
     totalSampleCount = 0

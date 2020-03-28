@@ -4,7 +4,7 @@ from enum import Enum
 #Singleton instance of session
 currentSession = None
 
-#Set gender for trial
+#Sex options enum
 class Sex(Enum):
     MALE = 0
     FEMALE = 1
