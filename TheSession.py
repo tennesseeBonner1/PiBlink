@@ -38,8 +38,20 @@ class TheSession(object):
     usStartInSamples = 0
     usEndInSamples = 0
 
-    #Constructor for creation of brand new session
-    def __init__(self, mainWindow):
+    #There can only be one constructor/initializer in python so this uses optional arguments to determine...
+    #which "constructor" to call
+    def __init__ (self, mainWindow, jsonSettings = None):
+        if jsonSettings:
+            self.openSessionConstructor(mainWindow, jsonSettings)
+        else:
+            self.newSessionConstructor(mainWindow)
+
+    def openSessionConstructor (self, mainWindow, jsonSettings):
+        self.readInSettingsFromJSON(jsonSettings)
+        self.outputSettingsToGUI(mainWindow)
+        self.computeSampleMeasurements()
+
+    def newSessionConstructor (self, mainWindow):
         self.readInSettingsFromGUI(mainWindow)
         self.computeSampleMeasurements()
 
@@ -48,7 +60,6 @@ class TheSession(object):
         self.sessionName = mainWindow.sessionNameLineEdit.text()
         self.subjectAge = mainWindow.subjectAgeSpinBox.value()
         self.subjectSex = Sex(mainWindow.subjectSexComboBox.currentIndex())
-        self.sampleInterval = mainWindow.sampleIntervalSpinBox.value()
         self.sampleInterval = mainWindow.sampleIntervalSpinBox.value()
         self.trialCount = mainWindow.trialCountSpinBox.value()
         self.iti = mainWindow.itiSpinBox.value()
@@ -62,6 +73,44 @@ class TheSession(object):
         self.interstimulusInterval = mainWindow.interstimulusIntervalSpinBox.value()
         self.usName = mainWindow.usNameLineEdit.text()
         self.usDuration = mainWindow.usDurationSpinBox.value()
+
+    #Reads in values from json settings header and stores them in the session settings
+    def readInSettingsFromJSON (self, jsonSettings):
+        self.sessionName = jsonSettings["name"]
+        self.subjectAge = int(jsonSettings["age"])
+        self.subjectSex = Sex[jsonSettings["sex"]]
+        self.sampleInterval = int(jsonSettings["sampleInterval"])
+        self.trialCount = int(jsonSettings["trialCount"])
+        self.iti = int(jsonSettings["iti"])
+        self.itiVariance = int(jsonSettings["itiVariance"])
+
+        #Trial duration settings
+        self.trialDuration = int(jsonSettings["trialDuration"])
+        self.baselineDuration = int(jsonSettings["baselineDuration"])
+        self.csName = jsonSettings["csName"]
+        self.csDuration = int(jsonSettings["csDuration"])
+        self.interstimulusInterval = int(jsonSettings["isi"])
+        self.usName = jsonSettings["usName"]
+        self.usDuration = int(jsonSettings["usDuration"])
+
+    #Outputs the values from this session object to the settings GUI panel
+    def outputSettingsToGUI (self, mainWindow):
+        mainWindow.sessionNameLineEdit.setText(self.sessionName)
+        mainWindow.subjectAgeSpinBox.setValue(self.subjectAge)
+        mainWindow.subjectSexComboBox.setCurrentIndex(self.subjectSex.value)
+        mainWindow.sampleIntervalSpinBox.setValue(self.sampleInterval)
+        mainWindow.trialCountSpinBox.setValue(self.trialCount)
+        mainWindow.itiSpinBox.setValue(self.iti)
+        mainWindow.itiVarianceSpinBox.setValue(self.itiVariance)
+
+        #Trial duration settings
+        mainWindow.trialDurationSpinBox.setValue(self.trialDuration)
+        mainWindow.baselineDurationSpinBox.setValue(self.baselineDuration)
+        mainWindow.csNameLineEdit.setText(self.csName)
+        mainWindow.csDurationSpinBox.setValue(self.csDuration)
+        mainWindow.interstimulusIntervalSpinBox.setValue(self.interstimulusInterval)
+        mainWindow.usNameLineEdit.setText(self.usName)
+        mainWindow.usDurationSpinBox.setValue(self.usDuration)
 
     #Used by the graph to convert from milliseconds to samples
     def computeSampleMeasurements(self):

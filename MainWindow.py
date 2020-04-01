@@ -571,6 +571,10 @@ class Ui_MainWindow(object):
         import DisplaySettingsManager as dsm
         dsm.initialSetUp()
         
+        #Set up the json converter
+        import JSONConverter as jc
+        jc.initialSetUp(self)
+
         #Complete set up of the main window (this file)
         self.subjectSexComboBox.addItem("MALE")
         self.subjectSexComboBox.addItem("FEMALE")

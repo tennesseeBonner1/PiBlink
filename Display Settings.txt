@@ -6,7 +6,7 @@ anti-aliasing = false
 shading = false
 
 background color = #ffffff
-data color = #0055ff
+data color = #0000ff
 text color = #000000
 stimulus color = #4b4b4b
 axis color = #000000

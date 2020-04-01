@@ -5,6 +5,8 @@ import TheSession as ts
 import timeit
 import DisplaySettingsManager as dsm
 import NoiseWizard as dw
+import JSONConverter
+import InputManager as im
 from enum import Enum
 
 #Mode options enum
@@ -22,7 +24,7 @@ def htmlColorString(qtColor):
 
 #Initializes global variables that need to have default values or references to objects in main window
 def initialSetUp (theMainWindow):
-    global graphInitialized, playing, duringITI
+    global graphInitialized, playing, duringITI, done
     global startedCS, csInProgress, startedUS, usInProgress
     global playMode
     global mainWindow, graphWindow
@@ -30,6 +32,7 @@ def initialSetUp (theMainWindow):
     graphInitialized = False
     playing = False
     duringITI = False
+    done = False
 
     startedCS = csInProgress = startedUS = usInProgress = False
 
@@ -61,12 +64,13 @@ def setPlaying (play):
 
 #Resets the graph (i.e. removes graph window and is ready for new call to createGraph)
 def resetGraph ():
-    global playing, graphInitialized, duringITI
+    global playing, graphInitialized, duringITI, done
     global startedCS, csInProgress, startedUS, usInProgress
 
     #Reset variables
     playing = False
     graphInitialized = False
+    done = False
 
     startedCS = csInProgress = startedUS = usInProgress = False
 
@@ -93,7 +97,7 @@ def resetGraph ():
 #Creates the graph
 def createGraph():
     #Variables that persist outside this function call
-    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing
+    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done
 
     #Update the session info label in the main window to reflect trial number
     updateSessionInfoLabel()
@@ -197,6 +201,10 @@ def createGraph():
     stimulusGraph.addItem(usLabel)
     usLabel.setPos((usStart + usEnd) / 2, 7)
 
+    #Get converter ready to read in playback data for trial
+    if playMode == PlayMode.PLAYBACK:
+        JSONConverter.openNextTrial()
+
     #Regularly sample data (according to sample rate defined in session settings)
     iteration = 0
     sampleTimer.start(ts.currentSession.sampleInterval) #Parameter is millisecond interval between updates
@@ -205,6 +213,7 @@ def createGraph():
     displayTimer.start(1000 / dsm.displayRate)
 
     #Done initializing/creating the graph
+    done = False
     graphInitialized = True
 
 #Called once every sample (manages analog input and outputs)
@@ -235,12 +244,11 @@ def sampleUpdate():
             manageAnalogOutputs()
         else:
             #Read in next sample/input value from saved sesssion (INPUT)
-            data[iteration] = 3 #PLACEHOLDER FOR SESSION SAVER'S NEXT SAMPLE
+            data[iteration] = JSONConverter.getEyeblinkAmplitude()
 
             #No need for output
     else: #End of trial
-        if ts.currentSession.currentTrial < ts.currentSession.trialCount:
-            endTrialStartITI()  #still have more trials to go so begin ITI
+        endTrialStartITI() #Won't start ITI if this was the last trial
 
     #End of iteration
     iteration += 1
@@ -309,14 +317,27 @@ def manageAnalogOutputs ():
         dw.setUSAmplitude(True)
 
 def endTrialStartITI():
-    global itiCountdown, itiInterval, duringITI, countdownLabel
+    global itiCountdown, itiInterval, duringITI, countdownLabel, done
 
     if playMode == PlayMode.ACQUISITION:
-        #PLACEHOLDER FOR SAVING TRIAL
-        pass
+        JSONConverter.saveTrial(data)
 
     #Stop current trial
     resetGraph()
+
+    #Don't start ITI because that was the last trial we just finished
+    if ts.currentSession.currentTrial >= ts.currentSession.trialCount:
+        done = True
+        
+        im.setPlaying(False)
+
+        graphWindow.addLabel(text = ("Data acquisition" if playMode == PlayMode.ACQUISITION else "Playback")
+                             + " for session is complete!",
+                         size = "20pt",
+                         color = "#000000",
+                         row = 0,
+                         col = 0)
+        return
 
     #Determine ITI duration
     generateITISize()

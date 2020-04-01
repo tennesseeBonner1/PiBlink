@@ -15,6 +15,10 @@
         #Set up the display settings
         import DisplaySettingsManager as dsm
         dsm.initialSetUp()
+
+        #Set up the json converter
+        import JSONConverter as jc
+        jc.initialSetUp(self)
         
         #Complete set up of the main window (this file)
         self.subjectSexComboBox.addItem("MALE")

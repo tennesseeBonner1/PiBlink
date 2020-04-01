@@ -4,7 +4,7 @@ import TheGraph as tg
 import TheSession as ts
 import DisplaySettingsManager as dsm
 import GraphExporter
-from enum import Enum
+import JSONConverter
 
 #Called on start of program to perform all needed initialization
 #Need initialization for default values, references, button icons, and button handlers
@@ -103,6 +103,16 @@ def setPlaying (play):
     #Creates a session if one is not already running (there must be a current session to control)
     if not ts.currentSession:
         ts.currentSession = ts.TheSession(mainWindow)
+        if tg.playMode == tg.PlayMode.ACQUISITION:
+            JSONConverter.startDataAcquisition()
+    elif tg.done: #Restart playback of session
+        #Get rid of done label
+        tg.graphWindow.clear()
+        tg.graphWindow.setBackground(None)
+
+        #Start over with first trial
+        ts.currentSession.currentTrial = 1
+        JSONConverter.openFirstTrial()
 
     #Sets whether or not the graph is playing based off of the value of play
     tg.setPlaying(play)
@@ -199,8 +209,7 @@ def stopSessionWithConfirmation ():
 #Stops the session immediately without asking user
 def stopSessionWithoutConfirmation ():
     if tg.playMode == tg.PlayMode.ACQUISITION:
-        #PLACEHOLDER FOR CLOSING SESSION SAVER
-        pass
+        JSONConverter.endDataAcquisition()
 
     #Clears the session
     ts.currentSession = None
@@ -324,7 +333,7 @@ def openSession():
         setLockModeForSettings(True) #Lock settings
         mainWindow.lockButton.setEnabled(False) #Lock the lock (genius)
 
-        #PLACEHOLDER FOR CALLING SESSION SAVER's OPEN SESSION
+        JSONConverter.openSession(fileNameAndLocation)
     else:
         #User cancelled opening a session so default back to empty, ready to start data acquisition mode
         tg.setPlayMode(tg.PlayMode.ACQUISITION)
