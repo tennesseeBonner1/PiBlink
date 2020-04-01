@@ -1,11 +1,16 @@
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
-import pyqtgraph.exporters
 import TheSession as ts
-import datetime as dt
+import timeit
 import DisplaySettingsManager as dsm
 import NoiseWizard as dw
+from enum import Enum
+
+#Mode options enum
+class PlayMode(Enum):
+    ACQUISITION = 0
+    PLAYBACK = 1
 
 #Helper methods used later on
 def clamp(value, minimum, maximum):
@@ -17,18 +22,22 @@ def htmlColorString(qtColor):
 
 #Initializes global variables that need to have default values or references to objects in main window
 def initialSetUp (theMainWindow):
-    global graphInitialized, playing, duringITI, mainWindow, graphWindow
+    global graphInitialized, playing, duringITI
     global startedCS, csInProgress, startedUS, usInProgress
+    global playMode
+    global mainWindow, graphWindow
 
     graphInitialized = False
     playing = False
     duringITI = False
 
+    startedCS = csInProgress = startedUS = usInProgress = False
+
+    playMode = PlayMode.ACQUISITION
+
     #Graph settings on main window
     mainWindow = theMainWindow
     graphWindow = theMainWindow.graphWidget
-
-    startedCS = csInProgress = startedUS = usInProgress = False
 
     #Also set the "color" of the blank graph screen
     graphWindow.setBackground(None)
@@ -47,9 +56,8 @@ def setPlaying (play):
     #    assessAverage()
 
     if not duringITI:
-        if play:
-            if graphInitialized == False:
-               createGraph()
+        if play and (not graphInitialized):
+            createGraph()
 
 #Resets the graph (i.e. removes graph window and is ready for new call to createGraph)
 def resetGraph ():
@@ -61,26 +69,26 @@ def resetGraph ():
     graphInitialized = False
 
     startedCS = csInProgress = startedUS = usInProgress = False
-    
+
     #Stop timers
     sampleTimer.stop()
     displayTimer.stop()
+    itiTimer.stop()
+
+    #Print out accuracy and reset measurements for start of new benchmark
+    assessSamplingAccuracy()
+
+    #In case this was called during ITI, stop ITI
+    duringITI = False
 
     #Clear the graph
     graphWindow.clear()
     graphWindow.setBackground(None)
 
     #Since the graph controls the analog outputs, it must turn them off when the graph is cleared
-    dw.setCSAmplitude(False)
-    dw.setUSAmplitude(False)
-
-    #Reset totals for measuring sampling rate accuracy
-    assessAverage()
-
-    #In case this was called during ITI, stop ITI
-    if duringITI:
-        duringITI = False
-        itiTimer.stop()
+    if playMode == PlayMode.ACQUISITION:
+        dw.setCSAmplitude(False)
+        dw.setUSAmplitude(False)
 
 #Creates the graph
 def createGraph():
@@ -88,8 +96,7 @@ def createGraph():
     global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing
 
     #Update the session info label in the main window to reflect trial number
-    labelText = "DATA ACQUISITION\n\nTRIAL " + str(ts.currentSession.currentTrial) + " / " + str(ts.currentSession.trialCount)
-    mainWindow.sessionInfoLabel.setText(labelText)
+    updateSessionInfoLabel()
 
     #Define settings
     dataColor = dsm.colors[dsm.ColorAttribute.DATA.value]
@@ -208,22 +215,29 @@ def sampleUpdate():
     #Pause functionality
     if not playing:
         #Deactivate analog outputs on pause
-        dw.setCSAmplitude(False)
-        dw.setUSAmplitude(False)
+        if playMode == PlayMode.ACQUISITION:
+            dw.setCSAmplitude(False)
+            dw.setUSAmplitude(False)
 
         #Rest of update is only for play mode
         return
     
-    measureRealSampleInterval()
+    recordRealSampleInterval()
 
-    #Update input and output
+    #Update input and output based on play mode
     #Only executes when the graph is still being filled out (hasn't reached end of graph)
     if iteration < dataSize:
-        #Read in next sample/input value (INPUT)
-        data[iteration] = dw.getEyeblinkAmplitude()
+        if playMode == PlayMode.ACQUISITION:
+            #Read in next sample/input value from analog input (INPUT)
+            data[iteration] = dw.getEyeblinkAmplitude()
 
-        #Controls output of tone/airpuff (OUTPUT)
-        manageOutputs()
+            #Controls output of tone/airpuff (OUTPUT)
+            manageAnalogOutputs()
+        else:
+            #Read in next sample/input value from saved sesssion (INPUT)
+            data[iteration] = 3 #PLACEHOLDER FOR SESSION SAVER'S NEXT SAMPLE
+
+            #No need for output
     else: #End of trial
         if ts.currentSession.currentTrial < ts.currentSession.trialCount:
             endTrialStartITI()  #still have more trials to go so begin ITI
@@ -264,7 +278,8 @@ displayTimer = QtCore.QTimer()
 displayTimer.timeout.connect(displayUpdate)
 
 #Called by sample update to manage analog (both CS and US) outputs
-def manageOutputs ():
+#Doesn't need to be called during playback b/c playback shouldn't interact with analog I/O
+def manageAnalogOutputs ():
     global startedCS, csInProgress, startedUS, usInProgress
 
     #Manage CS output
@@ -296,6 +311,10 @@ def manageOutputs ():
 def endTrialStartITI():
     global itiCountdown, itiInterval, duringITI, countdownLabel
 
+    if playMode == PlayMode.ACQUISITION:
+        #PLACEHOLDER FOR SAVING TRIAL
+        pass
+
     #Stop current trial
     resetGraph()
 
@@ -308,14 +327,14 @@ def endTrialStartITI():
     #Create countdown label "Next trial in..."
     graphWindow.addLabel(text = "Next trial in...",
                          size = "20pt",
-                         color = dsm.colors[dsm.ColorAttribute.TEXT.value].name(),
+                         color = "#000000",
                          row = 0,
                          col = 0)
 
     #Create countdown label "X.X"
     countdownLabel = graphWindow.addLabel(text = "{:5.1f}".format(itiCountdown),
                          size = "69pt",
-                         color = dsm.colors[dsm.ColorAttribute.TEXT.value].name(),
+                         color = "#000000",
                          row = 1,
                          col = 0)
 
@@ -334,7 +353,7 @@ def itiUpdate():
     if not playing:
         return
 
-    measureRealSampleInterval()
+    recordRealSampleInterval()
 
     #Update how long ITI has been going (countdown is in seconds, interval is in ms)
     itiCountdown -= itiInterval / 1000
@@ -382,31 +401,50 @@ def generateITISize():
         if itiSize < 0:
             itiSize = 0
 
+def setPlayMode(newPlayMode):
+    global playMode
+    
+    playMode = newPlayMode
+    updateSessionInfoLabel()
+
+def getPlayMode():
+    return playMode
+
+#Updates the text near the top right of the main window that specifies mode and trial progress
+def updateSessionInfoLabel():
+    #Add the mode the graph is running in
+    if playMode == PlayMode.ACQUISITION:
+        newText = "DATA ACQUISITION\n\n"
+    else:
+        newText = "PLAYBACK\n\n"
+
+    #Add "TRIAL [X] / [Y]" if there is an ongoing session
+    if ts.currentSession:
+        newText += ts.currentSession.getTrialProgressString()
+
+    #Update label with new text
+    mainWindow.sessionInfoLabel.setText(newText)
+
 #Everything below is for tracking the actual sample rate for performance monitoring...
-lastSampleTime = dt.datetime.now()
-realSampleIntervalTotal = 0
+startedSampling = False
+startTime = timeit.default_timer()
 totalSampleCount = 0
 
-#Accumulates total sample count and time between samples for computation of average time elapsed between samples
-def measureRealSampleInterval():
-    global lastSampleTime, realSampleIntervalTotal, totalSampleCount
+#Accumulates total sample count and timing info for computation of average time elapsed between samples
+def recordRealSampleInterval():
+    global startedSampling, startTime, totalSampleCount
 
-    #Get current time
-    newSampleTime = dt.datetime.now()
-
-    #Compute time elapsed between last update and now
-    newInterval = (newSampleTime - lastSampleTime).microseconds / 1000
-
-    #Add to totals
+    #Function is called every new sample
     totalSampleCount += 1
-    realSampleIntervalTotal += newInterval
 
-    #Done with iteration so update last sample time as right now
-    lastSampleTime = newSampleTime
+    #Record start time (in ms)
+    if not startedSampling:
+        startedSampling = True
+        startTime = timeit.default_timer() * 1000
 
-#Compute average sample interval duration based on accumulated totals from function above
-def assessAverage():
-    global realSampleIntervalTotal, totalSampleCount
+#Compute average sample interval duration based on accumulated totals from function above and assesses accuracy
+def assessSamplingAccuracy():
+    global startedSampling, startTime, totalSampleCount
 
     #Nothing to compute
     if totalSampleCount == 0 or not ts.currentSession:
@@ -414,18 +452,20 @@ def assessAverage():
 
     print("ITI" if duringITI else "Trial")
     
-    #Average sample interval duration
-    average = realSampleIntervalTotal / totalSampleCount
+    #Record end time (in ms)
+    endTime = timeit.default_timer() * 1000
 
+    #Average sample interval duration (in ms)
+    average = (endTime - startTime) / totalSampleCount
+
+    #print("Avg Interval: " + str(average) + " ms")
+
+    #Latency: different between expected and actual interval on average (in ms)
     if duringITI:
         print("Avg Latency: " + str(average - itiTimer.interval()) + " ms\n")
     else:
         print("Avg Latency: " + str(average - sampleTimer.interval()) + " ms\n")
 
-    #Error of that duration as compared to target sample interval duration
-    #error = ((average - ts.currentSession.sampleInterval) / ts.currentSession.sampleInterval) * 100
-    #print("Error: %" + str(error) + "\n")
-
     #Reset totals
+    startedSampling = False
     totalSampleCount = 0
-    realSampleIntervalTotal = 0

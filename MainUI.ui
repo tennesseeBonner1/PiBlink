@@ -1022,7 +1022,7 @@
           <property name="text">
            <string>DATA ACQUISITION
 
-TRIAL 1 / 60</string>
+</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -1105,6 +1105,7 @@ TRIAL 1 / 60</string>
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
     <addaction name="actionCaptureGraph"/>
@@ -1125,7 +1126,7 @@ TRIAL 1 / 60</string>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
    <property name="text">
-    <string>Open...</string>
+    <string>Open Session...</string>
    </property>
    <property name="font">
     <font>
@@ -1164,7 +1165,7 @@ TRIAL 1 / 60</string>
   </action>
   <action name="actionDisplaySettings">
    <property name="text">
-    <string>Display Settings...</string>
+    <string>Graph Display Settings...</string>
    </property>
    <property name="font">
     <font>
@@ -1199,6 +1200,19 @@ TRIAL 1 / 60</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New Session</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
  </widget>

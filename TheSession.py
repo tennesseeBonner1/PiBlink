@@ -70,3 +70,7 @@ class TheSession(object):
         self.csEndInSamples = self.csStartInSamples + int(self.csDuration / self.sampleInterval)
         self.usStartInSamples = self.csEndInSamples + int(self.interstimulusInterval / self.sampleInterval)
         self.usEndInSamples = self.usStartInSamples + int(self.usDuration / self.sampleInterval)
+
+    #Returns "TRIAL [X] / [Y]"
+    def getTrialProgressString(self):
+        return "TRIAL " + str(self.currentTrial) + " / " + str(self.trialCount)

@@ -4,6 +4,7 @@ import TheGraph as tg
 import TheSession as ts
 import DisplaySettingsManager as dsm
 import GraphExporter
+from enum import Enum
 
 #Called on start of program to perform all needed initialization
 #Need initialization for default values, references, button icons, and button handlers
@@ -33,14 +34,18 @@ def initialSetUp (theMainWindow, thePlayIcon, theUnlockedIcon):
 def connectButtons ():
     #Detects when the play, stop and lock buttons are pushed
     mainWindow.playButton.clicked.connect(playButtonPressed)
-    mainWindow.stopButton.clicked.connect(stopButtonPressed)
+    mainWindow.stopButton.clicked.connect(stopSessionWithConfirmation)
     mainWindow.lockButton.clicked.connect(lockButtonPressed)
 
-    #Detects menu actions such as "File -> Close" and "Edit -> Display Settings"
-    mainWindow.actionClose.triggered.connect(closeWindow)
+    #Detects all "File -> [X]" menu actions
+    mainWindow.actionNew.triggered.connect(newSession)
+    mainWindow.actionOpen.triggered.connect(openSession)
     mainWindow.actionCaptureGraph.triggered.connect(lambda: capture("Graph"))
     mainWindow.actionCaptureWindow.triggered.connect(lambda: capture("Window"))
     mainWindow.actionCaptureScreen.triggered.connect(lambda: capture("Screen"))
+    mainWindow.actionClose.triggered.connect(closeWindow)
+
+    #Detects all "Edit -> [X]" menu actions
     mainWindow.actionDisplaySettings.triggered.connect(dsm.openDisplaySettingsMenu)
 
     #Override close event function of QMainWindow for purpose of adding "are you sure you want to quit?" prompt
@@ -69,24 +74,6 @@ def lockButtonPressed ():
 #If the play button is pressed, set playing to the opposite of tg.isPlaying
 def playButtonPressed ():
     setPlaying(not tg.isPlaying())
-
-#If the stop button is pressed 
-def stopButtonPressed ():
-
-    #Pauses when stop is pressed
-    if (tg.isPlaying()):    
-        setPlaying(False)
-
-    #Confirm that this is what the user wants
-    confirmStop = QMessageBox()
-    confirmStop.setText("Are you sure you want to stop the current session?")
-    confirmStop.setWindowTitle("Confirm Stop")
-    confirmStop.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-    decision = confirmStop.exec()
-
-    #If it is, stop the session
-    if decision == QMessageBox.Yes:
-        stopSession()
         
 #Tell the window (QMainWindow) to close (this will then be intercepted by the close event function below)
 def closeWindow ():
@@ -192,9 +179,29 @@ def assignDefaultsToEmptyFields ():
     if not mainWindow.usNameLineEdit.text():
         mainWindow.usNameLineEdit.setText(mainWindow.usNameLineEdit.placeholderText())
 
-#Stops the session entirely
-def stopSession ():
-    
+#Ask if user is sure they want to stop, then proceed if yes
+def stopSessionWithConfirmation ():
+    #Pauses when stop is pressed
+    if (tg.isPlaying()):    
+        setPlaying(False)
+
+    #Confirm that this is what the user wants
+    confirmStop = QMessageBox()
+    confirmStop.setText("Are you sure you want to stop the current session?")
+    confirmStop.setWindowTitle("Confirm Stop")
+    confirmStop.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    decision = confirmStop.exec()
+
+    #If it is, stop the session
+    if decision == QMessageBox.Yes:
+        stopSessionWithoutConfirmation()
+
+#Stops the session immediately without asking user
+def stopSessionWithoutConfirmation ():
+    if tg.playMode == tg.PlayMode.ACQUISITION:
+        #PLACEHOLDER FOR CLOSING SESSION SAVER
+        pass
+
     #Clears the session
     ts.currentSession = None
 
@@ -206,8 +213,11 @@ def stopSession ():
     mainWindow.stopButton.setEnabled(False)
     mainWindow.lockButton.setEnabled(True)
 
-    #Removes session info since session is now gone
-    mainWindow.sessionInfoLabel.setText("DATA ACQUISITION\n\n")
+    #Always go back to default acquisition mode when no session is pulled up
+    tg.setPlayMode(tg.PlayMode.ACQUISITION)
+
+    #Remove session progress that is displayed since there is no longer a session
+    tg.updateSessionInfoLabel()
 
 #Takes a screenshot, opens a "Save As" window, and then saves as expected (unless user clicks cancel)
 #What it captures (graph, window, or whole screen) is determined via parameter
@@ -254,8 +264,8 @@ def capture (captureType):
 #QPixMap.save() requires ".jpg", thus this function performs the conversion.
 def extractFileType (filter):
     #Default substring limits in case we can't find them in the string
-    period = 0  #Start of substring
-    closeParen = len(filter) #End of substring
+    period = 0  #Start of substring (exclusive)
+    closeParen = len(filter) #End of substring (exclusive)
 
     #Find substring limits in string
     for x in range(0, len(filter)):
@@ -266,3 +276,72 @@ def extractFileType (filter):
 
     #Perform substring operation and return result
     return filter[(period + 1):closeParen]
+
+def newSession():
+    #You must first close the current session
+    if ts.currentSession:
+        stopSessionWithConfirmation()
+
+        #If user says no to stopping current session, then cancel making new one
+        if ts.currentSession:
+            return
+
+    #Creating new graphs means being in data acquisition mode
+    tg.setPlayMode(tg.PlayMode.ACQUISITION)
+
+    #Now that we are back in data acquisition mode, we can lock/unlock
+    mainWindow.lockButton.setEnabled(True)
+
+    #Start with default settings again
+    resetSettingsToDefaults()
+
+    #Go back to editing settings
+    setLockModeForSettings(False)
+
+    #That's it: at this point the user can navigate the UI to start the new session when and as desired
+
+def openSession():
+    #You must first close the current session 
+    if ts.currentSession:
+        stopSessionWithConfirmation()
+
+        #If user says no to stopping current session, then cancel opening another
+        if ts.currentSession:
+            return
+
+    #Pop up "Open" window to retrieve file name and location of session file user wants to open
+    #The function returns a (file name/location, file type) tuple but I index it at 0 to just get file name
+    fileNameAndLocation = QtGui.QFileDialog.getOpenFileName(parent = mainWindow.centralwidget,
+                                                    caption = "Open Session For Playback",
+                                                    filter = "JSON (*.json)")[0]
+
+    #If user didn't click cancel on "Open", proceed for opening session in playback mode
+    if len(fileNameAndLocation) > 0:
+        #Opening a session means going into playback mode
+        tg.setPlayMode(tg.PlayMode.PLAYBACK)
+
+        #Shouldn't be able to edit settings of playback session
+        setLockModeForSettings(True) #Lock settings
+        mainWindow.lockButton.setEnabled(False) #Lock the lock (genius)
+
+        #PLACEHOLDER FOR CALLING SESSION SAVER's OPEN SESSION
+    else:
+        #User cancelled opening a session so default back to empty, ready to start data acquisition mode
+        tg.setPlayMode(tg.PlayMode.ACQUISITION)
+
+#Resets all setting fields on the UI to have their default values
+def resetSettingsToDefaults():
+    mainWindow.sessionNameLineEdit.setText("")
+    mainWindow.subjectAgeSpinBox.setValue(30)
+    mainWindow.subjectSexComboBox.setCurrentIndex(0)
+    mainWindow.sampleIntervalSpinBox.setValue(1)
+    mainWindow.trialCountSpinBox.setValue(60)
+    mainWindow.itiSpinBox.setValue(15)
+    mainWindow.itiVarianceSpinBox.setValue(3)
+    mainWindow.trialDurationSpinBox.setValue(3000)
+    mainWindow.baselineDurationSpinBox.setValue(1000)
+    mainWindow.csNameLineEdit.setText("Tone")
+    mainWindow.csDurationSpinBox.setValue(100)
+    mainWindow.interstimulusIntervalSpinBox.setValue(500)
+    mainWindow.usNameLineEdit.setText("Air Puff")
+    mainWindow.usDurationSpinBox.setValue(100)

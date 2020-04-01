@@ -5,8 +5,8 @@ refresh rate = 10
 anti-aliasing = false
 shading = false
 
-background color = #f0f0f0
-data color = #aa0000
+background color = #ffffff
+data color = #0055ff
 text color = #000000
 stimulus color = #4b4b4b
 axis color = #000000
