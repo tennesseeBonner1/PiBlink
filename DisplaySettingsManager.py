@@ -130,18 +130,21 @@ def openDisplaySettingsMenu():
     displaySettingsWindow.exec()
 
 #Called when "Restore defaults" buttons is pressed on graph display settings menu
+#Just resets the values on the GUI items, doesn't save anything
 def restoreDisplayDefaults():
+    #display rate box
     displaySettingsWrapper.displayRateSpinBox.setValue(10)
 
+    #extra feature dropdowns
     displaySettingsWrapper.antiAliasingComboBox.setCurrentIndex(0)
     displaySettingsWrapper.shadingComboBox.setCurrentIndex(0)
 
-    #Set color to buttons
-    displaySettingsWrapper.backgroundColorButton.setStyleSheet("background-color: white")
-    displaySettingsWrapper.dataColorButton.setStyleSheet("background-color: blue")
-    displaySettingsWrapper.textColorButton.setStyleSheet("background-color: black")
-    displaySettingsWrapper.stimulusColorButton.setStyleSheet("background-color: rgb(75, 75, 75)")
-    displaySettingsWrapper.axisColorButton.setStyleSheet("background-color: black")
+    #color buttons
+    setButtonColor(displaySettingsWrapper.backgroundColorButton, QtGui.QColor(255, 255, 255)) #background = white
+    setButtonColor(displaySettingsWrapper.dataColorButton, QtGui.QColor(0, 0, 255)) #data = blue
+    setButtonColor(displaySettingsWrapper.textColorButton, QtGui.QColor(0, 0, 0)) #text = black
+    setButtonColor(displaySettingsWrapper.stimulusColorButton, QtGui.QColor(75, 75, 75)) #stimulus = gray
+    setButtonColor(displaySettingsWrapper.axisColorButton, QtGui.QColor(0, 0, 0)) #axis = black
 
 #Called when "OK" button is pressed on graph display settings menu
 def saveDisplaySettings():
@@ -193,7 +196,7 @@ def showDisplaySettings():
 
     #Set color to button in background
     for x in range(0, 5):
-        colorButtons[x].setStyleSheet("background-color: " + colors[x].name())
+        setButtonColor(colorButtons[x], colors[x])
 
 #Pulls up color picker for changing the color of the button
 #This function is used by all color buttons, differentiating between buttons via parameter
@@ -202,8 +205,39 @@ def colorButtonPressed(colorAttribute):
     color = colorButtons[colorAttribute.value].palette().button().color()
 
     #Open color picker (use current color as initial color in color picker)
-    color = QtGui.QColorDialog.getColor(initial = color)
+    color = QtGui.QColorDialog.getColor(initial = color, title = "Select " 
+                                        + colorAttribute.name.capitalize() + " Color")
     
     #If the user didn't click cancel on color picker, set color to chosen color
     if color.isValid():
-        colorButtons[colorAttribute.value].setStyleSheet("background-color: " + color.name())
+        setButtonColor(colorButtons[colorAttribute.value], color)
+
+#Changes the background color of the button passed in (QPushButton) to the color passed in (QColor)
+def setButtonColor(button, color):
+    #Change the button color by accessing it's QPalette and changing it's color for the Button role
+    palette = button.palette()
+    palette.setColor(QtGui.QPalette.Button, color)
+    button.setPalette(palette)
+
+    '''
+        Changes won't take effect without the following two lines of code.
+        I don't fully understand why this is required and what this does but I believe it changes...
+        something about the border of the buttons which causes the background colors to work properly.
+        The documentation (https://doc.qt.io/qt-5/qpushbutton.html) for the flat property says...
+
+        "This property holds whether the button border is raised
+
+        This property's default is false. If this property is set, most styles will not paint the...
+        button background unless the button is being pressed. setAutoFillBackground() can be used to...
+        ensure that the background is filled using the QPalette::Button brush."
+    
+        ...Although just using auto fill background on it's own didn't work for me.
+    '''
+    button.setAutoFillBackground(True)
+    button.setFlat(True)
+
+    #Alternatively, this also works but looks uglier:
+    #button.setStyleSheet("QPushButton {background-color: " + color.name() + "; border: none}")
+
+    #As a final alternative: This works on PC, but not on the Raspberry Pi:
+    #button.setStyleSheet("background-color: " + color.name())
