@@ -32,10 +32,10 @@ def initialSetUp (theMainWindow, thePlayIcon, theUnlockedIcon):
 
 #Connects buttons to their handlers (handlers are the functions called on button clicks)
 def connectButtons ():
-    #Detects when the play, stop and lock buttons are pushed
-    mainWindow.playButton.clicked.connect(playButtonPressed)
-    mainWindow.stopButton.clicked.connect(stopSessionWithConfirmation)
+    #Detects when the lock, play, and stop buttons are pressed respectively
     mainWindow.lockButton.clicked.connect(lockButtonPressed)
+    mainWindow.playButton.clicked.connect(playButtonPressed)
+    mainWindow.stopButton.clicked.connect(stopButtonPressed)
 
     #Detects all "File -> [X]" menu actions
     mainWindow.actionNew.triggered.connect(newSession)
@@ -51,7 +51,7 @@ def connectButtons ():
     #Override close event function of QMainWindow for purpose of adding "are you sure you want to quit?" prompt
     mainWindow.centralwidget.parentWidget().closeEvent = closeEvent
 
-#When the lock button is pressed
+#When the lock button is pressed, toggle lock status (but only lock if settings are valid)
 def lockButtonPressed ():
 
     #If the settings are locked already, attempt to unlock using setLockModeForSettings
@@ -71,27 +71,31 @@ def lockButtonPressed ():
         invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
         invalidSettingsNotice.exec()
 
-#If the play button is pressed, set playing to the opposite of tg.isPlaying
+#When the play button is pressed, toggle play status
 def playButtonPressed ():
     setPlaying(not tg.isPlaying())
         
+#When the stop button is pressed, stop the session (prefaced by a "are you sure" dialog when appropriate)
+#More specifically, ask for confirmation when not done acquiring data
+def stopButtonPressed():
+    if tg.done or tg.playMode == tg.PlayMode.PLAYBACK:
+        stopSessionWithoutConfirmation()
+    else:
+        stopSessionWithConfirmation()
+
 #Tell the window (QMainWindow) to close (this will then be intercepted by the close event function below)
 def closeWindow ():
     mainWindow.centralwidget.parentWidget().close()
 
 #Whenever the window is supposed to close, this event intercepts/overrides the default close event
 def closeEvent (event):
-    #If there is an ongoing session, then let's make sure we really want to close
-    if ts.currentSession:
-        #Display a "are you sure?" message
-        confirmClose = QMessageBox()
-        confirmClose.setText("Closing will end the current session. Are you sure you want to close?")
-        confirmClose.setWindowTitle("Confirm Close")
-        confirmClose.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        decision = confirmClose.exec()
+    #If there is ongoing data acquisition, then let's make sure we really want to close
+    if ts.currentSession and (not tg.done) and tg.playMode == tg.PlayMode.ACQUISITION:
+        stopSessionWithConfirmation()
 
-        #If NOT sure, ignore event and return, else fall through to close code
-        if decision != QMessageBox.Yes:
+        #If the user is not sure, the session will remain after above line
+        #In such a case, ignore event and return, else fall through to close code
+        if ts.currentSession:
             event.ignore() #Do not close window
             return
 
@@ -105,7 +109,7 @@ def setPlaying (play):
         ts.currentSession = ts.TheSession(mainWindow)
         if tg.playMode == tg.PlayMode.ACQUISITION:
             JSONConverter.startDataAcquisition()
-    elif tg.done: #Restart playback of session
+    elif tg.done and tg.playMode == tg.PlayMode.PLAYBACK: #Restart playback of session
         #Get rid of done label
         tg.graphWindow.clear()
         tg.graphWindow.setBackground(None)
@@ -191,14 +195,24 @@ def assignDefaultsToEmptyFields ():
 
 #Ask if user is sure they want to stop, then proceed if yes
 def stopSessionWithConfirmation ():
-    #Pauses when stop is pressed
-    if (tg.isPlaying()):    
+    #Pause during "Are you sure?" dialog pop-up
+    if tg.isPlaying():    
         setPlaying(False)
 
-    #Confirm that this is what the user wants
+    #Craft confirmation message
+    stopMessage = "Data acquisition is incomplete."
+
+    if JSONConverter.trialsSaved > 0:
+        stopMessage += "\nOnly completed trials will be saved."
+    else:
+        stopMessage += "\nThe session will not be saved since no trials have completed."
+
+    stopMessage += "\n\nAre you sure you want to stop the session anyways?"
+
+    #Open dialog with message to confirm that this is what the user wants
     confirmStop = QMessageBox()
-    confirmStop.setText("Are you sure you want to stop the current session?")
-    confirmStop.setWindowTitle("Confirm Stop")
+    confirmStop.setText(stopMessage)
+    confirmStop.setWindowTitle("Confirm Session Stop")
     confirmStop.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
     decision = confirmStop.exec()
 

@@ -329,14 +329,21 @@ def endTrialStartITI():
     if ts.currentSession.currentTrial >= ts.currentSession.trialCount:
         done = True
         
+        #Pause upon completion
         im.setPlaying(False)
 
-        graphWindow.addLabel(text = ("Data acquisition" if playMode == PlayMode.ACQUISITION else "Playback")
-                             + " for session is complete!",
-                         size = "20pt",
-                         color = "#000000",
-                         row = 0,
-                         col = 0)
+        #Craft completion message
+        if playMode == PlayMode.ACQUISITION:
+            doneText = "Data acquisition for session is complete!"
+
+            #Also, don't allow restart of data acquisition (functionality not supported)
+            mainWindow.playButton.setEnabled(False)
+        else:
+            doneText = "Playback of session is complete!"
+
+        #Display completion message in place of graph
+        graphWindow.addLabel(text = doneText, size = "20pt", color = "#000000", row = 0, col = 0)
+
         return
 
     #Determine ITI duration

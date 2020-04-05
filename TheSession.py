@@ -74,7 +74,7 @@ class TheSession(object):
         self.usName = mainWindow.usNameLineEdit.text()
         self.usDuration = mainWindow.usDurationSpinBox.value()
 
-    #Reads in values from json settings header and stores them in the session settings
+    #Reads in values from JSON settings header and stores them in the session settings
     def readInSettingsFromJSON (self, jsonSettings):
         self.sessionName = jsonSettings["name"]
         self.subjectAge = int(jsonSettings["age"])

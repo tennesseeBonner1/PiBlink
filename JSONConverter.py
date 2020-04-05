@@ -10,8 +10,10 @@ def initialSetUp (theMainWindow):
     mainWindow = theMainWindow
 
 def startDataAcquisition():
-    global saveFilename, jsonObject
+    global trialsSaved, saveFilename, jsonObject
     
+    trialsSaved = 0
+
     name = str(ts.currentSession.sessionName)
     if (name == ""):
         name = "NULLNAME"
@@ -55,6 +57,10 @@ def startDataAcquisition():
                 }
 
 def saveTrial(trialDataArray):
+    global trialsSaved
+
+    trialsSaved += 1
+
     #Convert trial data from numpy array to python list
     trialDataList = trialDataArray.tolist()
 
@@ -64,14 +70,26 @@ def saveTrial(trialDataArray):
     #Create trial object and append it to trials object (which is a part of the larger json object)
     jsonObject["trials"].append(trialDataList)
 
+#Finalize data acquisition by writing session (stored in JSON object) out to JSON file
+#Before this point, data has just been accumulating in the JSON object with no file saving
 def endDataAcquisition():
-    sessionFile = open(saveFilename, "w")
+    #If the data acquisition session was ended before completion, remember how many actually got saved
+    jsonObject["header"]["trialCount"] = str(trialsSaved)
 
-    jsonString = json.dumps(jsonObject)
-    sessionFile.write(jsonString)
+    #Only proceed with saving the session to file if it has a non-zero number of trials
+    if trialsSaved > 0:
+        #Open new file in write mode (overwrites any preexisting file with same name)
+        sessionFile = open(saveFilename, "w")
 
-    sessionFile.close()
+        #Write JSON object to file
+        jsonString = json.dumps(jsonObject) #Convert JSON object to string
+        sessionFile.write(jsonString) #Write string to file
 
+        #Close file
+        sessionFile.close()
+
+#Opens JSON file, reads in JSON data, recreates session object with data
+#After this function is called, the user can press the play button to begin playback
 def openSession(filename):
     global jsonObject
 
