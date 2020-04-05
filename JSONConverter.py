@@ -1,6 +1,8 @@
 import TheSession as ts
 import datetime as dt
 import json
+import os.path
+from os import path
 from datetime import datetime
 
 #Called on start of program to perform initialization (i.e. getting reference to main window)
@@ -10,7 +12,7 @@ def initialSetUp (theMainWindow):
     mainWindow = theMainWindow
 
 def startDataAcquisition():
-    global trialsSaved, saveFilename, jsonObject
+    global trialsSaved, saveFileName, jsonObject
     
     trialsSaved = 0
 
@@ -33,7 +35,14 @@ def startDataAcquisition():
         #"timestamp": (month, day, year, hour, minute, second),
     '''
 
-    saveFilename = (name + " (" + sex + " " + age + ") " + date + ".json")
+    number = 1
+
+    saveFileName = (name + str(number) + " (" + sex + " " + age + ") " + date + ".json")
+
+    while (path.exists(saveFileName)):
+        number += 1
+        saveFileName = (name + str(number) + " (" + sex + " " + age + ") " + date + ".json")
+        print("uh oh buster")
 
     jsonObject = {
                     "header":   {
@@ -79,7 +88,7 @@ def endDataAcquisition():
     #Only proceed with saving the session to file if it has a non-zero number of trials
     if trialsSaved > 0:
         #Open new file in write mode (overwrites any preexisting file with same name)
-        sessionFile = open(saveFilename, "w")
+        sessionFile = open(saveFileName, "w")
 
         #Write JSON object to file
         jsonString = json.dumps(jsonObject) #Convert JSON object to string

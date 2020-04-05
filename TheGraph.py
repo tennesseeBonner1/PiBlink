@@ -334,15 +334,20 @@ def endTrialStartITI():
 
         #Craft completion message
         if playMode == PlayMode.ACQUISITION:
-            doneText = "Data acquisition for session is complete!"
+            doneText = "Data acquisition complete! Press Stop to save the Session."
 
             #Also, don't allow restart of data acquisition (functionality not supported)
             mainWindow.playButton.setEnabled(False)
+            
+            #Display completion message in place of graph
+            graphWindow.addLabel(text = doneText, size = "18pt", color = "#000000", row = 0, col = 0)
+
         else:
             doneText = "Playback of session is complete!"
+            #Display completion message in place of graph
+            graphWindow.addLabel(text = doneText, size = "20pt", color = "#000000", row = 0, col = 0)
 
-        #Display completion message in place of graph
-        graphWindow.addLabel(text = doneText, size = "20pt", color = "#000000", row = 0, col = 0)
+        
 
         return
 
