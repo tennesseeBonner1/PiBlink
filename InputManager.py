@@ -35,7 +35,7 @@ def connectButtons ():
     #Detects when the lock, play, and stop buttons are pressed respectively
     mainWindow.lockButton.clicked.connect(lockButtonPressed)
     mainWindow.playButton.clicked.connect(playButtonPressed)
-    mainWindow.stopButton.clicked.connect(stopButtonPressed)
+    mainWindow.stopButton.clicked.connect(stopSessionConditionalConfirmation)
 
     #Detects all "File -> [X]" menu actions
     mainWindow.actionNew.triggered.connect(newSession)
@@ -74,14 +74,6 @@ def lockButtonPressed ():
 #When the play button is pressed, toggle play status
 def playButtonPressed ():
     setPlaying(not tg.isPlaying())
-        
-#When the stop button is pressed, stop the session (prefaced by a "are you sure" dialog when appropriate)
-#More specifically, ask for confirmation when not done acquiring data
-def stopButtonPressed():
-    if tg.done or tg.playMode == tg.PlayMode.PLAYBACK:
-        stopSessionWithoutConfirmation()
-    else:
-        stopSessionWithConfirmation()
 
 #Tell the window (QMainWindow) to close (this will then be intercepted by the close event function below)
 def closeWindow ():
@@ -89,11 +81,11 @@ def closeWindow ():
 
 #Whenever the window is supposed to close, this event intercepts/overrides the default close event
 def closeEvent (event):
-    #If there is ongoing data acquisition, then let's make sure we really want to close
-    if ts.currentSession and (not tg.done) and tg.playMode == tg.PlayMode.ACQUISITION:
-        stopSessionWithConfirmation()
+    #Must stop session before we can close window
+    if ts.currentSession:
+        stopSessionConditionalConfirmation()
 
-        #If the user is not sure, the session will remain after above line
+        #If the user does not want to close session, the session will remain after above line
         #In such a case, ignore event and return, else fall through to close code
         if ts.currentSession:
             event.ignore() #Do not close window
@@ -193,6 +185,15 @@ def assignDefaultsToEmptyFields ():
     if not mainWindow.usNameLineEdit.text():
         mainWindow.usNameLineEdit.setText(mainWindow.usNameLineEdit.placeholderText())
 
+#Stop session and only ask for confirmation if appropriate (i.e. if data acquisition is ongoing)
+#Asking for confirmation means a "are you sure" dialog box pops up and you can say yes or no
+def stopSessionConditionalConfirmation ():
+    #Ask for confirmation only if data acquisition is ongoing
+    if (not tg.done) and tg.playMode == tg.PlayMode.ACQUISITION:
+        stopSessionWithConfirmation()
+    else:
+        stopSessionWithoutConfirmation()
+
 #Ask if user is sure they want to stop, then proceed if yes
 def stopSessionWithConfirmation ():
     #Pause during "Are you sure?" dialog pop-up
@@ -222,6 +223,7 @@ def stopSessionWithConfirmation ():
 
 #Stops the session immediately without asking user
 def stopSessionWithoutConfirmation ():
+    #Save data acquisition session
     if tg.playMode == tg.PlayMode.ACQUISITION:
         JSONConverter.endDataAcquisition()
 
@@ -233,14 +235,12 @@ def stopSessionWithoutConfirmation ():
 
     #Resets the play, stop, and lock buttons
     mainWindow.playButton.setIcon(playIcon)
+    mainWindow.playButton.setEnabled(True)
     mainWindow.stopButton.setEnabled(False)
     mainWindow.lockButton.setEnabled(True)
 
     #Always go back to default acquisition mode when no session is pulled up
     tg.setPlayMode(tg.PlayMode.ACQUISITION)
-
-    #Remove session progress that is displayed since there is no longer a session
-    tg.updateSessionInfoLabel()
 
 #Takes a screenshot, opens a "Save As" window, and then saves as expected (unless user clicks cancel)
 #What it captures (graph, window, or whole screen) is determined via parameter
@@ -303,7 +303,7 @@ def extractFileType (filter):
 def newSession():
     #You must first close the current session
     if ts.currentSession:
-        stopSessionWithConfirmation()
+        stopSessionConditionalConfirmation()
 
         #If user says no to stopping current session, then cancel making new one
         if ts.currentSession:
@@ -326,7 +326,7 @@ def newSession():
 def openSession():
     #You must first close the current session 
     if ts.currentSession:
-        stopSessionWithConfirmation()
+        stopSessionConditionalConfirmation()
 
         #If user says no to stopping current session, then cancel opening another
         if ts.currentSession:

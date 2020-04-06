@@ -1,7 +1,11 @@
+
+#This file's responsibilities are to...
+#1. Save sessions as JSON files.
+#2. Open the JSON saved session files.
+
 import TheSession as ts
 import datetime as dt
 import json
-import os.path
 from os import path
 from datetime import datetime
 
@@ -11,14 +15,18 @@ def initialSetUp (theMainWindow):
 
     mainWindow = theMainWindow
 
+#-----------------------------------------------------------------------------------------------------
+#1. SAVE SESSION/DATA ACQUISITION MODE SUPPORT
+
+#Called at the beginning of the data acquisition session to save the session settings and prepare...
+#for trial saving. Also determines the save file name (performed at start of session versus end...
+#because the start date is what we're interested in, not the end date).
 def startDataAcquisition():
     global trialsSaved, saveFileName, jsonObject
     
     trialsSaved = 0
 
     name = str(ts.currentSession.sessionName)
-    if (name == ""):
-        name = "NULLNAME"
     sex = str(ts.currentSession.subjectSex.name)
     age = str(ts.currentSession.subjectAge)
 
@@ -35,15 +43,16 @@ def startDataAcquisition():
         #"timestamp": (month, day, year, hour, minute, second),
     '''
 
+    #Define desired file name
+    saveFileName = (name + " (" + sex + " " + age + ") " + date + ".json")
+
+    #Add an incrementing number in file name (if needed) until we find one that's not taken
     number = 1
-
-    saveFileName = (name + str(number) + " (" + sex + " " + age + ") " + date + ".json")
-
     while (path.exists(saveFileName)):
         number += 1
-        saveFileName = (name + str(number) + " (" + sex + " " + age + ") " + date + ".json")
-        print("uh oh buster")
+        saveFileName = (name + " (" + sex + " " + age + ") " + date + " (" + str(number) + ").json")
 
+    #Define the structure of the JSON object (and fil out the header with session info)
     jsonObject = {
                     "header":   {
                         "name" : name,
@@ -65,9 +74,11 @@ def startDataAcquisition():
                     "trials": []
                 }
 
+#Called at the end of a trial to save the just-completed trial
 def saveTrial(trialDataArray):
     global trialsSaved
 
+    #If we stop the session prematurely, we need to know how many trials are in the saved session
     trialsSaved += 1
 
     #Convert trial data from numpy array to python list
@@ -97,6 +108,9 @@ def endDataAcquisition():
         #Close file
         sessionFile.close()
 
+#-----------------------------------------------------------------------------------------------------
+#2. OPEN SESSION/PLAYBACK MODE SUPPORT
+
 #Opens JSON file, reads in JSON data, recreates session object with data
 #After this function is called, the user can press the play button to begin playback
 def openSession(filename):
@@ -113,6 +127,7 @@ def openSession(filename):
     #Recreate session object using the settings in the header of the json file
     ts.currentSession = ts.TheSession(mainWindow, jsonObject["header"])
 
+    #Prepare for first trial reading
     openFirstTrial()
 
 #Set read trackers to first sample of first trial
@@ -134,7 +149,7 @@ def getEyeblinkAmplitude():
 def openNextTrial():
     global nextSample, nextTrial, trialData
 
-    nextSample = -1
-    nextTrial += 1
+    nextSample = -1 #Used by getEyeblinkAmplitude to index into trialData
+    nextTrial += 1 #Used below to index into trials array
 
     trialData = jsonObject["trials"][nextTrial]
