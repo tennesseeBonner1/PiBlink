@@ -1,0 +1,25 @@
+BUGS - Will Cause Problems
+=============================================================
+1.) Sessions over a certain filesize (somewhere around ~200kb) cause the .json file they are saved in to become jank,
+	sometimes freezing up editors that open them.
+2.) Session does not save upon completion and exit. The user must click the stop button in order
+	it to save.
+
+
+HAZARDS - Could Cause Problems
+=============================================================
+1.) Session Name can contain invalid filename characters (ie "Cool, Dude?")
+2.) ITI variance can be made greater than ITI, possibly resulting in negative ITI values
+3.) Large negative numbers are sometimes recorded (ex: -1428.2390...), which may cause issues if the data is used in any data analysis (averages, medians, etc.)
+4.) ITIs may not be accurately timed (When "next trial" timer reaches 0.0, there is a slight delay before the next trial actually starts)
+5.) Play button can be pressed after trials have completed, resulting in a new set of trials starting that will have its data appended to the previous sessions data.
+
+
+QUALITY - Not Major, but Inconvenient/Potentially Frustrating
+=============================================================
+1.) Number of Trials increments/decrements by 5 with mousewheel. This makes it inconvenient to fine tune
+	the number of trials, and furthermore is prone to the following: [60 -> 55 -> 50 -> 45 -> ... -> 5 -> 1 -> 6 -> 11 -> 16 -> ...]
+	So the number of trials can get stuck on 1s and 6s instead of 0s and 5s, requiring manual entering
+	of the number via keyboard to reset.
+2.) Confirmation to stop current session is made even when in playback mode.
+3.) Stopping playback brings the user back to Data Acquisition mode.
