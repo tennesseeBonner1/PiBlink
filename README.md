@@ -1,5 +1,5 @@
 # CsCrMachineCode
-The following are all of the data files included in this project as of 3/29/2020:
+The following are all of the files included in this project as of 4/5/2020:
 
 DAC8552_default_config.py:
 	Part of the default files included for the DAC conversion (needed to output the 
@@ -52,7 +52,17 @@ TheSession.py:
 dac8552.py:
 	Part of the default files included for the DAC conversion (needed to output the 
 	signals for the US and UCS).
+	
+JSONConverter.py:
+	Used to save sessions as JSON files and open them back up for playback. TheGraph.py
+	uses this file to save/read trials and InputManager.py uses this file to save/read
+	session settings and start/end the save/read process for the whole session.
 
 .ui files:
 	These are the editable pyqt5 files that can be updated in the pyqt5 designer. These 
 	are then converted to .py files.
+	
+.json files:
+	These are the saved session files. If the user tries to save a session with the same name as
+	an already saved session, a numbering scheme will ensure the new session is given a new name
+	and the old one is not overwritten.
