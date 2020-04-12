@@ -54,7 +54,8 @@ def startDataAcquisition():
 
     #Define the structure of the JSON object (and fil out the header with session info)
     jsonObject = {
-                    "header":   {
+                    "header":   
+                    {
                         "name" : name,
                         "sex" : sex,
                         "age" : age,
@@ -71,13 +72,15 @@ def startDataAcquisition():
                         "usDuration" : ts.currentSession.usDuration
                     },
 
-                    "trials": []
+                    "trials": [],
+                    "ITIs": [],
+
                 }
 
 #Called at the end of a trial to save the just-completed trial
-def saveTrial(trialDataArray):
+def saveTrial(trialDataArray, Iti):
     global trialsSaved
-
+    
     #If we stop the session prematurely, we need to know how many trials are in the saved session
     trialsSaved += 1
 
@@ -89,7 +92,9 @@ def saveTrial(trialDataArray):
 
     #Create trial object and append it to trials object (which is a part of the larger json object)
     jsonObject["trials"].append(trialDataList)
-
+    
+    if (trialsSaved < ts.currentSession.trialCount):
+        jsonObject["ITIs"].append(Iti)
 #Finalize data acquisition by writing session (stored in JSON object) out to JSON file
 #Before this point, data has just been accumulating in the JSON object with no file saving
 def endDataAcquisition():

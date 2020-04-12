@@ -319,8 +319,10 @@ def manageAnalogOutputs ():
 def endTrialStartITI():
     global itiCountdown, itiInterval, duringITI, countdownLabel, done
 
+    #Determine ITI duration
+    generateITISize()
     if playMode == PlayMode.ACQUISITION:
-        JSONConverter.saveTrial(data)
+        JSONConverter.saveTrial(data, int(itiSize))
 
     #Stop current trial
     resetGraph()
@@ -350,8 +352,7 @@ def endTrialStartITI():
         #Return before ITI starts
         return
 
-    #Determine ITI duration
-    generateITISize()
+    
     
     #Restart countdown timer (indicates how long ITI has left in ms)
     itiCountdown = itiSize
