@@ -58,19 +58,10 @@ def lockButtonPressed ():
     if settingsLocked:
         setLockModeForSettings(False)
     
-    #Otherwise try and lock, by verifying that the trial duration is valid
-    elif trialDurationIsValid():
+    #Otherwise try and lock, verifying that the settings are valid
+    elif verifySettingsValid():
         setLockModeForSettings(True)
     
-    #If the trial duration is invalid, let the user know
-    else:
-        invalidSettingsNotice = QMessageBox()
-        invalidSettingsNotice.setText(
-            "Trial duration must be greater than or equal to baseline + CS + ISI + US!")
-        invalidSettingsNotice.setWindowTitle("Invalid Settings")
-        invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
-        invalidSettingsNotice.exec()
-
 #When the play button is pressed, toggle play status
 def playButtonPressed ():
     setPlaying(not tg.isPlaying())
@@ -168,6 +159,27 @@ def setAccessibilityOfSettings (accessible):
     mainWindow.usNameLineEdit.setEnabled(accessible)
     mainWindow.usDurationSpinBox.setEnabled(accessible)
 
+#Checks the current settings and brings up a message box if anything is invalid
+#Returns if the settings are valid or not
+def verifySettingsValid():
+    settingsValidityText = "Current settings are invalid for the following reasons:\n\n"
+    trialDurationInvalid = not trialDurationIsValid()
+    sessionNameInvalid = not sessionNameIsValid()
+
+    if trialDurationInvalid:
+        settingsValidityText += "Trial duration must be greater than or equal to baseline + CS + ISI + US\n"
+    if sessionNameInvalid:
+        settingsValidityText += "Session name may not contain any of the following characters: \\ / : * ? \" < > |\n"
+    if trialDurationInvalid or sessionNameInvalid:
+        invalidSettingsNotice = QMessageBox()
+        invalidSettingsNotice.setText(settingsValidityText)
+        invalidSettingsNotice.setWindowTitle("Invalid Settings")
+        invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
+        invalidSettingsNotice.setIcon(QMessageBox.Warning)
+        invalidSettingsNotice.exec()
+
+    return not trialDurationInvalid and not sessionNameInvalid 
+
 #Returns whether or not the trial duration is valid based on the various other durations
 def trialDurationIsValid ():
     beginningToEndOfUS = mainWindow.baselineDurationSpinBox.value()
@@ -176,6 +188,13 @@ def trialDurationIsValid ():
     beginningToEndOfUS += mainWindow.usDurationSpinBox.value()
 
     return mainWindow.trialDurationSpinBox.value() >= beginningToEndOfUS
+
+#Returns if the session name contains any characters that could cause problems if in a file name
+#No regex used because importing the library for one time use probably isn't worth it
+def sessionNameIsValid ():
+    sessionText = mainWindow.sessionNameLineEdit.text()
+    return not ("\\" in sessionText or "/" in sessionText or ":" in sessionText or "<" in sessionText or ">" in sessionText or
+        "*" in sessionText or "?" in sessionText or "\"" in sessionText or "|" in sessionText)
 
 #Sets the defaults for the names if this function is called
 def assignDefaultsToEmptyFields ():
