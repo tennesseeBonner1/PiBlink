@@ -6,11 +6,90 @@ import DisplaySettingsManager as dsm
 import GraphExporter
 import JSONConverter
 
+
+arr = []
+iterex = None
+
+class bi_iterator(object):
+    def __init__(self, collection):
+        self.collection = collection
+        self.index = 0
+
+    def next(self):
+        try:
+            result = self.collection[self.index]
+            self.index += 1
+            return result
+        except IndexError:
+            self.index = len(self.collection)
+            #raise StopIteration
+        
+
+    def prev(self):
+        self.index -= 1
+        if self.index < 0:
+            self.index = 0
+            raise StopIteration
+        return self.collection[self.index]
+
+    def __iter__(self):
+        return self
+
+#previous Clicked
+def previousPressed():
+    
+    global arr, iterex
+    try:
+        openSession(iterex.prev())
+    except Exception as e:
+        print(str(e))
+##    print(str(position))
+##    print("ds")
+##    if position == 0 or position == None or position < 0:
+##        print(position)
+##        openSession(arr[0])
+##        return
+##    if position == len(arr):
+##        position = position - 2
+##        openSession(arr[position])
+##        position = position - 1
+##        print(position)
+##        return
+##    openSession(arr[position])
+##    position = position - 1
+##    print(position)
+#next clicked
+def nextPressed():
+    
+    global iterex, arr
+    try:
+        openSession(iterex.next())
+    except Exception as e:
+        print(str(e))
+##    print(str(position))
+##    print("next")
+##    if (position == len(arr)):
+##        print(position)
+##        return
+##    if (position == None):
+##        position = 0
+##        openSession(arr[position])
+##        position = position +1
+##        print(position)
+##        return
+##    if (position == 0):
+##        position = position +1
+##        openSession(arr[position])
+##        print(position)
+##        return
+##    openSession(arr[position])
+##    position = position +1
+##    print(position)
 #Called on start of program to perform all needed initialization
 #Need initialization for default values, references, button icons, and button handlers
 def initialSetUp (theMainWindow, thePlayIcon, theUnlockedIcon):
 
-    global settingsLocked, mainWindow, playIcon, pauseIcon, unlockedIcon, lockedIcon
+    global settingsLocked, mainWindow, playIcon, pauseIcon, unlockedIcon, lockedIcon, arr, iterex
     
     #If false you can change the trial, session or system settings
     settingsLocked = False
@@ -28,7 +107,26 @@ def initialSetUp (theMainWindow, thePlayIcon, theUnlockedIcon):
     lockedIcon = QtGui.QIcon()
     lockedIcon.addPixmap(QtGui.QPixmap("Images/Locked Button.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
+    previousTrialIcon = QtGui.QIcon()
+    previousTrialIcon.addPixmap(QtGui.QPixmap("Images/Previous_Button.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
+    nextTrialIcon = QtGui.QIcon()
+    nextTrialIcon.addPixmap(QtGui.QPixmap("Images/Previous_Button.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+    
+    mainWindow.previousButton.clicked.connect(previousPressed)
+    mainWindow.nextButton.clicked.connect(nextPressed)
     connectButtons()
+    
+    arr = []
+    import os
+    for file in os.listdir("./"):
+        if file.endswith(".json"):
+            print(os.path.join("./", file))
+            arr.append(os.path.join("./", file))
+
+    print(arr)
+    iterex = bi_iterator(arr)
+    
 
 #Connects buttons to their handlers (handlers are the functions called on button clicks)
 def connectButtons ():
@@ -58,10 +156,19 @@ def lockButtonPressed ():
     if settingsLocked:
         setLockModeForSettings(False)
     
-    #Otherwise try and lock, verifying that the settings are valid
-    elif verifySettingsValid():
+    #Otherwise try and lock, by verifying that the trial duration is valid
+    elif trialDurationIsValid():
         setLockModeForSettings(True)
     
+    #If the trial duration is invalid, let the user know
+    else:
+        invalidSettingsNotice = QMessageBox()
+        invalidSettingsNotice.setText(
+            "Trial duration must be greater than or equal to baseline + CS + ISI + US!")
+        invalidSettingsNotice.setWindowTitle("Invalid Settings")
+        invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
+        invalidSettingsNotice.exec()
+
 #When the play button is pressed, toggle play status
 def playButtonPressed ():
     setPlaying(not tg.isPlaying())
@@ -85,6 +192,8 @@ def closeEvent (event):
     #Closes the QMainWindow, which closes the program
     event.accept()
 
+
+    
 #Defines whether or not the trial is playing
 def setPlaying (play):
     #Creates a session if one is not already running (there must be a current session to control)
@@ -159,27 +268,6 @@ def setAccessibilityOfSettings (accessible):
     mainWindow.usNameLineEdit.setEnabled(accessible)
     mainWindow.usDurationSpinBox.setEnabled(accessible)
 
-#Checks the current settings and brings up a message box if anything is invalid
-#Returns if the settings are valid or not
-def verifySettingsValid():
-    settingsValidityText = "Current settings are invalid for the following reasons:\n\n"
-    trialDurationInvalid = not trialDurationIsValid()
-    sessionNameInvalid = not sessionNameIsValid()
-
-    if trialDurationInvalid:
-        settingsValidityText += "Trial duration must be greater than or equal to baseline + CS + ISI + US\n"
-    if sessionNameInvalid:
-        settingsValidityText += "Session name may not contain any of the following characters: \\ / : * ? \" < > |\n"
-    if trialDurationInvalid or sessionNameInvalid:
-        invalidSettingsNotice = QMessageBox()
-        invalidSettingsNotice.setText(settingsValidityText)
-        invalidSettingsNotice.setWindowTitle("Invalid Settings")
-        invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
-        invalidSettingsNotice.setIcon(QMessageBox.Warning)
-        invalidSettingsNotice.exec()
-
-    return not trialDurationInvalid and not sessionNameInvalid 
-
 #Returns whether or not the trial duration is valid based on the various other durations
 def trialDurationIsValid ():
     beginningToEndOfUS = mainWindow.baselineDurationSpinBox.value()
@@ -188,13 +276,6 @@ def trialDurationIsValid ():
     beginningToEndOfUS += mainWindow.usDurationSpinBox.value()
 
     return mainWindow.trialDurationSpinBox.value() >= beginningToEndOfUS
-
-#Returns if the session name contains any characters that could cause problems if in a file name
-#No regex used because importing the library for one time use probably isn't worth it
-def sessionNameIsValid ():
-    sessionText = mainWindow.sessionNameLineEdit.text()
-    return not ("\\" in sessionText or "/" in sessionText or ":" in sessionText or "<" in sessionText or ">" in sessionText or
-        "*" in sessionText or "?" in sessionText or "\"" in sessionText or "|" in sessionText)
 
 #Sets the defaults for the names if this function is called
 def assignDefaultsToEmptyFields ():
@@ -359,6 +440,33 @@ def openSession():
 
     #If user didn't click cancel on "Open", proceed for opening session in playback mode
     if len(fileNameAndLocation) > 0:
+        #Opening a session means going into playback mode
+        tg.setPlayMode(tg.PlayMode.PLAYBACK)
+
+        #Shouldn't be able to edit settings of playback session
+        setLockModeForSettings(True) #Lock settings
+        mainWindow.lockButton.setEnabled(False) #Lock the lock (genius)
+
+        JSONConverter.openSession(fileNameAndLocation)
+    else:
+        #User cancelled opening a session so default back to empty, ready to start data acquisition mode
+        tg.setPlayMode(tg.PlayMode.ACQUISITION)
+
+def openSession(file):
+    #You must first close the current session 
+    if ts.currentSession:
+        stopSessionConditionalConfirmation()
+
+        #If user says no to stopping current session, then cancel opening another
+        if ts.currentSession:
+            return
+
+    #Pop up "Open" window to retrieve file name and location of session file user wants to open
+    #The function returns a (file name/location, file type) tuple but I index it at 0 to just get file name
+    fileNameAndLocation = file
+
+    #If user didn't click cancel on "Open", proceed for opening session in playback mode
+    if fileNameAndLocation !=None :
         #Opening a session means going into playback mode
         tg.setPlayMode(tg.PlayMode.PLAYBACK)
 
