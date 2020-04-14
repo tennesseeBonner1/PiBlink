@@ -97,7 +97,7 @@ def resetGraph ():
 #Creates the graph
 def createGraph():
     #Variables that persist outside this function call
-    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done
+    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done, baseLineEnd
 
     #Update the session info label in the main window to reflect trial number
     updateSessionInfoLabel()
@@ -172,6 +172,8 @@ def createGraph():
     #Disables the context menu you see when right-clicking on the graph
     stimulusGraph.setMenuEnabled(False)
 
+    baseLineEnd = ts.currentSession.csStartInSamples
+
     #Add CS and US start/end lines in graph...
 
     #Create CS lines and shaded area between lines
@@ -219,7 +221,7 @@ def createGraph():
 #Called once every sample (manages analog input and outputs)
 def sampleUpdate():
     #Variables that need to be survive across multiple calls to update function
-    global iteration, dataSize, data, playing
+    global iteration, dataSize, data, playing, baseLineEnd
 
     #Pause functionality
     if not playing:
@@ -239,7 +241,12 @@ def sampleUpdate():
         if playMode == PlayMode.ACQUISITION:
             #Read in next sample/input value from analog input (INPUT)
             data[iteration] = dw.getEyeblinkAmplitude()
-
+            if iteration < baseLineEnd:
+                JSONConverter.addToAverage(data[iteration])
+            elif iteration == baseLineEnd:
+                JSONConverter.setSD(data, iteration)
+            elif iteration > baseLineEnd:
+                JSONConverter.checkForBlink(data[iteration])
             #Controls output of tone/airpuff (OUTPUT)
             manageAnalogOutputs()
         else:

@@ -6,6 +6,7 @@
 import TheSession as ts
 import datetime as dt
 import json
+import math
 from os import path
 from datetime import datetime
 
@@ -22,8 +23,10 @@ def initialSetUp (theMainWindow):
 #for trial saving. Also determines the save file name (performed at start of session versus end...
 #because the start date is what we're interested in, not the end date).
 def startDataAcquisition():
-    global trialsSaved, saveFileName, jsonObject
+    global trialsSaved, saveFileName, jsonObject, average, n
     
+    average = 0.00
+    n = 0
     trialsSaved = 0
 
     name = str(ts.currentSession.sessionName)
@@ -76,6 +79,43 @@ def startDataAcquisition():
                     "ITIs": [],
 
                 }
+def addToAverage(number):
+    global average, n 
+    n += 1
+    average += number
+
+def setSD(data, iteration):
+    global average, n, currentAverage, currentSD, blinking
+
+    average = average / n
+
+    print ("The average is " + str(average))
+
+    number = 0.00
+    for i in range(0, iteration):
+        number += ((data[i] - average) * (data[i] - average))
+    
+    number = number / n
+    number = math.sqrt(number)
+    
+    print("The SD is :" + str(number))
+    
+    currentAverage = average
+    average = 0.00
+    currentSD = number
+    blinking  = False
+
+def checkForBlink(value):
+    global currentAverage, currentSD, blinking
+    
+    if blinking == False:
+        if value > (currentSD + currentAverage) or value <  (currentAverage - currentSD):
+            blinking = True
+    else:
+        if value == (currentSD + currentAverage) or value == (currentAverage - currentSD):
+            blinking = False
+    
+    print("Blinking?" + str(blinking))
 
 #Called at the end of a trial to save the just-completed trial
 def saveTrial(trialDataArray, Iti):
