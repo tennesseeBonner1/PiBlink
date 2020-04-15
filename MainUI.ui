@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1324</width>
+    <width>1524</width>
     <height>733</height>
    </rect>
   </property>
@@ -83,6 +83,12 @@
             <pointsize>14</pointsize>
            </font>
           </property>
+          <property name="toolTip">
+           <string>Prepended to beginning of file name for readability
+
+Max length of 12 characters
+May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</string>
+          </property>
           <property name="text">
            <string>Session Name</string>
           </property>
@@ -94,6 +100,9 @@
            <font>
             <pointsize>14</pointsize>
            </font>
+          </property>
+          <property name="toolTip">
+           <string>Time between samples</string>
           </property>
           <property name="text">
            <string>Sample Interval (ms)</string>
@@ -219,6 +228,9 @@
             <pointsize>14</pointsize>
            </font>
           </property>
+          <property name="toolTip">
+           <string>Abbreviated as ITI</string>
+          </property>
           <property name="text">
            <string>Intertrial Interval (s)</string>
           </property>
@@ -263,6 +275,9 @@
            <font>
             <pointsize>14</pointsize>
            </font>
+          </property>
+          <property name="toolTip">
+           <string>Random value from 0 to variance is added/subtracted to base duration each ITI</string>
           </property>
           <property name="text">
            <string>ITI Variance (s)</string>
@@ -342,6 +357,9 @@
             <pointsize>14</pointsize>
            </font>
           </property>
+          <property name="toolTip">
+           <string>Must be greater than or equal to baseline + CS + ISI + US</string>
+          </property>
           <property name="text">
            <string>Trial Duration (ms)</string>
           </property>
@@ -392,6 +410,9 @@
            <font>
             <pointsize>14</pointsize>
            </font>
+          </property>
+          <property name="toolTip">
+           <string>Duration before start of CS</string>
           </property>
           <property name="text">
            <string>Baseline Duration (ms)</string>
@@ -460,6 +481,9 @@
             <pointsize>14</pointsize>
            </font>
           </property>
+          <property name="toolTip">
+           <string>Conditioned stimulus name</string>
+          </property>
           <property name="text">
            <string>CS Name</string>
           </property>
@@ -507,6 +531,9 @@
            <font>
             <pointsize>14</pointsize>
            </font>
+          </property>
+          <property name="toolTip">
+           <string>Conditioned stimulus duration</string>
           </property>
           <property name="text">
            <string>CS Duration (ms)</string>
@@ -575,6 +602,9 @@
             <pointsize>14</pointsize>
            </font>
           </property>
+          <property name="toolTip">
+           <string>Abbreviated as ISI</string>
+          </property>
           <property name="text">
            <string>Interstimulus Interval (ms)</string>
           </property>
@@ -640,6 +670,9 @@
             <pointsize>14</pointsize>
            </font>
           </property>
+          <property name="toolTip">
+           <string>Unconditioned stimulus name</string>
+          </property>
           <property name="text">
            <string>US Name</string>
           </property>
@@ -688,6 +721,9 @@
             <family>MS Sans Serif</family>
             <pointsize>14</pointsize>
            </font>
+          </property>
+          <property name="toolTip">
+           <string>Unconditioned stimulus duration</string>
           </property>
           <property name="text">
            <string>US Duration (ms)</string>
@@ -899,8 +935,8 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="focusPolicy">
-           <enum>Qt::StrongFocus</enum>
+          <property name="toolTip">
+           <string>Lock/unlock settings</string>
           </property>
           <property name="text">
            <string/>
@@ -928,11 +964,8 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="focusPolicy">
-           <enum>Qt::StrongFocus</enum>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
+          <property name="toolTip">
+           <string>Pause/resume data acquisition</string>
           </property>
           <property name="text">
            <string/>
@@ -947,8 +980,63 @@
             <height>75</height>
            </size>
           </property>
-          <property name="checkable">
-           <bool>false</bool>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="previousButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Previous trial</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>Images/Previous Button.png</normaloff>Images/Previous Button.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>100</width>
+            <height>95</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="nextButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Next trial</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>Images/Next Button.png</normaloff>Images/Next Button.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>100</width>
+            <height>95</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -981,6 +1069,9 @@
           </property>
           <property name="focusPolicy">
            <enum>Qt::ClickFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Stops the current session</string>
           </property>
           <property name="text">
            <string/>
@@ -1092,7 +1183,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1324</width>
+     <width>1524</width>
      <height>37</height>
     </rect>
    </property>

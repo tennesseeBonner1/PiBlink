@@ -5,12 +5,19 @@ import TheSession as ts
 import DisplaySettingsManager as dsm
 import GraphExporter
 import JSONConverter
+from enum import Enum
+
+#Mode options enum
+class PlayMode(Enum):
+    ACQUISITION = 0
+    PLAYBACK = 1
 
 #Called on start of program to perform all needed initialization
 #Need initialization for default values, references, button icons, and button handlers
 def initialSetUp (theMainWindow, thePlayIcon, theUnlockedIcon):
 
-    global settingsLocked, mainWindow, playIcon, pauseIcon, unlockedIcon, lockedIcon
+    global settingsLocked, mainWindow, playMode
+    global playIcon, pauseIcon, unlockedIcon, lockedIcon
     
     #If false you can change the trial, session or system settings
     settingsLocked = False
@@ -24,17 +31,26 @@ def initialSetUp (theMainWindow, thePlayIcon, theUnlockedIcon):
     pauseIcon = QtGui.QIcon()
     pauseIcon.addPixmap(QtGui.QPixmap("Images/Pause Button.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
-    #Sets the icon for the locked Button
+    #Sets the icon for the locked button
     lockedIcon = QtGui.QIcon()
     lockedIcon.addPixmap(QtGui.QPixmap("Images/Locked Button.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
+    #Default play mode is data acquisition
+    setPlayMode(PlayMode.ACQUISITION)
 
     connectButtons()
 
 #Connects buttons to their handlers (handlers are the functions called on button clicks)
 def connectButtons ():
-    #Detects when the lock, play, and stop buttons are pressed respectively
+    #Detects when the data acquisition buttons are pressed
     mainWindow.lockButton.clicked.connect(lockButtonPressed)
     mainWindow.playButton.clicked.connect(playButtonPressed)
+
+    #Detects when the playback buttons are pressed
+    mainWindow.previousButton.clicked.connect(previousTrial)
+    mainWindow.nextButton.clicked.connect(nextTrial)
+
+    #Detects when the rest of the button bar buttons are pressed
     mainWindow.stopButton.clicked.connect(stopSessionConditionalConfirmation)
 
     #Detects all "File -> [X]" menu actions
@@ -53,7 +69,6 @@ def connectButtons ():
 
 #When the lock button is pressed, toggle lock status (but only lock if settings are valid)
 def lockButtonPressed ():
-
     #If the settings are locked already, attempt to unlock using setLockModeForSettings
     if settingsLocked:
         setLockModeForSettings(False)
@@ -65,6 +80,36 @@ def lockButtonPressed ():
 #When the play button is pressed, toggle play status
 def playButtonPressed ():
     setPlaying(not tg.isPlaying())
+
+#When the previous button is pressed, load previous trial
+def previousTrial():
+    #Clear current trial
+    tg.resetGraph()
+
+    #Decrement trial number
+    ts.currentSession.currentTrial -= 1
+
+    #Wrap around if trial number of out bounds
+    if ts.currentSession.currentTrial < 1:
+        ts.currentSession.currentTrial = ts.currentSession.trialCount
+
+    #Display new trial
+    tg.createGraph()
+
+#When the next button is pressed, load next trial
+def nextTrial():
+    #Clear current trial
+    tg.resetGraph()
+    
+    #Increment trial number
+    ts.currentSession.currentTrial += 1
+
+    #Wrap around if trial number of out bounds
+    if ts.currentSession.currentTrial > ts.currentSession.trialCount:
+        ts.currentSession.currentTrial = 1
+
+    #Display new trial
+    tg.createGraph()
 
 #Tell the window (QMainWindow) to close (this will then be intercepted by the close event function below)
 def closeWindow ():
@@ -85,21 +130,15 @@ def closeEvent (event):
     #Closes the QMainWindow, which closes the program
     event.accept()
 
-#Defines whether or not the trial is playing
+#Defines whether or not the trial is playing (only applies to data acquisition mode)
 def setPlaying (play):
+    if playMode == PlayMode.PLAYBACK:
+        return
+
     #Creates a session if one is not already running (there must be a current session to control)
     if not ts.currentSession:
         ts.currentSession = ts.TheSession(mainWindow)
-        if tg.playMode == tg.PlayMode.ACQUISITION:
-            JSONConverter.startDataAcquisition()
-    elif tg.done and tg.playMode == tg.PlayMode.PLAYBACK: #Restart playback of session
-        #Get rid of done label
-        tg.graphWindow.clear()
-        tg.graphWindow.setBackground(None)
-
-        #Start over with first trial
-        ts.currentSession.currentTrial = 1
-        JSONConverter.openFirstTrial()
+        JSONConverter.startDataAcquisition()
 
     #Sets whether or not the graph is playing based off of the value of play
     tg.setPlaying(play)
@@ -208,7 +247,7 @@ def assignDefaultsToEmptyFields ():
 #Asking for confirmation means a "are you sure" dialog box pops up and you can say yes or no
 def stopSessionConditionalConfirmation ():
     #Ask for confirmation only if data acquisition is ongoing
-    if (not tg.done) and tg.playMode == tg.PlayMode.ACQUISITION:
+    if (not tg.done) and playMode == PlayMode.ACQUISITION:
         stopSessionWithConfirmation()
     else:
         stopSessionWithoutConfirmation()
@@ -234,6 +273,7 @@ def stopSessionWithConfirmation ():
     confirmStop.setText(stopMessage)
     confirmStop.setWindowTitle("Confirm Session Stop")
     confirmStop.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    confirmStop.setIcon(QMessageBox.Question)
     decision = confirmStop.exec()
 
     #If it is, stop the session
@@ -243,7 +283,7 @@ def stopSessionWithConfirmation ():
 #Stops the session immediately without asking user
 def stopSessionWithoutConfirmation ():
     #Save data acquisition session
-    if tg.playMode == tg.PlayMode.ACQUISITION:
+    if playMode == PlayMode.ACQUISITION:
         JSONConverter.endDataAcquisition()
 
     #Clears the session
@@ -259,7 +299,7 @@ def stopSessionWithoutConfirmation ():
     mainWindow.lockButton.setEnabled(True)
 
     #Always go back to default acquisition mode when no session is pulled up
-    tg.setPlayMode(tg.PlayMode.ACQUISITION)
+    setPlayMode(PlayMode.ACQUISITION)
 
 #Takes a screenshot, opens a "Save As" window, and then saves as expected (unless user clicks cancel)
 #What it captures (graph, window, or whole screen) is determined via parameter
@@ -273,6 +313,7 @@ def capture (captureType):
             noGraph.setText("There is no graph to capture.")
             noGraph.setWindowTitle("Graph Capture Failed")
             noGraph.setStandardButtons(QMessageBox.Ok)
+            noGraph.setIcon(QMessageBox.Information)
             noGraph.exec()
 
             #Do not proceed with graph capture
@@ -328,17 +369,11 @@ def newSession():
         if ts.currentSession:
             return
 
-    #Creating new graphs means being in data acquisition mode
-    tg.setPlayMode(tg.PlayMode.ACQUISITION)
-
-    #Now that we are back in data acquisition mode, we can lock/unlock
-    mainWindow.lockButton.setEnabled(True)
+    #Creating new sessions means being in data acquisition mode
+    setPlayMode(PlayMode.ACQUISITION)
 
     #Start with default settings again
     resetSettingsToDefaults()
-
-    #Go back to editing settings
-    setLockModeForSettings(False)
 
     #That's it: at this point the user can navigate the UI to start the new session when and as desired
 
@@ -360,16 +395,88 @@ def openSession():
     #If user didn't click cancel on "Open", proceed for opening session in playback mode
     if len(fileNameAndLocation) > 0:
         #Opening a session means going into playback mode
-        tg.setPlayMode(tg.PlayMode.PLAYBACK)
+        setPlayMode(PlayMode.PLAYBACK)
 
-        #Shouldn't be able to edit settings of playback session
-        setLockModeForSettings(True) #Lock settings
-        mainWindow.lockButton.setEnabled(False) #Lock the lock (genius)
+        #Load in the session from the JSON file
+        errorMessage = JSONConverter.openSession(fileNameAndLocation)
+        
+        #Check if there was an error before proceeding...
+        if errorMessage:
+            #Error reading session data, notify user and return to default acquisition mode...
 
-        JSONConverter.openSession(fileNameAndLocation)
+            #Craft error message
+            fullMessage = "Cannot read session file for the following reason...\n\n" + errorMessage
+
+            #Notify user
+            cannotReadSession = QMessageBox()
+            cannotReadSession.setText(fullMessage)
+            cannotReadSession.setWindowTitle("Error Opening Session")
+            cannotReadSession.setStandardButtons(QMessageBox.Ok)
+            cannotReadSession.setIcon(QMessageBox.Critical)
+            cannotReadSession.exec()
+
+            #In case a session was created, clear it (there shouldn't be though, just being safe)
+            if ts.currentSession:
+                stopSessionWithoutConfirmation()
+
+            #Return to data acquisition mode
+            setPlayMode(PlayMode.ACQUISITION)
+        else:
+            #No error reading session data, continue...
+
+            #Display the first trial of the session on the graph
+            tg.createGraph()
     else:
         #User cancelled opening a session so default back to empty, ready to start data acquisition mode
-        tg.setPlayMode(tg.PlayMode.ACQUISITION)
+        setPlayMode(PlayMode.ACQUISITION)
+
+#Use this to change the playMode variable, do not assign to it directly
+def setPlayMode(newPlayMode):
+    #Can only change the play mode when there is no ongoing session
+    if ts.currentSession:
+        return
+
+    #Remember new play mode
+    global playMode
+    playMode = newPlayMode
+
+    #Update text that indicates play mode
+    updateSessionInfoLabel()
+
+    #Show buttons that belong to that play mode and hide buttons that do not
+    #Also do hide before show so that the layout doesn't get stretched from excess shown buttons
+    if playMode == PlayMode.ACQUISITION:
+        mainWindow.previousButton.hide()
+        mainWindow.nextButton.hide()
+        mainWindow.lockButton.show()
+        mainWindow.playButton.show()
+    else:
+        mainWindow.lockButton.hide()
+        mainWindow.playButton.hide()
+        mainWindow.previousButton.show()
+        mainWindow.nextButton.show()
+
+    #Lock settings in playback, unlock settings in data acquisition (session cannot be ongoing)
+    mainWindow.lockButton.setEnabled(playMode == PlayMode.ACQUISITION)
+    setLockModeForSettings(playMode == PlayMode.PLAYBACK)
+
+    #Playback immediately opens session (so stop should be accessible), but opposite for acquisition
+    mainWindow.stopButton.setEnabled(playMode == PlayMode.PLAYBACK)
+
+#Updates the text near the top right of the main window that specifies mode and trial progress
+def updateSessionInfoLabel():
+    #Add the mode the graph is running in
+    if playMode == PlayMode.ACQUISITION:
+        newText = "DATA ACQUISITION\n\n"
+    else:
+        newText = "PLAYBACK\n\n"
+
+    #Add "TRIAL [X] / [Y]" if there is an ongoing session
+    if ts.currentSession:
+        newText += ts.currentSession.getTrialProgressString()
+
+    #Update label with new text
+    mainWindow.sessionInfoLabel.setText(newText)
 
 #Resets all setting fields on the UI to have their default values
 def resetSettingsToDefaults():
