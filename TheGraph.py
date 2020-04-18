@@ -4,7 +4,7 @@ import pyqtgraph as pg
 import TheSession as ts
 import timeit
 import DisplaySettingsManager as dsm
-import NoiseWizard as dw
+import DataWizard as dw
 import JSONConverter
 import InputManager as im
 
@@ -20,12 +20,13 @@ def htmlColorString(qtColor):
 def initialSetUp (theMainWindow):
     global graphInitialized, playing, duringITI, done
     global startedCS, csInProgress, startedUS, usInProgress
-    global mainWindow, graphWindow
+    global mainWindow, graphWindow, blinkStarted
 
     graphInitialized = False
     playing = False
     duringITI = False
     done = False
+    blinkStarted = False
 
     startedCS = csInProgress = startedUS = usInProgress = False
 
@@ -89,7 +90,7 @@ def resetGraph ():
 #Creates the graph
 def createGraph():
     #Variables that persist outside this function call
-    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done
+    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done, baseLineEnd
 
     #Update the session info label in the main window to reflect trial number
     im.updateSessionInfoLabel()
@@ -166,6 +167,7 @@ def createGraph():
     #Disables the context menu you see when right-clicking on the graph
     stimulusGraph.setMenuEnabled(False)
 
+    baseLineEnd = ts.currentSession.csStartInSamples
     #Add CS and US start/end lines in graph...
 
     #Create CS lines and shaded area between lines
@@ -219,7 +221,7 @@ def createGraph():
 #Called once every sample (manages analog input and outputs)
 def sampleUpdate():
     #Variables that need to be survive across multiple calls to update function
-    global iteration, dataSize, data, playing
+    global iteration, dataSize, data, playing, baseLineEnd, blinkStarted
 
     #Pause functionality
     if not playing:
@@ -237,7 +239,21 @@ def sampleUpdate():
     if iteration < dataSize:
         #Read in next sample/input value from analog input (INPUT)
         data[iteration] = dw.getEyeblinkAmplitude()
-
+        
+        if iteration < baseLineEnd:
+            JSONConverter.addToAverage(data[iteration])
+        elif iteration == baseLineEnd:
+            JSONConverter.setSD(data, iteration)
+        elif iteration > baseLineEnd:
+            blinkValue = JSONConverter.checkForBlink(data[iteration])
+            if (blinkStarted == False):
+                if (blinkValue == True):
+                    blinkStarted == True
+                    addArrow(iteration)
+            if (blinkStarted == True):
+                if (blinkValue == False):
+                    blinkStarted == False
+        
         #Controls output of tone/airpuff (OUTPUT)
         manageAnalogOutputs()
     else: #End of trial
@@ -308,6 +324,24 @@ def manageAnalogOutputs ():
         startedUS = True
         usInProgress = True
         dw.setUSAmplitude(True)
+
+#Adds arrow on top of data at xPosition (in ms) on graph
+def addArrow(xPosition):
+
+    #Create arrow with style options
+    #Make sure to specify rotation in constructor, b/c there's a bug in PyQtGraph (or PyQt)...
+    #where you can't update the rotation of the arrow after creation
+    #See (http://www.pyqtgraph.org/documentation/graphicsItems/arrowitem.html) for options
+    arrow = pg.ArrowItem(angle = -90,
+                         headLen = 30,
+                         headWidth = 30,
+                         brush = dsm.colors[dsm.ColorAttribute.AXIS.value])
+
+    #Set arrow's x and y positions respectively
+    arrow.setPos(xPosition, data[xPosition])
+
+    #Finally, add arrow to graph
+    stimulusGraph.addItem(arrow)
 
 def endTrialStartITI():
     global itiCountdown, itiInterval, duringITI, countdownLabel, done
