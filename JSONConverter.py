@@ -6,6 +6,7 @@
 import TheSession as ts
 import datetime as dt
 import json
+import math
 from os import path
 from datetime import datetime
 
@@ -22,8 +23,10 @@ def initialSetUp (theMainWindow):
 #for trial saving. Also determines the save file name (performed at start of session versus end...
 #because the start date is what we're interested in, not the end date).
 def startDataAcquisition():
-    global trialsSaved, saveFileName, jsonObject
-    
+    global trialsSaved, saveFileName, jsonObject, average, n
+    	
+    average = 0.00
+    n = 0
     trialsSaved = 0
 
     name = str(ts.currentSession.sessionName)
@@ -52,7 +55,7 @@ def startDataAcquisition():
         number += 1
         saveFileName = (name + " (" + sex + " " + age + ") " + date + " (" + str(number) + ").json")
 
-    #Define the structure of the JSON object (and fil out the header with session info)
+    #Define the structure of the JSON object (and fill out the header with session info)
     jsonObject = {
                     "header":   
                     {
@@ -76,6 +79,43 @@ def startDataAcquisition():
                     "ITIs": [],
 
                 }
+def addToAverage(number):
+    global average, n 
+    n += 1
+    average += number
+
+def setSD(data, iteration):
+    global average, n, currentAverage, currentSD, blinking
+
+    average = average / n
+
+    print ("The average is " + str(average))
+
+    number = 0.00
+    for i in range(0, iteration):
+        number += ((data[i] - average) * (data[i] - average))
+
+    number = number / n
+    number = math.sqrt(number)
+
+    print("The SD is :" + str(number))
+
+    currentAverage = average
+    average = 0.00
+    currentSD = number
+    blinking  = False
+
+def checkForBlink(value):
+    global currentAverage, currentSD, blinking
+
+    if blinking == False:
+        if value > (currentSD + currentAverage) or value <  (currentAverage - currentSD):
+            blinking = True
+    else:
+        if value < (currentSD + currentAverage) and value > (currentAverage - currentSD):
+            blinking = False
+
+    return blinking
 
 #Called at the end of a trial to save the just-completed trial
 def saveTrial(trialDataArray, Iti):
@@ -90,11 +130,12 @@ def saveTrial(trialDataArray, Iti):
     #Convert python list to json string
     trialDataString = json.dumps(trialDataList)
 
-    #Create trial object and append it to trials object (which is a part of the larger json object)
+    #Create "trial object" and append it to trials object (which is a part of the larger json object)
     jsonObject["trials"].append(trialDataList)
     
     if (trialsSaved < ts.currentSession.trialCount):
         jsonObject["ITIs"].append(Iti)
+
 #Finalize data acquisition by writing session (stored in JSON object) out to JSON file
 #Before this point, data has just been accumulating in the JSON object with no file saving
 def endDataAcquisition():
@@ -122,39 +163,30 @@ def openSession(filename):
     global jsonObject
 
     #Open file, extract contents into string, and close the file
-    sessionFile = open(file = filename, mode = "r")
-    jsonString = sessionFile.read()
-    sessionFile.close()
+    try:
+        sessionFile = open(file = filename, mode = "r")
+        jsonString = sessionFile.read()
+        sessionFile.close()
+    except Exception:
+        return "The file cannot be opened."
 
     #Convert string into python dictionary
-    jsonObject = json.loads(jsonString)
+    try:
+        jsonObject = json.loads(jsonString)
+    except Exception:
+        return "The file is not in JSON format despite file extension."
 
     #Recreate session object using the settings in the header of the json file
-    ts.currentSession = ts.TheSession(mainWindow, jsonObject["header"])
+    try:
+        ts.currentSession = ts.TheSession(mainWindow, jsonObject["header"])
+    except KeyError:
+        errorMessage = "The JSON file does not have all applicable information.\n"
+        errorMessage += "Was this session created in an older version of the program?"
+        return errorMessage
 
-    #Prepare for first trial reading
-    openFirstTrial()
+    #Execution is finished and error-free so return empty quotes indicating no error message
+    return ""
 
-#Set read trackers to first sample of first trial
-def openFirstTrial():
-    global nextSample, nextTrial
-
-    nextSample = -1
-    nextTrial = -1
-
-#Get next input value (sample)
-def getEyeblinkAmplitude():
-    global nextSample
-
-    nextSample += 1
-
-    return trialData[nextSample]
-
-#Move trackers to read from the next trial
-def openNextTrial():
-    global nextSample, nextTrial, trialData
-
-    nextSample = -1 #Used by getEyeblinkAmplitude to index into trialData
-    nextTrial += 1 #Used below to index into trials array
-
-    trialData = jsonObject["trials"][nextTrial]
+#Return the array of samples for the current trial
+def openTrial():
+    return jsonObject["trials"][ts.currentSession.currentTrial - 1]

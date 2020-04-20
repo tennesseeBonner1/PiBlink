@@ -4,15 +4,9 @@ import pyqtgraph as pg
 import TheSession as ts
 import timeit
 import DisplaySettingsManager as dsm
-import NoiseWizard as dw
+import DataWizard as dw
 import JSONConverter
 import InputManager as im
-from enum import Enum
-
-#Mode options enum
-class PlayMode(Enum):
-    ACQUISITION = 0
-    PLAYBACK = 1
 
 #Helper methods used later on
 def clamp(value, minimum, maximum):
@@ -26,17 +20,15 @@ def htmlColorString(qtColor):
 def initialSetUp (theMainWindow):
     global graphInitialized, playing, duringITI, done
     global startedCS, csInProgress, startedUS, usInProgress
-    global playMode
-    global mainWindow, graphWindow
+    global mainWindow, graphWindow, blinkStarted
 
     graphInitialized = False
     playing = False
     duringITI = False
     done = False
+    blinkStarted = False
 
     startedCS = csInProgress = startedUS = usInProgress = False
-
-    playMode = PlayMode.ACQUISITION
 
     #Graph settings on main window
     mainWindow = theMainWindow
@@ -80,7 +72,8 @@ def resetGraph ():
     itiTimer.stop()
 
     #Print out accuracy and reset measurements for start of new benchmark
-    assessSamplingAccuracy()
+    if im.playMode == im.PlayMode.ACQUISITION:
+        assessSamplingAccuracy()
 
     #In case this was called during ITI, stop ITI
     duringITI = False
@@ -90,17 +83,17 @@ def resetGraph ():
     graphWindow.setBackground(None)
 
     #Since the graph controls the analog outputs, it must turn them off when the graph is cleared
-    if playMode == PlayMode.ACQUISITION:
+    if im.playMode == im.PlayMode.ACQUISITION:
         dw.setCSAmplitude(False)
         dw.setUSAmplitude(False)
 
 #Creates the graph
 def createGraph():
     #Variables that persist outside this function call
-    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done
+    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done, baseLineEnd
 
     #Update the session info label in the main window to reflect trial number
-    updateSessionInfoLabel()
+    im.updateSessionInfoLabel()
 
     #Define settings
     dataColor = dsm.colors[dsm.ColorAttribute.DATA.value]
@@ -113,26 +106,28 @@ def createGraph():
     #Enable antialiasing for prettier plots
     pg.setConfigOptions(antialias = dsm.antiAliasing)
 
-    #Create bar graph
-    barGraph = graphWindow.addPlot()
-    barGraph.setMaximumWidth(100)
-    barGraph.hideAxis('bottom')
-    barGraph.getAxis('left').setPen(axisColor)
-    barGraph.setMouseEnabled(x = False, y = False)
-    barGraph.enableAutoRange('xy', False)
-    barGraph.setXRange(0, 1)
-    barGraph.setYRange(0, 7)
-    barGraph.setLimits(xMin = 0, xMax = 1, yMin = 0, yMax = 7)
-    barGraph.hideButtons()
-    barGraph.setMenuEnabled(False)
+    #Add bar graph only when in data acquisition mode (no use for it in playback)
+    if im.playMode == im.PlayMode.ACQUISITION:
+        #Create bar graph
+        barGraph = graphWindow.addPlot()
+        barGraph.setMaximumWidth(100)
+        barGraph.hideAxis('bottom')
+        barGraph.getAxis('left').setPen(axisColor)
+        barGraph.setMouseEnabled(x = False, y = False)
+        barGraph.enableAutoRange('xy', False)
+        barGraph.setXRange(0, 1)
+        barGraph.setYRange(0, 7)
+        barGraph.setLimits(xMin = 0, xMax = 1, yMin = 0, yMax = 7)
+        barGraph.hideButtons()
+        barGraph.setMenuEnabled(False)
 
-    #Create arrays of size 1 for both x location of bars and bar heights (both with values initialized to 0)
-    barXs = np.zeros(1)
-    barHeights = np.zeros(1)
+        #Create arrays of size 1 for both x location of bars and bar heights (both with values initialized to 0)
+        barXs = np.zeros(1)
+        barHeights = np.zeros(1)
 
-    #Add that bar data to the graph along with other settings like width and color
-    bars = pg.BarGraphItem(x = barXs, height = barHeights, width = 1.0, brush = dataColor)
-    barGraph.addItem(bars)
+        #Add that bar data to the graph along with other settings like width and color
+        bars = pg.BarGraphItem(x = barXs, height = barHeights, width = 1.0, brush = dataColor)
+        barGraph.addItem(bars)
 
     #Create data array (this array will be displayed as the line on the graph)
     dataSize = ts.currentSession.trialLengthInSamples #Array size
@@ -172,6 +167,7 @@ def createGraph():
     #Disables the context menu you see when right-clicking on the graph
     stimulusGraph.setMenuEnabled(False)
 
+    baseLineEnd = ts.currentSession.csStartInSamples
     #Add CS and US start/end lines in graph...
 
     #Create CS lines and shaded area between lines
@@ -201,52 +197,65 @@ def createGraph():
     stimulusGraph.addItem(usLabel)
     usLabel.setPos((usStart + usEnd) / 2, 7)
 
-    #Get converter ready to read in playback data for trial
-    if playMode == PlayMode.PLAYBACK:
-        JSONConverter.openNextTrial()
+    #Launch graph based on play mode
+    if im.playMode == im.PlayMode.PLAYBACK:
+        #LOAD IN PLAYBACK VIEW OF TRIAL...
 
-    #Regularly sample data (according to sample rate defined in session settings)
-    iteration = 0
-    sampleTimer.start(ts.currentSession.sampleInterval) #Parameter is millisecond interval between updates
+        #Update graph with array of samples for trial
+        curve.setData(JSONConverter.openTrial())
+    else:
+        #START DATA ACQUISITION...
+        #i.e. start timers
 
-    #Regularly update display (according to display rate defined in display settings)
-    displayTimer.start(1000 / dsm.displayRate)
+        #Regularly sample data (according to sample rate defined in session settings)
+        iteration = 0
+        sampleTimer.start(ts.currentSession.sampleInterval) #Parameter is millisecond interval between updates
 
-    #Done initializing/creating the graph
-    done = False
+        #Regularly update display (according to display rate defined in display settings)
+        displayTimer.start(1000 / dsm.displayRate)
+
+    #Done initializing/creating/launching the graph
+    done = False #As in done with session, which we are not (we are just starting the session!!!)
     graphInitialized = True
 
 #Called once every sample (manages analog input and outputs)
 def sampleUpdate():
     #Variables that need to be survive across multiple calls to update function
-    global iteration, dataSize, data, playing
+    global iteration, dataSize, data, playing, baseLineEnd, blinkStarted
 
     #Pause functionality
     if not playing:
         #Deactivate analog outputs on pause
-        if playMode == PlayMode.ACQUISITION:
-            dw.setCSAmplitude(False)
-            dw.setUSAmplitude(False)
+        dw.setCSAmplitude(False)
+        dw.setUSAmplitude(False)
 
         #Rest of update is only for play mode
         return
     
     recordRealSampleInterval()
 
-    #Update input and output based on play mode
+    #Update Input/Output
     #Only executes when the graph is still being filled out (hasn't reached end of graph)
     if iteration < dataSize:
-        if playMode == PlayMode.ACQUISITION:
-            #Read in next sample/input value from analog input (INPUT)
-            data[iteration] = dw.getEyeblinkAmplitude()
-
-            #Controls output of tone/airpuff (OUTPUT)
-            manageAnalogOutputs()
-        else:
-            #Read in next sample/input value from saved sesssion (INPUT)
-            data[iteration] = JSONConverter.getEyeblinkAmplitude()
-
-            #No need for output
+        #Read in next sample/input value from analog input (INPUT)
+        data[iteration] = dw.getEyeblinkAmplitude()
+        
+        if iteration < baseLineEnd:
+            JSONConverter.addToAverage(data[iteration])
+        elif iteration == baseLineEnd:
+            JSONConverter.setSD(data, iteration)
+        elif iteration > baseLineEnd:
+            blinkValue = JSONConverter.checkForBlink(data[iteration])
+            if (blinkStarted == False):
+                if (blinkValue == True):
+                    blinkStarted == True
+                    addArrow(iteration)
+            if (blinkStarted == True):
+                if (blinkValue == False):
+                    blinkStarted == False
+        
+        #Controls output of tone/airpuff (OUTPUT)
+        manageAnalogOutputs()
     else: #End of trial
         endTrialStartITI() #Won't start ITI if this was the last trial
 
@@ -316,13 +325,32 @@ def manageAnalogOutputs ():
         usInProgress = True
         dw.setUSAmplitude(True)
 
+#Adds arrow on top of data at xPosition (in ms) on graph
+def addArrow(xPosition):
+
+    #Create arrow with style options
+    #Make sure to specify rotation in constructor, b/c there's a bug in PyQtGraph (or PyQt)...
+    #where you can't update the rotation of the arrow after creation
+    #See (http://www.pyqtgraph.org/documentation/graphicsItems/arrowitem.html) for options
+    arrow = pg.ArrowItem(angle = -90,
+                         headLen = 30,
+                         headWidth = 30,
+                         brush = dsm.colors[dsm.ColorAttribute.AXIS.value])
+
+    #Set arrow's x and y positions respectively
+    arrow.setPos(xPosition, data[xPosition])
+
+    #Finally, add arrow to graph
+    stimulusGraph.addItem(arrow)
+
 def endTrialStartITI():
     global itiCountdown, itiInterval, duringITI, countdownLabel, done
 
     #Determine ITI duration
     generateITISize()
-    if playMode == PlayMode.ACQUISITION:
-        JSONConverter.saveTrial(data, int(itiSize))
+    
+    #Save trial
+    JSONConverter.saveTrial(data, int(itiSize))
 
     #Stop current trial
     resetGraph()
@@ -334,20 +362,14 @@ def endTrialStartITI():
         #Pause upon completion
         im.setPlaying(False)
 
-        #Completion message
-        if playMode == PlayMode.ACQUISITION:
-            doneText = "Data acquisition complete! Press Stop to save the session."
+        #Completion message...
+        doneText = "Data acquisition complete! Press Stop to save the session."
 
-            #Display completion message in place of graph
-            graphWindow.addLabel(text = doneText, size = "18pt", color = "#000000", row = 0, col = 0)
+        #Display completion message in place of graph
+        graphWindow.addLabel(text = doneText, size = "18pt", color = "#000000", row = 0, col = 0)
 
-            #Also, don't allow restart of data acquisition (functionality not supported)
-            mainWindow.playButton.setEnabled(False)
-        else:
-            doneText = "Playback of session is complete!"
-
-            #Display completion message in place of graph
-            graphWindow.addLabel(text = doneText, size = "20pt", color = "#000000", row = 0, col = 0)
+        #Also, don't allow restart of data acquisition (functionality not supported)
+        mainWindow.playButton.setEnabled(False)
 
         #Return before ITI starts
         return
@@ -433,30 +455,6 @@ def generateITISize():
         #Ensure ITI isn't negative (variance could be larger in magnitude than base duration and be subtracted)
         if itiSize < 0:
             itiSize = 0
-
-def setPlayMode(newPlayMode):
-    global playMode
-    
-    playMode = newPlayMode
-    updateSessionInfoLabel()
-
-def getPlayMode():
-    return playMode
-
-#Updates the text near the top right of the main window that specifies mode and trial progress
-def updateSessionInfoLabel():
-    #Add the mode the graph is running in
-    if playMode == PlayMode.ACQUISITION:
-        newText = "DATA ACQUISITION\n\n"
-    else:
-        newText = "PLAYBACK\n\n"
-
-    #Add "TRIAL [X] / [Y]" if there is an ongoing session
-    if ts.currentSession:
-        newText += ts.currentSession.getTrialProgressString()
-
-    #Update label with new text
-    mainWindow.sessionInfoLabel.setText(newText)
 
 #Everything below is for tracking the actual sample rate for performance monitoring...
 startedSampling = False
