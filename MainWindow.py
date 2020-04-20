@@ -598,6 +598,10 @@ class Ui_MainWindow(object):
         #Set up the json converter
         import JSONConverter as jc
         jc.initialSetUp(self)
+
+        #Launch the time critical process
+        import TimeCriticalOperations as tco
+        tco.initialSetUp()
         
         #Complete set up of the main window (this file)
         self.subjectSexComboBox.addItem("MALE")

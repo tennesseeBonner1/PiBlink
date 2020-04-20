@@ -5,6 +5,7 @@ import TheSession as ts
 import DisplaySettingsManager as dsm
 import GraphExporter
 import JSONConverter
+import TimeCriticalOperations as tco
 from enum import Enum
 
 #Mode options enum
@@ -126,6 +127,9 @@ def closeEvent (event):
         if ts.currentSession:
             event.ignore() #Do not close window
             return
+
+    #Clean up
+    tco.orderToStopProcess()
 
     #Closes the QMainWindow, which closes the program
     event.accept()

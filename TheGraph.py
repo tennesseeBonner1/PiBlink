@@ -4,9 +4,10 @@ import pyqtgraph as pg
 import TheSession as ts
 import timeit
 import DisplaySettingsManager as dsm
-import DataWizard as dw
 import JSONConverter
 import InputManager as im
+import DataAnalysis as da
+import TimeCriticalOperations as tco
 
 #Helper methods used later on
 def clamp(value, minimum, maximum):
@@ -20,13 +21,12 @@ def htmlColorString(qtColor):
 def initialSetUp (theMainWindow):
     global graphInitialized, playing, duringITI, done
     global startedCS, csInProgress, startedUS, usInProgress
-    global mainWindow, graphWindow, blinkStarted
+    global mainWindow, graphWindow
 
     graphInitialized = False
     playing = False
     duringITI = False
     done = False
-    blinkStarted = False
 
     startedCS = csInProgress = startedUS = usInProgress = False
 
@@ -47,8 +47,9 @@ def setPlaying (play):
     
     playing = play
 
-    #if not play:
-    #    assessAverage()
+    #During data acquisition, synch time critical process to be in same play state
+    if im.playMode == im.PlayMode.ACQUISITION:
+        tco.orderToSetPlaying(play)
 
     if not duringITI:
         if play and (not graphInitialized):
@@ -67,13 +68,9 @@ def resetGraph ():
     startedCS = csInProgress = startedUS = usInProgress = False
 
     #Stop timers
-    sampleTimer.stop()
+    tco.orderToStopTrial()
     displayTimer.stop()
     itiTimer.stop()
-
-    #Print out accuracy and reset measurements for start of new benchmark
-    if im.playMode == im.PlayMode.ACQUISITION:
-        assessSamplingAccuracy()
 
     #In case this was called during ITI, stop ITI
     duringITI = False
@@ -82,15 +79,10 @@ def resetGraph ():
     graphWindow.clear()
     graphWindow.setBackground(None)
 
-    #Since the graph controls the analog outputs, it must turn them off when the graph is cleared
-    if im.playMode == im.PlayMode.ACQUISITION:
-        dw.setCSAmplitude(False)
-        dw.setUSAmplitude(False)
-
 #Creates the graph
 def createGraph():
     #Variables that persist outside this function call
-    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done, baseLineEnd
+    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done
 
     #Update the session info label in the main window to reflect trial number
     im.updateSessionInfoLabel()
@@ -167,7 +159,6 @@ def createGraph():
     #Disables the context menu you see when right-clicking on the graph
     stimulusGraph.setMenuEnabled(False)
 
-    baseLineEnd = ts.currentSession.csStartInSamples
     #Add CS and US start/end lines in graph...
 
     #Create CS lines and shaded area between lines
@@ -202,14 +193,18 @@ def createGraph():
         #LOAD IN PLAYBACK VIEW OF TRIAL...
 
         #Update graph with array of samples for trial
-        curve.setData(JSONConverter.openTrial())
+        data = JSONConverter.openTrial()
+        curve.setData(data)
+
+        #Add analysis annotations of trial to graph
+        da.addEyeblinkArrows()
     else:
         #START DATA ACQUISITION...
         #i.e. start timers
 
         #Regularly sample data (according to sample rate defined in session settings)
         iteration = 0
-        sampleTimer.start(ts.currentSession.sampleInterval) #Parameter is millisecond interval between updates
+        tco.orderToStartTrial()
 
         #Regularly update display (according to display rate defined in display settings)
         displayTimer.start(1000 / dsm.displayRate)
@@ -218,69 +213,17 @@ def createGraph():
     done = False #As in done with session, which we are not (we are just starting the session!!!)
     graphInitialized = True
 
-#Called once every sample (manages analog input and outputs)
-def sampleUpdate():
-    #Variables that need to be survive across multiple calls to update function
-    global iteration, dataSize, data, playing, baseLineEnd, blinkStarted
-
-    #Pause functionality
-    if not playing:
-        #Deactivate analog outputs on pause
-        dw.setCSAmplitude(False)
-        dw.setUSAmplitude(False)
-
-        #Rest of update is only for play mode
-        return
-    
-    recordRealSampleInterval()
-
-    #Update Input/Output
-    #Only executes when the graph is still being filled out (hasn't reached end of graph)
-    if iteration < dataSize:
-        #Read in next sample/input value from analog input (INPUT)
-        data[iteration] = dw.getEyeblinkAmplitude()
-        
-        if iteration < baseLineEnd:
-            JSONConverter.addToAverage(data[iteration])
-        elif iteration == baseLineEnd:
-            JSONConverter.setSD(data, iteration)
-        elif iteration > baseLineEnd:
-            blinkValue = JSONConverter.checkForBlink(data[iteration])
-            if (blinkStarted == False):
-                if (blinkValue == True):
-                    blinkStarted == True
-                    addArrow(iteration)
-            if (blinkStarted == True):
-                if (blinkValue == False):
-                    blinkStarted == False
-        
-        #Controls output of tone/airpuff (OUTPUT)
-        manageAnalogOutputs()
-    else: #End of trial
-        endTrialStartITI() #Won't start ITI if this was the last trial
-
-    #End of iteration
-    iteration += 1
-
-#Create timer to run sample update function (start is called on the timer in createGraph function above)
-sampleTimer = QtCore.QTimer()
-sampleTimer.timeout.connect(sampleUpdate)
-
-#From https://doc.qt.io/qtforpython/PySide2/QtCore/QTimer.html#PySide2.QtCore.PySide2.QtCore.QTimer.setTimerType...
-#"The accuracy also depends on the timer type.
-#For PreciseTimer, QTimer will try to keep the accuracy at 1 millisecond.
-#Precise timers will also never time out earlier than expected."
-sampleTimer.setTimerType(QtCore.Qt.PreciseTimer)
-
 #Updates the display
 def displayUpdate():
     #Variables that need to be survive across multiple calls to update function
     global iteration, dataSize, curve, data, bars, barHeights, playing
 
-    #Pause functionality
-    if not playing:
-        return
+    #Read in new samples
+    while not tco.sampleQueue.empty():
+        data[iteration] = tco.sampleQueue.get(block = False)
 
+        iteration += 1
+    
     #Update stimulus graph
     curve.setData(data)
 
@@ -289,6 +232,10 @@ def displayUpdate():
     if lastSample != -1 and lastSample < dataSize:
         barHeights[0] = data[lastSample]
         bars.setOpts(height = barHeights)
+
+    #End of trial?
+    if iteration >= dataSize:
+        endTrialStartITI()
 
 #Create timer to run sample update function (start is called on the timer in createGraph function above)
 displayTimer = QtCore.QTimer()
@@ -325,24 +272,6 @@ def manageAnalogOutputs ():
         usInProgress = True
         dw.setUSAmplitude(True)
 
-#Adds arrow on top of data at xPosition (in ms) on graph
-def addArrow(xPosition):
-
-    #Create arrow with style options
-    #Make sure to specify rotation in constructor, b/c there's a bug in PyQtGraph (or PyQt)...
-    #where you can't update the rotation of the arrow after creation
-    #See (http://www.pyqtgraph.org/documentation/graphicsItems/arrowitem.html) for options
-    arrow = pg.ArrowItem(angle = -90,
-                         headLen = 30,
-                         headWidth = 30,
-                         brush = dsm.colors[dsm.ColorAttribute.AXIS.value])
-
-    #Set arrow's x and y positions respectively
-    arrow.setPos(xPosition, data[xPosition])
-
-    #Finally, add arrow to graph
-    stimulusGraph.addItem(arrow)
-
 def endTrialStartITI():
     global itiCountdown, itiInterval, duringITI, countdownLabel, done
 
@@ -373,8 +302,6 @@ def endTrialStartITI():
 
         #Return before ITI starts
         return
-
-    
     
     #Restart countdown timer (indicates how long ITI has left in ms)
     itiCountdown = itiSize
@@ -407,8 +334,6 @@ def itiUpdate():
     #ITI can be paused
     if not playing:
         return
-
-    recordRealSampleInterval()
 
     #Update how long ITI has been going (countdown is in seconds, interval is in ms)
     itiCountdown -= itiInterval / 1000
@@ -456,47 +381,19 @@ def generateITISize():
         if itiSize < 0:
             itiSize = 0
 
-#Everything below is for tracking the actual sample rate for performance monitoring...
-startedSampling = False
-startTime = timeit.default_timer()
-totalSampleCount = 0
+#Adds arrow on top of data at xPosition (in samples) on graph
+def addArrow(xPositionInSamples):
+    #Create arrow with style options
+    #Make sure to specify rotation in constructor, b/c there's a bug in PyQtGraph (or PyQt)...
+    #where you can't update the rotation of the arrow after creation
+    #See (http://www.pyqtgraph.org/documentation/graphicsItems/arrowitem.html) for options
+    arrow = pg.ArrowItem(angle = -90,
+                         headLen = 30,
+                         headWidth = 30,
+                         brush = dsm.colors[dsm.ColorAttribute.AXIS.value])
 
-#Accumulates total sample count and timing info for computation of average time elapsed between samples
-def recordRealSampleInterval():
-    global startedSampling, startTime, totalSampleCount
+    #Set arrow's x and y positions respectively
+    arrow.setPos(xPositionInSamples, data[xPositionInSamples])
 
-    #Function is called every new sample
-    totalSampleCount += 1
-
-    #Record start time (in ms)
-    if not startedSampling:
-        startedSampling = True
-        startTime = timeit.default_timer() * 1000
-
-#Compute average sample interval duration based on accumulated totals from function above and assesses accuracy
-def assessSamplingAccuracy():
-    global startedSampling, startTime, totalSampleCount
-
-    #Nothing to compute
-    if totalSampleCount == 0 or not ts.currentSession:
-        return
-
-    print("ITI" if duringITI else "Trial")
-    
-    #Record end time (in ms)
-    endTime = timeit.default_timer() * 1000
-
-    #Average sample interval duration (in ms)
-    average = (endTime - startTime) / totalSampleCount
-
-    #print("Avg Interval: " + str(average) + " ms")
-
-    #Latency: different between expected and actual interval on average (in ms)
-    if duringITI:
-        print("Avg Latency: " + str(average - itiTimer.interval()) + " ms\n")
-    else:
-        print("Avg Latency: " + str(average - sampleTimer.interval()) + " ms\n")
-
-    #Reset totals
-    startedSampling = False
-    totalSampleCount = 0
+    #Finally, add arrow to graph
+    stimulusGraph.addItem(arrow)
