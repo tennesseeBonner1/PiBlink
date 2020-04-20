@@ -77,6 +77,7 @@ def startDataAcquisition():
 
                     "trials": [],
                     "ITIs": [],
+                    "Stats": []
 
                 }
 def addToAverage(number):
@@ -85,11 +86,11 @@ def addToAverage(number):
     average += number
 
 def setSD(data, iteration):
-    global average, n, currentAverage, currentSD, blinking
+    global average, n, currentAverage, currentSD, blinking, blinkList
 
     average = average / n
 
-    print ("The average is " + str(average))
+    blinkList = []
 
     number = 0.00
     for i in range(0, iteration):
@@ -98,29 +99,45 @@ def setSD(data, iteration):
     number = number / n
     number = math.sqrt(number)
 
-    print("The SD is :" + str(number))
-
     currentAverage = average
     average = 0.00
     currentSD = number
     blinking  = False
 
-def checkForBlink(value):
-    global currentAverage, currentSD, blinking
+def checkForBlink(value, sampleIndex):
+    global currentAverage, currentSD, blinking, blinkList, highLow 
 
     if blinking == False:
-        if value > (currentSD + currentAverage) or value <  (currentAverage - currentSD):
+        if value <  (currentAverage - (2 * currentSD)):
             blinking = True
+            highLow = False
+            blinkList.append(sampleIndex)
+            
+        
+        if value > ((2 * currentSD) + currentAverage):
+            blinking = True
+            highLow = True
+            blinkList.append(sampleIndex)
     else:
-        if value < (currentSD + currentAverage) and value > (currentAverage - currentSD):
-            blinking = False
+        if value >  (currentAverage - (2 * currentSD)) and value < ((2 * currentSD) + currentAverage):
+            if value <= currentAverage and highLow == True:
+                blinking = False
+                blinkList.append(sampleIndex)
+                highLow == False
+
+            if value >= currentAverage and highLow == False:
+                blinking = False
+                blinkList.append(sampleIndex)
+                highLow == True
 
     return blinking
 
 #Called at the end of a trial to save the just-completed trial
 def saveTrial(trialDataArray, Iti):
-    global trialsSaved
+    global trialsSaved, statsDict
     
+    getTrialStats()
+
     #If we stop the session prematurely, we need to know how many trials are in the saved session
     trialsSaved += 1
 
@@ -132,9 +149,36 @@ def saveTrial(trialDataArray, Iti):
 
     #Create "trial object" and append it to trials object (which is a part of the larger json object)
     jsonObject["trials"].append(trialDataList)
-    
+
+    jsonObject["Stats"].append(statsDict)
+
     if (trialsSaved < ts.currentSession.trialCount):
         jsonObject["ITIs"].append(Iti)
+
+
+def getTrialStats():
+    global currentAverage, currentSD, blinkList, statsDict
+
+    cSOnset = ts.currentSession.baselineDuration + 1  
+    cSOffset = cSOnset + ts.currentSession.csDuration - 1
+    uSOnset = cSOffset + ts.currentSession.interstimulusInterval + 1
+    uSOffset = uSOnset + ts.currentSession.usDuration - 1
+    
+    statsDict = {
+        "baselineDuration" : ts.currentSession.baselineDuration,
+        "cSOnset" : cSOnset,
+        "cSOffset" : cSOffset,
+        "uSOnset" : uSOnset,
+        "uSOffset" : uSOffset,    
+        "baselineAvg" : currentAverage,
+        "baselineSD" : currentSD,
+        "blinkList" : blinkList
+    }
+    
+
+
+
+
 
 #Finalize data acquisition by writing session (stored in JSON object) out to JSON file
 #Before this point, data has just been accumulating in the JSON object with no file saving

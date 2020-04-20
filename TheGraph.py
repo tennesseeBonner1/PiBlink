@@ -4,7 +4,7 @@ import pyqtgraph as pg
 import TheSession as ts
 import timeit
 import DisplaySettingsManager as dsm
-import DataWizard as dw
+import NoiseWizard as dw
 import JSONConverter
 import InputManager as im
 
@@ -245,7 +245,7 @@ def sampleUpdate():
         elif iteration == baseLineEnd:
             JSONConverter.setSD(data, iteration)
         elif iteration > baseLineEnd:
-            blinkValue = JSONConverter.checkForBlink(data[iteration])
+            blinkValue = JSONConverter.checkForBlink(data[iteration], iteration)
             if (blinkStarted == False):
                 if (blinkValue == True):
                     blinkStarted == True
