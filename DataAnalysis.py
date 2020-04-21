@@ -27,8 +27,8 @@ def getTrialStats():
         "trialDuration": ts.currentSession.trialDuration,
         "baselineAvg": baselineAverage,
         "baselineSD": standardDeviation,
-        "onsetIndices": onsetIndices,
-        "offsetIndices": offsetIndices,
+        "onsetSamples": onsetSamples,
+        "offsetSamples": offsetSamples,
     }
 
     #Return stats dictionary
@@ -42,11 +42,11 @@ def addEyeblinkArrows():
 
     #For each eyeblink onset, add an arrow marking it on the graph
     #The number of arrows added is capped at maxArrowCount
-    numberOfArrows = min(len(onsetIndices), maxArrowCount)
+    numberOfArrows = min(len(onsetSamples), maxArrowCount)
     for x in range(numberOfArrows):
-        tg.addArrow(onsetIndices[x])
+        tg.addArrow(onsetSamples[x] - 1) #Decrement by one to convert to indices
 
-    #print("Onsets: " + str(len(onsetIndices)))
+    #print("Onsets: " + str(len(onsetSamples)))
     #print("SD: " + str(standardDeviation))
     #print("Avg: " + str(baselineAverage) + "\n")
 
@@ -61,11 +61,11 @@ def analyzeTrial():
     dataSize = tg.dataSize
 
     #Initialize global variables
-    global data, baselineTotal, onsetIndices, offsetIndices
+    global data, baselineTotal, onsetSamples, offsetSamples
     data = tg.data
     baselineTotal = 0.00
-    onsetIndices = []
-    offsetIndices = []
+    onsetSamples = []
+    offsetSamples = []
 
     #Go through all samples in order...
     for sampleIndex in range(dataSize):
@@ -87,13 +87,13 @@ def analyzeTrial():
             if blinkStarted:
                 if not blinkValue:
                     blinkStarted = False
-                    offsetIndices.append(sampleIndex)
+                    offsetSamples.append(sampleIndex + 1)
 
             #Previously not blinking, so see if we need to change state to blinking
             else:
                 if blinkValue:
                     blinkStarted = True
-                    onsetIndices.append(sampleIndex)
+                    onsetSamples.append(sampleIndex + 1)
 
 def addToBaselineTotal(number):
     global baselineTotal

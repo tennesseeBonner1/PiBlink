@@ -82,7 +82,8 @@ def resetGraph ():
 #Creates the graph
 def createGraph():
     #Variables that persist outside this function call
-    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done
+    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights
+    global graphInitialized, playing, done, itiSize
 
     #Update the session info label in the main window to reflect trial number
     im.updateSessionInfoLabel()
@@ -210,6 +211,7 @@ def createGraph():
         displayTimer.start(1000 / dsm.displayRate)
 
     #Done initializing/creating/launching the graph
+    itiSize = 0 #First trial's previous ITI is 0
     done = False #As in done with session, which we are not (we are just starting the session!!!)
     graphInitialized = True
 
@@ -275,11 +277,11 @@ def manageAnalogOutputs ():
 def endTrialStartITI():
     global itiCountdown, itiInterval, duringITI, countdownLabel, done
 
-    #Determine ITI duration
-    generateITISize()
-    
     #Save trial
     JSONConverter.saveTrial(data, int(itiSize))
+
+    #Determine ITI duration
+    generateITISize()
 
     #Stop current trial
     resetGraph()
@@ -388,8 +390,8 @@ def addArrow(xPositionInSamples):
     #where you can't update the rotation of the arrow after creation
     #See (http://www.pyqtgraph.org/documentation/graphicsItems/arrowitem.html) for options
     arrow = pg.ArrowItem(angle = -90,
-                         headLen = 30,
-                         headWidth = 30,
+                         headLen = 25,
+                         headWidth = 25,
                          brush = dsm.colors[dsm.ColorAttribute.AXIS.value])
 
     #Set arrow's x and y positions respectively

@@ -393,8 +393,9 @@ def openSession():
     #Pop up "Open" window to retrieve file name and location of session file user wants to open
     #The function returns a (file name/location, file type) tuple but I index it at 0 to just get file name
     fileNameAndLocation = QtGui.QFileDialog.getOpenFileName(parent = mainWindow.centralwidget,
-                                                    caption = "Open Session For Playback",
-                                                    filter = "JSON (*.json)")[0]
+                                caption = "Open Session For Playback",
+                                directory = JSONConverter.getSavedSessionDirectory(createIfNonexistent = True),
+                                filter = "JSON (*.json)")[0]
 
     #If user didn't click cancel on "Open", proceed for opening session in playback mode
     if len(fileNameAndLocation) > 0:
