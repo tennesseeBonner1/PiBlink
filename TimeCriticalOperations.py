@@ -36,27 +36,26 @@ def initialSetUp():
 
 #This tells the time critical process to begin sampling with all the parameters it needs
 def orderToStartTrial():
-    commandQueue.put(Command.START_TRIAL)
-
-    commandQueue.put((ts.currentSession.sampleInterval,
-                              dsm.displayRate,
-                              ts.currentSession.csStartInSamples,
-                              ts.currentSession.csEndInSamples,
-                              ts.currentSession.usStartInSamples,
-                              ts.currentSession.usEndInSamples,
-                              ts.currentSession.trialLengthInSamples))
+    commandQueue.put((Command.START_TRIAL,
+                        (ts.currentSession.sampleInterval,
+                        dsm.displayRate,
+                        ts.currentSession.csStartInSamples,
+                        ts.currentSession.csEndInSamples,
+                        ts.currentSession.usStartInSamples,
+                        ts.currentSession.usEndInSamples,
+                        ts.currentSession.trialLengthInSamples)))
 
 def orderToSetPlaying(play):
     if play:
-        commandQueue.put(Command.RESUME_TRIAL)
+        commandQueue.put((Command.RESUME_TRIAL, None))
     else:
-        commandQueue.put(Command.PAUSE_TRIAL)
+        commandQueue.put((Command.PAUSE_TRIAL, None))
 
 def orderToStopTrial():
-    commandQueue.put(Command.STOP_TRIAL)
+    commandQueue.put((Command.STOP_TRIAL, None))
 
 def orderToStopProcess():
-    commandQueue.put(Command.END_PROCESS)
+    commandQueue.put((Command.END_PROCESS, None))
 
 #EVERYTHING ABOVE IS RUN ON THE MAIN PROCESS
 #--------------------------------------------------------------------------------------------------------------
@@ -93,21 +92,23 @@ def mainLoop():
             blockWait() #Don't need to busy wait when no data acquisition is running
 
         #Process commands from main process like start trial and end process
-        command = commandQueue.get(block = False)
+        fullCommand = commandQueue.get(block = False)
+        command = fullCommand[0]
+        commandArguments = fullCommand[1]
 
         if command == Command.START_TRIAL:
-            runDataAcquisitionTrial()
+            runDataAcquisitionTrial(commandArguments)
 
         if stopProcess or command == Command.END_PROCESS:
             onEndProcess()
             break
 
-def runDataAcquisitionTrial():
+def runDataAcquisitionTrial(trialParameters):
     global stopTrial
     stopTrial = False
 
     #Start data-acquisition trial...
-    getTrialParameters()
+    initializeTrial(trialParameters)
 
     #Sampling loop
     for samplingIteration in range(trialLength):
@@ -116,7 +117,9 @@ def runDataAcquisitionTrial():
 
         #Process commands from main process like pause, stop, and end process
         if not commandQueue.empty():
-            command = commandQueue.get(block = False)
+            fullCommand = commandQueue.get(block = False)
+            command = fullCommand[0]
+            commandArguments = fullCommand[1]
 
             if command == Command.PAUSE_TRIAL:
                 pauseLoop()
@@ -154,7 +157,9 @@ def pauseLoop():
             blockWait() #Can afford innacuracy in reaction to resuming trial
 
         #Process commands from main process like resume trial and end process
-        command = commandQueue.get(block = False)
+        fullCommand = commandQueue.get(block = False)
+        command = fullCommand[0]
+        commandArguments = fullCommand[1]
 
         if command == Command.RESUME_TRIAL:
             break
@@ -167,10 +172,7 @@ def pauseLoop():
             onEndProcess()
             break
 
-def getTrialParameters():
-    #Get trial parameters as tuple from command queue
-    trialParameters = commandQueue.get(block = False)
-
+def initializeTrial(trialParameters):
     #Get sample interval
     global sampleIntervalInMS, sampleIntervalInS
     sampleIntervalInMS = trialParameters[0]
