@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\CsCrMachineCode\MainUI.ui'
+# Form implementation generated from reading ui file 'MainUITest.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.0
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -35,7 +35,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 462, 801))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 466, 670))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.formLayout_2 = QtWidgets.QFormLayout(self.scrollAreaWidgetContents)
         self.formLayout_2.setObjectName("formLayout_2")
@@ -95,11 +95,12 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.trialCountSpinBox.setFont(font)
         self.trialCountSpinBox.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.trialCountSpinBox.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
         self.trialCountSpinBox.setSuffix("")
         self.trialCountSpinBox.setMinimum(1)
-        self.trialCountSpinBox.setMaximum(10000000)
-        self.trialCountSpinBox.setSingleStep(5)
-        self.trialCountSpinBox.setProperty("value", 60)
+        self.trialCountSpinBox.setMaximum(500)
+        self.trialCountSpinBox.setSingleStep(1)
+        self.trialCountSpinBox.setProperty("value", 25)
         self.trialCountSpinBox.setObjectName("trialCountSpinBox")
         self.formLayout_2.setWidget(8, QtWidgets.QFormLayout.FieldRole, self.trialCountSpinBox)
         spacerItem = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
@@ -364,6 +365,8 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.subjectSexComboBox.setFont(font)
         self.subjectSexComboBox.setObjectName("subjectSexComboBox")
+        self.subjectSexComboBox.addItem("")
+        self.subjectSexComboBox.addItem("")
         self.formLayout_2.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.subjectSexComboBox)
         spacerItem5 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.formLayout_2.setItem(6, QtWidgets.QFormLayout.LabelRole, spacerItem5)
@@ -505,7 +508,7 @@ class Ui_MainWindow(object):
         self.rootHorizontalLayout.addLayout(self.rightSide)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1524, 37))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1524, 31))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.menubar.setFont(font)
@@ -514,6 +517,8 @@ class Ui_MainWindow(object):
         self.menuFile.setObjectName("menuFile")
         self.menuEdit = QtWidgets.QMenu(self.menubar)
         self.menuEdit.setObjectName("menuEdit")
+        self.menuAnalyze = QtWidgets.QMenu(self.menubar)
+        self.menuAnalyze.setObjectName("menuAnalyze")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -553,6 +558,19 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.actionNew.setFont(font)
         self.actionNew.setObjectName("actionNew")
+        self.actionRe_Analyze_Session = QtWidgets.QAction(MainWindow)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(False)
+        font.setWeight(50)
+        font.setKerning(True)
+        self.actionRe_Analyze_Session.setFont(font)
+        self.actionRe_Analyze_Session.setObjectName("actionRe_Analyze_Session")
+        self.actionGenerate_Matrix_View = QtWidgets.QAction(MainWindow)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.actionGenerate_Matrix_View.setFont(font)
+        self.actionGenerate_Matrix_View.setObjectName("actionGenerate_Matrix_View")
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addSeparator()
@@ -562,8 +580,11 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionClose)
         self.menuEdit.addAction(self.actionDisplaySettings)
+        self.menuAnalyze.addAction(self.actionRe_Analyze_Session)
+        self.menuAnalyze.addAction(self.actionGenerate_Matrix_View)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
+        self.menubar.addAction(self.menuAnalyze.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -583,29 +604,22 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.usDurationSpinBox, self.lockButton)
         MainWindow.setTabOrder(self.lockButton, self.playButton)
 
-        #Set up the input manager
         import InputManager as im
-        im.initialSetUp(self, icon1, icon)
-
-        #Set up the graph
         import TheGraph as tg
-        tg.initialSetUp(self)
-
-        #Set up the display settings
         import DisplaySettingsManager as dsm
-        dsm.initialSetUp()
-
-        #Set up the json converter
         import JSONConverter as jc
-        jc.initialSetUp(self)
-
-        #Launch the time critical process
         import TimeCriticalOperations as tco
+
+        #Set up the input manager
+        im.initialSetUp(self, icon1, icon)
+        #Set up the graph
+        tg.initialSetUp(self)
+        #Set up the display settings
+        dsm.initialSetUp()
+        #Set up the json converter
+        jc.initialSetUp(self)
+        #Launch the time critical process
         tco.initialSetUp()
-        
-        #Complete set up of the main window (this file)
-        self.subjectSexComboBox.addItem("MALE")
-        self.subjectSexComboBox.addItem("FEMALE")
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -643,6 +657,8 @@ class Ui_MainWindow(object):
         self.usDurationLabel.setText(_translate("MainWindow", "US Duration (ms)"))
         self.subjectAgeLabel.setText(_translate("MainWindow", "Subject Age (yr)"))
         self.subjectSexLabel.setText(_translate("MainWindow", "Subject Sex"))
+        self.subjectSexComboBox.setItemText(0, _translate("MainWindow", "MALE"))
+        self.subjectSexComboBox.setItemText(1, _translate("MainWindow", "FEMALE"))
         self.lockButton.setToolTip(_translate("MainWindow", "Lock/unlock settings"))
         self.playButton.setToolTip(_translate("MainWindow", "Pause/resume data acquisition"))
         self.previousButton.setToolTip(_translate("MainWindow", "Previous trial"))
@@ -653,22 +669,32 @@ class Ui_MainWindow(object):
 ""))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
-        self.actionOpen.setText(_translate("MainWindow", "Open Session..."))
+        self.menuAnalyze.setTitle(_translate("MainWindow", "Analyze"))
+        self.actionOpen.setText(_translate("MainWindow", "Open Session"))
+        self.actionOpen.setStatusTip(_translate("MainWindow", "Select and open an existing session for playback"))
         self.actionOpen.setShortcut(_translate("MainWindow", "Ctrl+O"))
         self.actionCaptureWindow.setText(_translate("MainWindow", "Capture Window..."))
+        self.actionCaptureWindow.setStatusTip(_translate("MainWindow", "Save a screenshot of the window"))
         self.actionCaptureWindow.setShortcut(_translate("MainWindow", "Ctrl+W"))
         self.actionClose.setText(_translate("MainWindow", "Close"))
+        self.actionClose.setStatusTip(_translate("MainWindow", "Exit the program"))
         self.actionClose.setShortcut(_translate("MainWindow", "Ctrl+Q"))
-        self.actionDisplaySettings.setText(_translate("MainWindow", "Graph Display Settings..."))
+        self.actionDisplaySettings.setText(_translate("MainWindow", "Graph Display Settings"))
+        self.actionDisplaySettings.setStatusTip(_translate("MainWindow", "Configure how the graph will appear"))
         self.actionDisplaySettings.setShortcut(_translate("MainWindow", "Ctrl+D"))
         self.actionCaptureGraph.setText(_translate("MainWindow", "Capture Graph..."))
+        self.actionCaptureGraph.setStatusTip(_translate("MainWindow", "Save a screenshot of the current graph"))
         self.actionCaptureGraph.setShortcut(_translate("MainWindow", "Ctrl+G"))
         self.actionCaptureScreen.setText(_translate("MainWindow", "Capture Screen..."))
+        self.actionCaptureScreen.setStatusTip(_translate("MainWindow", "Save a screenshot of the entire screen"))
         self.actionCaptureScreen.setShortcut(_translate("MainWindow", "Ctrl+S"))
         self.actionNew.setText(_translate("MainWindow", "New Session"))
+        self.actionNew.setStatusTip(_translate("MainWindow", "Create a new session in data acquisition mode"))
         self.actionNew.setShortcut(_translate("MainWindow", "Ctrl+N"))
+        self.actionRe_Analyze_Session.setText(_translate("MainWindow", "Re-Analyze Session"))
+        self.actionRe_Analyze_Session.setToolTip(_translate("MainWindow", "Recalculate analysis of a session with chosen parameters"))
+        self.actionGenerate_Matrix_View.setText(_translate("MainWindow", "Generate Matrix View"))
 from pyqtgraph import GraphicsLayoutWidget
-
 
 if __name__ == "__main__":
     import sys

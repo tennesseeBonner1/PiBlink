@@ -57,8 +57,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>462</width>
-         <height>801</height>
+         <width>466</width>
+         <height>670</height>
         </rect>
        </property>
        <layout class="QFormLayout" name="formLayout_2">
@@ -188,6 +188,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::UpDownArrows</enum>
+          </property>
           <property name="suffix">
            <string/>
           </property>
@@ -195,13 +198,13 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
            <number>1</number>
           </property>
           <property name="maximum">
-           <number>10000000</number>
+           <number>500</number>
           </property>
           <property name="singleStep">
-           <number>5</number>
+           <number>1</number>
           </property>
           <property name="value">
-           <number>60</number>
+           <number>25</number>
           </property>
          </widget>
         </item>
@@ -839,6 +842,16 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
             <pointsize>14</pointsize>
            </font>
           </property>
+          <item>
+           <property name="text">
+            <string>MALE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>FEMALE</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item row="6" column="0">
@@ -1184,7 +1197,7 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
      <x>0</x>
      <y>0</y>
      <width>1524</width>
-     <height>37</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="font">
@@ -1211,13 +1224,24 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
     </property>
     <addaction name="actionDisplaySettings"/>
    </widget>
+   <widget class="QMenu" name="menuAnalyze">
+    <property name="title">
+     <string>Analyze</string>
+    </property>
+    <addaction name="actionRe_Analyze_Session"/>
+    <addaction name="actionGenerate_Matrix_View"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuAnalyze"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
    <property name="text">
-    <string>Open Session...</string>
+    <string>Open Session</string>
+   </property>
+   <property name="statusTip">
+    <string>Select and open an existing session for playback</string>
    </property>
    <property name="font">
     <font>
@@ -1232,6 +1256,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
    <property name="text">
     <string>Capture Window...</string>
    </property>
+   <property name="statusTip">
+    <string>Save a screenshot of the window</string>
+   </property>
    <property name="font">
     <font>
      <pointsize>14</pointsize>
@@ -1245,6 +1272,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
    <property name="text">
     <string>Close</string>
    </property>
+   <property name="statusTip">
+    <string>Exit the program</string>
+   </property>
    <property name="font">
     <font>
      <pointsize>14</pointsize>
@@ -1256,7 +1286,10 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
   </action>
   <action name="actionDisplaySettings">
    <property name="text">
-    <string>Graph Display Settings...</string>
+    <string>Graph Display Settings</string>
+   </property>
+   <property name="statusTip">
+    <string>Configure how the graph will appear</string>
    </property>
    <property name="font">
     <font>
@@ -1271,6 +1304,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
    <property name="text">
     <string>Capture Graph...</string>
    </property>
+   <property name="statusTip">
+    <string>Save a screenshot of the current graph</string>
+   </property>
    <property name="font">
     <font>
      <pointsize>14</pointsize>
@@ -1283,6 +1319,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
   <action name="actionCaptureScreen">
    <property name="text">
     <string>Capture Screen...</string>
+   </property>
+   <property name="statusTip">
+    <string>Save a screenshot of the entire screen</string>
    </property>
    <property name="font">
     <font>
@@ -1297,6 +1336,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
    <property name="text">
     <string>New Session</string>
    </property>
+   <property name="statusTip">
+    <string>Create a new session in data acquisition mode</string>
+   </property>
    <property name="font">
     <font>
      <pointsize>14</pointsize>
@@ -1304,6 +1346,32 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionRe_Analyze_Session">
+   <property name="text">
+    <string>Re-Analyze Session</string>
+   </property>
+   <property name="toolTip">
+    <string>Recalculate analysis of a session with chosen parameters</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+     <kerning>true</kerning>
+    </font>
+   </property>
+  </action>
+  <action name="actionGenerate_Matrix_View">
+   <property name="text">
+    <string>Generate Matrix View</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
    </property>
   </action>
  </widget>
