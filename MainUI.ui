@@ -57,8 +57,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>466</width>
-         <height>670</height>
+         <width>462</width>
+         <height>801</height>
         </rect>
        </property>
        <layout class="QFormLayout" name="formLayout_2">
@@ -1022,6 +1022,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
             <height>95</height>
            </size>
           </property>
+          <property name="shortcut">
+           <string>Left</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -1050,6 +1053,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
             <width>100</width>
             <height>95</height>
            </size>
+          </property>
+          <property name="shortcut">
+           <string>Right</string>
           </property>
          </widget>
         </item>
@@ -1197,7 +1203,7 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
      <x>0</x>
      <y>0</y>
      <width>1524</width>
-     <height>31</height>
+     <height>37</height>
     </rect>
    </property>
    <property name="font">
@@ -1363,6 +1369,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
      <kerning>true</kerning>
     </font>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
   </action>
   <action name="actionGenerate_Matrix_View">
    <property name="text">
@@ -1372,6 +1381,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
     <font>
      <pointsize>14</pointsize>
     </font>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
    </property>
   </action>
  </widget>

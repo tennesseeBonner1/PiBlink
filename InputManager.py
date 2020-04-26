@@ -6,6 +6,7 @@ import DisplaySettingsManager as dsm
 import GraphExporter
 import JSONConverter
 import TimeCriticalOperations as tco
+import MatrixViewManager as mvm
 from enum import Enum
 
 #Mode options enum
@@ -57,13 +58,16 @@ def connectButtons ():
     #Detects all "File -> [X]" menu actions
     mainWindow.actionNew.triggered.connect(newSession)
     mainWindow.actionOpen.triggered.connect(openSession)
-    mainWindow.actionCaptureGraph.triggered.connect(lambda: capture("Graph"))
-    mainWindow.actionCaptureWindow.triggered.connect(lambda: capture("Window"))
-    mainWindow.actionCaptureScreen.triggered.connect(lambda: capture("Screen"))
+    mainWindow.actionCaptureGraph.triggered.connect(lambda: capture("Graph", False))
+    mainWindow.actionCaptureWindow.triggered.connect(lambda: capture("Window", False))
+    mainWindow.actionCaptureScreen.triggered.connect(lambda: capture("Screen", False))
     mainWindow.actionClose.triggered.connect(closeWindow)
 
     #Detects all "Edit -> [X]" menu actions
     mainWindow.actionDisplaySettings.triggered.connect(dsm.openDisplaySettingsMenu)
+
+    #Detects all "Analyze -> [X]" menu actions
+    mainWindow.actionGenerate_Matrix_View.triggered.connect(mvm.generateMatrixView)
 
     #Override close event function of QMainWindow for purpose of adding "are you sure you want to quit?" prompt
     mainWindow.centralwidget.parentWidget().closeEvent = closeEvent
@@ -84,30 +88,24 @@ def playButtonPressed ():
 
 #When the previous button is pressed, load previous trial
 def previousTrial():
-    #Clear current trial
-    tg.resetGraph()
-
-    #Decrement trial number
-    ts.currentSession.currentTrial -= 1
-
-    #Wrap around if trial number of out bounds
-    if ts.currentSession.currentTrial < 1:
-        ts.currentSession.currentTrial = ts.currentSession.trialCount
-
-    #Display new trial
-    tg.createGraph()
+    loadTrial(ts.currentSession.currentTrial - 1)
 
 #When the next button is pressed, load next trial
 def nextTrial():
+    loadTrial(ts.currentSession.currentTrial + 1)
+
+#Called to load a specific trial
+def loadTrial(trialNumber):
     #Clear current trial
     tg.resetGraph()
     
-    #Increment trial number
-    ts.currentSession.currentTrial += 1
-
-    #Wrap around if trial number of out bounds
-    if ts.currentSession.currentTrial > ts.currentSession.trialCount:
+    #Set trial number, wrapping around if trial number is out bounds
+    if trialNumber > ts.currentSession.trialCount:
         ts.currentSession.currentTrial = 1
+    elif trialNumber < 1:
+        ts.currentSession.currentTrial = ts.currentSession.trialCount
+    else:
+        ts.currentSession.currentTrial = trialNumber
 
     #Display new trial
     tg.createGraph()
@@ -305,9 +303,10 @@ def stopSessionWithoutConfirmation ():
     #Always go back to default acquisition mode when no session is pulled up
     setPlayMode(PlayMode.ACQUISITION)
 
-#Takes a screenshot, opens a "Save As" window, and then saves as expected (unless user clicks cancel)
-#What it captures (graph, window, or whole screen) is determined via parameter
-def capture (captureType):
+#Takes a screenshot (of graph, window, or whole screen depending on captureType) and then...
+#IF returnCapture: Returns the capture
+#ELSE: opens a "Save As" window, and then saves as expected (unless user clicks cancel)
+def capture (captureType, returnCapture):
     #Take shot of graph
     if captureType == "Graph":
         #Cases where graph capture fails
@@ -337,14 +336,18 @@ def capture (captureType):
     else:
         screenshot = QApplication.primaryScreen().grabWindow(0)
     
-    #Pop up "Save As" window to retrieve file name and type to save as
-    nameAndType = QtGui.QFileDialog.getSaveFileName(parent = mainWindow.centralwidget,
-                                                    caption = "Save " + captureType + " Capture As",
-                                                    filter = "PNG (*.png);;JPG (*.jpg)")
+    #Now that we have taken the screenshot, what do we do with it?
+    if returnCapture:
+        return screenshot
+    else:
+        #Pop up "Save As" window to retrieve file name and type to save as
+        nameAndType = QtGui.QFileDialog.getSaveFileName(parent = mainWindow.centralwidget,
+                                                        caption = "Save " + captureType + " Capture As",
+                                                        filter = "PNG (*.png);;JPG (*.jpg)")
 
-    #If user didn't click cancel on "Save As", save screenshot using "Save As" options
-    if len(nameAndType[0]) > 0:
-        screenshot.save(nameAndType[0], extractFileType(nameAndType[1]))
+        #If user didn't click cancel on "Save As", save screenshot using "Save As" options
+        if len(nameAndType[0]) > 0:
+            screenshot.save(nameAndType[0], extractFileType(nameAndType[1]))
 
 #Extracts "jpg" from "JPG (*.jpg)" for example.
 #The "JPG (*.jpg)" is returned from QtGui.QFileDialog.getSaveFileName as second element in string tuple, but...
@@ -460,6 +463,11 @@ def setPlayMode(newPlayMode):
         mainWindow.playButton.hide()
         mainWindow.previousButton.show()
         mainWindow.nextButton.show()
+
+    #Enabled/disable menu actions that only work for a particular play mode
+    #mainWindow.menuAnalyze.setEnabled(playMode == PlayMode.PLAYBACK)
+    mainWindow.actionRe_Analyze_Session.setEnabled(playMode == PlayMode.PLAYBACK)
+    mainWindow.actionGenerate_Matrix_View.setEnabled(playMode == PlayMode.PLAYBACK)
 
     #Lock settings in playback, unlock settings in data acquisition (session cannot be ongoing)
     mainWindow.lockButton.setEnabled(playMode == PlayMode.ACQUISITION)

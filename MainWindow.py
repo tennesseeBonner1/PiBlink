@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MainUITest.ui'
+# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\CsCrMachineCode\MainUI.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.1
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -35,7 +35,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 466, 670))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 462, 801))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.formLayout_2 = QtWidgets.QFormLayout(self.scrollAreaWidgetContents)
         self.formLayout_2.setObjectName("formLayout_2")
@@ -508,7 +508,7 @@ class Ui_MainWindow(object):
         self.rootHorizontalLayout.addLayout(self.rightSide)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1524, 31))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1524, 37))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.menubar.setFont(font)
@@ -604,21 +604,24 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.usDurationSpinBox, self.lockButton)
         MainWindow.setTabOrder(self.lockButton, self.playButton)
 
-        import InputManager as im
-        import TheGraph as tg
-        import DisplaySettingsManager as dsm
-        import JSONConverter as jc
-        import TimeCriticalOperations as tco
-
         #Set up the input manager
+        import InputManager as im
         im.initialSetUp(self, icon1, icon)
+
         #Set up the graph
+        import TheGraph as tg
         tg.initialSetUp(self)
+
         #Set up the display settings
+        import DisplaySettingsManager as dsm
         dsm.initialSetUp()
+
         #Set up the json converter
+        import JSONConverter as jc
         jc.initialSetUp(self)
+
         #Launch the time critical process
+        import TimeCriticalOperations as tco
         tco.initialSetUp()
 
     def retranslateUi(self, MainWindow):
@@ -662,7 +665,9 @@ class Ui_MainWindow(object):
         self.lockButton.setToolTip(_translate("MainWindow", "Lock/unlock settings"))
         self.playButton.setToolTip(_translate("MainWindow", "Pause/resume data acquisition"))
         self.previousButton.setToolTip(_translate("MainWindow", "Previous trial"))
+        self.previousButton.setShortcut(_translate("MainWindow", "Left"))
         self.nextButton.setToolTip(_translate("MainWindow", "Next trial"))
+        self.nextButton.setShortcut(_translate("MainWindow", "Right"))
         self.stopButton.setToolTip(_translate("MainWindow", "Stops the current session"))
         self.sessionInfoLabel.setText(_translate("MainWindow", "DATA ACQUISITION\n"
 "\n"
@@ -693,8 +698,11 @@ class Ui_MainWindow(object):
         self.actionNew.setShortcut(_translate("MainWindow", "Ctrl+N"))
         self.actionRe_Analyze_Session.setText(_translate("MainWindow", "Re-Analyze Session"))
         self.actionRe_Analyze_Session.setToolTip(_translate("MainWindow", "Recalculate analysis of a session with chosen parameters"))
+        self.actionRe_Analyze_Session.setShortcut(_translate("MainWindow", "Ctrl+R"))
         self.actionGenerate_Matrix_View.setText(_translate("MainWindow", "Generate Matrix View"))
+        self.actionGenerate_Matrix_View.setShortcut(_translate("MainWindow", "Ctrl+M"))
 from pyqtgraph import GraphicsLayoutWidget
+
 
 if __name__ == "__main__":
     import sys

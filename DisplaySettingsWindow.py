@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\NMOne\NMOne\DisplaySettingsUI.ui'
+# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\CsCrMachineCode\DisplaySettingsUI.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -160,6 +160,7 @@ class Ui_displaySettingsWindow(object):
         _translate = QtCore.QCoreApplication.translate
         displaySettingsWindow.setWindowTitle(_translate("displaySettingsWindow", "Graph Display Settings"))
         self.displayRateLabel.setText(_translate("displaySettingsWindow", "Display Refresh Rate (Hz)"))
+        self.antiAliasingLabel.setToolTip(_translate("displaySettingsWindow", "Enabling antialiasing causes lines to be drawn with smooth edges at the cost of reduced performance."))
         self.antiAliasingLabel.setText(_translate("displaySettingsWindow", "Anti-Aliasing"))
         self.shadingLabel.setText(_translate("displaySettingsWindow", "Shade Area Under Curve"))
         self.backgroundColorLabel.setText(_translate("displaySettingsWindow", "Background Color"))

@@ -23,10 +23,6 @@
         #Launch the time critical process
         import TimeCriticalOperations as tco
         tco.initialSetUp()
-        
-        #Complete set up of the main window (this file)
-        self.subjectSexComboBox.addItem("MALE")
-        self.subjectSexComboBox.addItem("FEMALE")
 '''
 #-------------------------------------------------------------------------------------------------------
 
