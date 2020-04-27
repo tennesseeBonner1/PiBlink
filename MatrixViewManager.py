@@ -1,8 +1,10 @@
 ﻿from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox, QApplication, QProgressDialog, QDialog, QLabel
+from PyQt5.QtGui import QFileDialog
 import TheSession as ts
 import InputManager as im
 import MatrixViewWindow as mvw
+import GridDimensionsWindow as gdw
 
 #Call this to do the whole thingy-ma-doodle
 def generateMatrixView():
@@ -90,9 +92,53 @@ def openMatrixViewMenu():
 
     #Fill the window with the trial screenshots
     loadTrialsIntoGridLayout()
+    
+    #Connect window buttons to handlers
+    matrixViewWrapper.saveButton.clicked.connect(saveMatrixAsImage)
+    matrixViewWrapper.regenerateButton.clicked.connect(openGridDimensionsMenu)
+    matrixViewWrapper.closeButton.clicked.connect(matrixViewWindow.close)
 
     #Display the window
     matrixViewWindow.exec()
+
+#Called to open the parameters menu for generating the matrix
+def openGridDimensionsMenu():
+    global gridDimensionsWrapper
+
+    gridDimensionsWindow = QDialog()
+    gridDimensionsWrapper = gdw.Ui_gridViewWindow()
+    gridDimensionsWrapper.setupUi(gridDimensionsWindow)
+
+    gridDimensionsWindow.exec()
+
+def calculateRows(value):
+    #Calculate all the numbers that the array's length can be divided by
+    divisibles = []    
+    for i in range(1, value):
+        if (value % i == 0):
+            divisibles.append(i)
+            print("i " + str(i))
+            
+            if ((value // i) != i):
+                divisibles.append(value // i)
+                print("value // i " + str(value //i) )
+
+    #Take the two closest values that the lengh can be divided by, and return a value in between those two
+    if (len(divisibles) % 2 == 0):
+        returnValue = divisibles[(len(divisibles) // 2)] - divisibles[(len(divisibles) // 2) - 1] 
+        testValue = int(float(returnValue) // 2.0)
+        returnValue = divisibles[(len(divisibles) // 2) - 1] + testValue
+        return returnValue
+
+    #return the centermost value of deliverables
+    #EX: value = 9 (divisible by 1, 3 and 9) 
+    else:
+        if (len(divisibles) == 1):
+            return divisibles[0]
+        elif (len(divisibles) == 3):
+            return divisibles[2]
+        else:
+            return divisibles[int(float(len(divisibles)) // 2.0)]
 
 #Fill the window with the trial screenshots
 def loadTrialsIntoGridLayout():
@@ -101,8 +147,11 @@ def loadTrialsIntoGridLayout():
     #For reference
     trialCount = len(trialCaptures)
 
+    rows = calculateRows(trialCount)
+    print("Rows should be " + str(rows)) 
+
     #Define number of rows and columns
-    rows = 2
+
     columns = trialCount // rows #Integer division
     if columns == 0:
         columns = 1
@@ -127,3 +176,16 @@ def loadTrialsIntoGridLayout():
 
             #Move onto next trial capture
             currentTrialIndex += 1
+
+def saveMatrixAsImage():
+    #Take picture of the grid
+    matrixAsImage = matrixViewWrapper.gridWidget.grab()
+
+    #Pop up "Save As" window to retrieve file name and type to save as
+    nameAndType = QFileDialog.getSaveFileName(parent = im.mainWindow.centralwidget,
+                                                        caption = "Save Trial Matrix Capture As",
+                                                        filter = "PNG (*.png);;JPG (*.jpg)")
+
+    #If user didn't click cancel on "Save As", save screenshot using "Save As" options
+    if len(nameAndType[0]) > 0:
+        matrixAsImage.save(nameAndType[0], im.extractFileType(nameAndType[1]))

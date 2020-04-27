@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1069</width>
-    <height>763</height>
+    <width>728</width>
+    <height>138</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -79,7 +79,29 @@
       </widget>
      </item>
      <item>
-      <layout class="QGridLayout" name="trialGridLayout"/>
+      <widget class="QWidget" name="gridWidget" native="true">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QGridLayout" name="trialGridLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+         </layout>
+        </item>
+       </layout>
+      </widget>
      </item>
      <item>
       <widget class="Line" name="pageButtonsLine">
