@@ -1,47 +1,93 @@
 
 #This file handles the analog input and output.
-#Call getEyeblinkAmplitude to get the most recent value of the eyeblink amplitude.
+#Call getNextSample to busy wait on and then retrieve the next sample when it becomes available.
 
-#ADC (analog input)-----------------------------------------------------------------
+#ADC (analog input)------------------------------------------------------------------------------------
 
 import os
+
+#Defines a bunch of constants used in our analog input code below such as GAIN_1, POS_AIN0, and NEG_AINCOM
+#API found here: https://github.com/ul-gh/PiPyADC/blob/master/ADS1256_definitions.py
 from ADS1256_definitions import *
+
+#Defines the ADS class which is used to issue our analog input commands via properties and methods
+#API found here: https://github.com/ul-gh/PiPyADC/blob/master/pipyadc.py
 from pipyadc_py3 import ADS1256
 
+#Used in example.py from PiPyADC library, don't think this check is required
+#...but probably gives a more useful error message
 if not os.path.exists("/dev/spidev0.1"):
     raise IOError("Error: No SPI device. Check settings in /boot/config.txt")
 
-#Analog input channel for eyeblink amplitude
-EYEBLINK = POS_AIN0|NEG_AINCOM
+#Initial set up for analog input...
+def adcInitialSetUp():
+    #Create ADS module (instance of class used to interface with analog input library)
+    global ads
+    ads = ADS1256()
 
-#Sequence of all analog input channels (we only have eyeblink channel)
-CH_SEQUENCE = ([EYEBLINK])
+    #Reset all registers so we start from clean slate
+    ads.reset()
 
-#Create ADS module and self-calibrate it
-ads = ADS1256()
-ads.cal_self()
+    #Set the gain (0-5 input voltage * gain of 1 = 0-5 output voltage?)
+    ads.pga_gain = GAIN_1
 
-#I believe calling read_sequence only draws from a buffer the library maintains and this buffer...
-#is udpdated at the rate defined by here. It seems like the library might actually be performing...
-#some averaging of the most recent samples to smooth it out and minimize the occurance of outlying values.
-ads.drate = DRATE_1000 #In SPS (samples per second)
-#Refer to PiPyADC's ADS1256_definitions.py for list of valid DRATE's
+    '''
+    Set configuration options hidden inside status register
+    This register stores info in binary form where each bit is a flag
+    We are...
+        DISABLING Buffer (0x02, 2nd bit in register)
+        ...we don't need any buffering, we will be busy waiting on each new sample as it comes
+        DISABLING Autocal (0x04, 3rd bit in register)
+        ...don't need auto calibration
+        PRESERVING LSB (0x08, 4th bit in register)
+        ...LSB (least significant bit) is responsible for handling endianness, don't touch it!
+    '''
+    #In effect turn off everything but keep LSB as it was
+    if ads._status & ORDER_LSB:
+        ads.status = ORDER_LSB #LSB was on, so turn off everything but LSB
+    else:
+        ads.status = 0 #LSB was off, so just turn off everything
 
-#Return a single numerical value of the "current" (most recent read from A/D library) eyeblink amplitude
-def getEyeblinkAmplitude():
-    #Read in the data from PiPyADC
-    raw_channels = ads.read_sequence(CH_SEQUENCE)
-    
-    #Extract the raw input value/number
-    raw_number = raw_channels[0]
+    #Set the rate at which sampling occurs by the library in SPS (samples per second)
+    ads.drate = DRATE_1000
+
+    #Set the analog pin we will use for input
+    ads.mux = POS_AIN0 | NEG_AINCOM
+
+    #Perform calibration
+    ads.cal_self()
+
+adcInitialSetUp()
+
+#Call before start of each data acquisition trial to ensure first sample is not corrupted
+def onTrialStart():
+    ads.sync()
+
+#Return the next sample (i.e. current amplitude of eyeblink)
+#Waits until data is ready to read and return value (new sample every ~1 ms)
+def getNextSample():
+    #Wait until data is ready to be read
+    #Data is ready when DRDY (data ready) pin is in "active low"
+    while ads.DRDY_PIN is not None:
+        pass
+
+    #Read in the sample from PiPyADC
+    '''
+        This is the fastest of the read commands from the library because it just reads,
+        it doesn't have any unnecessary implicit commands like sync.
+        Those implicit commands are needed only when changing input channels or config settings
+        while sampling is ongoing which we do not do after initialSetUp.
+        We call sync once before the start of each trial just to be safe.
+    '''
+    rawNumber = ads.read_async()
     
     #Scale the number to be within a range
-    refined_number = ((-raw_number) / 3000) - 19
+    refinedNumber = ((-rawNumber) / 3000) - 19
     
-    #After scaling the number, it is ready to be plotted in the graph
-    return refined_number
+    #After scaling the number, it is ready to be returned
+    return refinedNumber
 
-#DAC (analog output)-----------------------------------------------------------------
+#DAC (analog output)------------------------------------------------------------------------------------
 
 import subprocess
 #import atexit

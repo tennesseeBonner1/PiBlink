@@ -20,15 +20,12 @@ def htmlColorString(qtColor):
 #Initializes global variables that need to have default values or references to objects in main window
 def initialSetUp (theMainWindow):
     global graphInitialized, playing, duringITI, done
-    global startedCS, csInProgress, startedUS, usInProgress
     global mainWindow, graphWindow
 
     graphInitialized = False
     playing = False
     duringITI = False
     done = False
-
-    startedCS = csInProgress = startedUS = usInProgress = False
 
     #Graph settings on main window
     mainWindow = theMainWindow
@@ -58,14 +55,11 @@ def setPlaying (play):
 #Resets the graph (i.e. removes graph window and is ready for new call to createGraph)
 def resetGraph ():
     global playing, graphInitialized, duringITI, done
-    global startedCS, csInProgress, startedUS, usInProgress
 
     #Reset variables
     playing = False
     graphInitialized = False
     done = False
-
-    startedCS = csInProgress = startedUS = usInProgress = False
 
     #Stop timers
     tco.orderToStopTrial()
@@ -242,37 +236,6 @@ def displayUpdate():
 #Create timer to run sample update function (start is called on the timer in createGraph function above)
 displayTimer = QtCore.QTimer()
 displayTimer.timeout.connect(displayUpdate)
-
-#Called by sample update to manage analog (both CS and US) outputs
-#Doesn't need to be called during playback b/c playback shouldn't interact with analog I/O
-def manageAnalogOutputs ():
-    global startedCS, csInProgress, startedUS, usInProgress
-
-    #Manage CS output
-    if startedCS:
-        if csInProgress:
-            if iteration < ts.currentSession.csEndInSamples:
-                dw.setCSAmplitude(True)
-            else:
-                csInProgress = False
-                dw.setCSAmplitude(False)
-    elif iteration >= ts.currentSession.csStartInSamples:
-        startedCS = True
-        csInProgress = True
-        dw.setCSAmplitude(True)
-
-    #Manage US output (exact same thing but for US)
-    if startedUS:
-        if usInProgress:
-            if iteration < ts.currentSession.usEndInSamples:
-                dw.setUSAmplitude(True)
-            else:
-                usInProgress = False
-                dw.setUSAmplitude(False)
-    elif iteration >= ts.currentSession.usStartInSamples:
-        startedUS = True
-        usInProgress = True
-        dw.setUSAmplitude(True)
 
 def endTrialStartITI():
     global itiCountdown, itiInterval, duringITI, countdownLabel, done
