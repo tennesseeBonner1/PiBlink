@@ -7,6 +7,7 @@ import GraphExporter
 import JSONConverter
 import TimeCriticalOperations as tco
 import MatrixViewManager as mvm
+import AnalysisSettingsManager as asm
 from enum import Enum
 
 #Mode options enum
@@ -16,7 +17,7 @@ class PlayMode(Enum):
 
 #Called on start of program to perform all needed initialization
 #Need initialization for default values, references, button icons, and button handlers
-def initialSetUp(theMainWindow, thePlayIcon, theUnlockedIcon):
+def initialSetUp (theMainWindow, thePlayIcon, theUnlockedIcon):
 
     global settingsLocked, mainWindow, playMode
     global playIcon, pauseIcon, unlockedIcon, lockedIcon
@@ -43,7 +44,7 @@ def initialSetUp(theMainWindow, thePlayIcon, theUnlockedIcon):
     connectButtons()
 
 #Connects buttons to their handlers (handlers are the functions called on button clicks)
-def connectButtons():
+def connectButtons ():
     #Detects when the data acquisition buttons are pressed
     mainWindow.lockButton.clicked.connect(lockButtonPressed)
     mainWindow.playButton.clicked.connect(playButtonPressed)
@@ -57,7 +58,7 @@ def connectButtons():
 
     #Detects all "File -> [X]" menu actions
     mainWindow.actionNew.triggered.connect(newSession)
-    mainWindow.actionOpen.triggered.connect(openSession)
+    mainWindow.actionOpen.triggered.connect(lambda: openSession())
     mainWindow.actionCaptureGraph.triggered.connect(lambda: capture("Graph", False))
     mainWindow.actionCaptureWindow.triggered.connect(lambda: capture("Window", False))
     mainWindow.actionCaptureScreen.triggered.connect(lambda: capture("Screen", False))
@@ -67,13 +68,14 @@ def connectButtons():
     mainWindow.actionDisplaySettings.triggered.connect(dsm.openDisplaySettingsMenu)
 
     #Detects all "Analyze -> [X]" menu actions
+    mainWindow.actionRe_Analyze_Session.triggered.connect(asm.openAnalysisSettingsWindow)
     mainWindow.actionGenerate_Matrix_View.triggered.connect(mvm.generateMatrixView)
 
     #Override close event function of QMainWindow for purpose of adding "are you sure you want to quit?" prompt
     mainWindow.centralwidget.parentWidget().closeEvent = closeEvent
 
 #When the lock button is pressed, toggle lock status (but only lock if settings are valid)
-def lockButtonPressed():
+def lockButtonPressed ():
     #If the settings are locked already, attempt to unlock using setLockModeForSettings
     if settingsLocked:
         setLockModeForSettings(False)
@@ -83,7 +85,7 @@ def lockButtonPressed():
         setLockModeForSettings(True)
     
 #When the play button is pressed, toggle play status
-def playButtonPressed():
+def playButtonPressed ():
     setPlaying(not tg.isPlaying())
 
 #When the previous button is pressed, load previous trial
@@ -111,11 +113,11 @@ def loadTrial(trialNumber):
     tg.createGraph()
 
 #Tell the window (QMainWindow) to close (this will then be intercepted by the close event function below)
-def closeWindow():
+def closeWindow ():
     mainWindow.centralwidget.parentWidget().close()
 
 #Whenever the window is supposed to close, this event intercepts/overrides the default close event
-def closeEvent(event):
+def closeEvent (event):
     #Must stop session before we can close window
     if ts.currentSession:
         stopSessionConditionalConfirmation()
@@ -133,7 +135,7 @@ def closeEvent(event):
     event.accept()
 
 #Defines whether or not the trial is playing (only applies to data acquisition mode)
-def setPlaying(play):
+def setPlaying (play):
     if playMode == PlayMode.PLAYBACK:
         return
 
@@ -160,7 +162,7 @@ def setPlaying(play):
     mainWindow.stopButton.setEnabled(True)
 
 #Sets the lockmode
-def setLockModeForSettings(lock):
+def setLockModeForSettings (lock):
     
     #Changes the locked setting to the value that is passed to the function
     global settingsLocked
@@ -184,7 +186,7 @@ def setLockModeForSettings(lock):
     setAccessibilityOfSettings(not lock)
 
 #Sets the accessibility of the various setting entries 
-def setAccessibilityOfSettings(accessible):
+def setAccessibilityOfSettings (accessible):
     mainWindow.sessionNameLineEdit.setEnabled(accessible)
     mainWindow.subjectAgeSpinBox.setEnabled(accessible)
     mainWindow.subjectSexComboBox.setEnabled(accessible)
@@ -222,7 +224,7 @@ def verifySettingsValid():
     return not trialDurationInvalid and not sessionNameInvalid 
 
 #Returns whether or not the trial duration is valid based on the various other durations
-def trialDurationIsValid():
+def trialDurationIsValid ():
     beginningToEndOfUS = mainWindow.baselineDurationSpinBox.value()
     beginningToEndOfUS += mainWindow.csDurationSpinBox.value()
     beginningToEndOfUS += mainWindow.interstimulusIntervalSpinBox.value()
@@ -232,13 +234,13 @@ def trialDurationIsValid():
 
 #Returns if the session name contains any characters that could cause problems if in a file name
 #No regex used because importing the library for one time use probably isn't worth it
-def sessionNameIsValid():
+def sessionNameIsValid ():
     sessionText = mainWindow.sessionNameLineEdit.text()
     return not ("\\" in sessionText or "/" in sessionText or ":" in sessionText or "<" in sessionText or ">" in sessionText or
         "*" in sessionText or "?" in sessionText or "\"" in sessionText or "|" in sessionText)
 
 #Sets the defaults for the names if this function is called
-def assignDefaultsToEmptyFields():
+def assignDefaultsToEmptyFields ():
     if not mainWindow.csNameLineEdit.text():
         mainWindow.csNameLineEdit.setText(mainWindow.csNameLineEdit.placeholderText())
 
@@ -247,7 +249,7 @@ def assignDefaultsToEmptyFields():
 
 #Stop session and only ask for confirmation if appropriate (i.e. if data acquisition is ongoing)
 #Asking for confirmation means a "are you sure" dialog box pops up and you can say yes or no
-def stopSessionConditionalConfirmation():
+def stopSessionConditionalConfirmation ():
     #Ask for confirmation only if data acquisition is ongoing
     if (not tg.done) and playMode == PlayMode.ACQUISITION:
         stopSessionWithConfirmation()
@@ -255,7 +257,7 @@ def stopSessionConditionalConfirmation():
         stopSessionWithoutConfirmation()
 
 #Ask if user is sure they want to stop, then proceed if yes
-def stopSessionWithConfirmation():
+def stopSessionWithConfirmation ():
     #Pause during "Are you sure?" dialog pop-up
     if tg.isPlaying():    
         setPlaying(False)
@@ -283,7 +285,7 @@ def stopSessionWithConfirmation():
         stopSessionWithoutConfirmation()
 
 #Stops the session immediately without asking user
-def stopSessionWithoutConfirmation():
+def stopSessionWithoutConfirmation ():
     #Save data acquisition session
     if playMode == PlayMode.ACQUISITION:
         JSONConverter.endDataAcquisition()
@@ -306,7 +308,7 @@ def stopSessionWithoutConfirmation():
 #Takes a screenshot (of graph, window, or whole screen depending on captureType) and then...
 #IF returnCapture: Returns the capture
 #ELSE: opens a "Save As" window, and then saves as expected (unless user clicks cancel)
-def capture(captureType, returnCapture):
+def capture (captureType, returnCapture):
     #Take shot of graph
     if captureType == "Graph":
         #Cases where graph capture fails
@@ -352,7 +354,7 @@ def capture(captureType, returnCapture):
 #Extracts "jpg" from "JPG (*.jpg)" for example.
 #The "JPG (*.jpg)" is returned from QtGui.QFileDialog.getSaveFileName as second element in string tuple, but...
 #QPixMap.save() requires ".jpg", thus this function performs the conversion.
-def extractFileType(filter):
+def extractFileType (filter):
     #Default substring limits in case we can't find them in the string
     period = 0  #Start of substring (exclusive)
     closeParen = len(filter) #End of substring (exclusive)
@@ -384,7 +386,7 @@ def newSession():
 
     #That's it: at this point the user can navigate the UI to start the new session when and as desired
 
-def openSession():
+def openSession(fileStr=""):
     #You must first close the current session 
     if ts.currentSession:
         stopSessionConditionalConfirmation()
@@ -393,13 +395,16 @@ def openSession():
         if ts.currentSession:
             return
 
-    #Pop up "Open" window to retrieve file name and location of session file user wants to open
-    #The function returns a (file name/location, file type) tuple but I index it at 0 to just get file name
-    fileNameAndLocation = QtGui.QFileDialog.getOpenFileName(parent = mainWindow.centralwidget,
-                                caption = "Open Session For Playback",
-                                directory = JSONConverter.getSavedSessionDirectory(createIfNonexistent = True),
-                                filter = "JSON (*.json)")[0]
-
+    if fileStr == "":
+        #Pop up "Open" window to retrieve file name and location of session file user wants to open
+        #The function returns a (file name/location, file type) tuple but I index it at 0 to just get file name
+        fileNameAndLocation = QtGui.QFileDialog.getOpenFileName(parent = mainWindow.centralwidget, 
+                                    caption = "Open Session For Playback",
+                                    directory = JSONConverter.getSavedSessionDirectory(createIfNonexistent = True),
+                                    filter = "JSON (*.json)")[0]
+    else:
+        fileNameAndLocation = fileStr
+        
     #If user didn't click cancel on "Open", proceed for opening session in playback mode
     if len(fileNameAndLocation) > 0:
         #Opening a session means going into playback mode

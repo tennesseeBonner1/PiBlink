@@ -1,3 +1,18 @@
+"""
+    Detailed below is a basic layout of how the sessions are saved in the JSON format.
+
+    At the top layer of the dictionary structure, there are two key-value pairs. The two
+    keys are "header" and "trials"
+    
+    The value mapped to the "header" key is another dictionary containing key-value pairs
+    that relate to the session-specific settings (keys include: "name", "sex", "age", 
+    "trialDuration", etc.)
+    The value mapped to the "trials" key is a whole other hulking beast, as it is an
+    array of dictionaries, where each dictionary holds the information for a single trial.
+    Within these trial dictionaries are a few key-value pairs, including a pair which 
+    contains the stats of the trial (another dictionary), and a pair which maps a key to
+    an array containing all of the sample data.
+"""
 
 #This file's responsibilities are to...
 #1. Save sessions as JSON files.
@@ -11,7 +26,7 @@ import os
 
 #Called on start of program to perform initialization (i.e. getting reference to main window)
 def initialSetUp (theMainWindow):
-    global mainWindow
+    global mainWindow, saveFilename
 
     mainWindow = theMainWindow
 
@@ -22,7 +37,7 @@ def initialSetUp (theMainWindow):
 #for trial saving. Also determines the save filename (performed at start of session versus end...
 #because the start date is what we're interested in, not the end date).
 def startDataAcquisition():
-    global trialsSaved, saveFilename, jsonObject
+    global trialsSaved, jsonObject
     	
     trialsSaved = 0
 
@@ -140,11 +155,12 @@ def getSavedSessionDirectory(createIfNonexistent):
 #Opens JSON file, reads in JSON data, recreates session object with data
 #After this function is called, the user can press the play button to begin playback
 def openSession(filename):
-    global jsonObject
+    global jsonObject, saveFilename
 
     #Open file, extract contents into string, and close the file
     try:
         sessionFile = open(file = filename, mode = "r")
+        saveFilename = filename
         jsonString = sessionFile.read()
         sessionFile.close()
     except Exception:
@@ -170,3 +186,10 @@ def openSession(filename):
 #Return the array of samples for the current trial
 def openTrial():
     return jsonObject["trials"][ts.currentSession.currentTrial - 1]["samples"]
+
+#Returns the array of onsets for the current trial
+def getOnsets():
+    return jsonObject["trials"][ts.currentSession.currentTrial - 1]["stats"]["onsetSamples"]
+
+def getOffsets():
+    return jsonObject["trials"][ts.currentSession.currentTrial - 1]["stats"]["offsetSamples"]

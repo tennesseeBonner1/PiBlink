@@ -1,5 +1,4 @@
-﻿
-import math
+﻿import math
 import TheGraph as tg
 import TheSession as ts
 
@@ -7,9 +6,12 @@ maxArrowCount = 30
 
 #Called by JSON converter to get the stats to save for each trial
 #(data acquisition analysis)
-def getTrialStats():
+def getTrialStats(minSD=4, minDuration=1, data=None):
+    if data == None:
+        data = tg.data
+
     #Compute analysis-related trial stats
-    analyzeTrial()
+    analyzeTrial(minSD, minDuration, data)
 
     #Compute CS/US onset/offset
     csOnset = ts.currentSession.baselineDuration
@@ -34,6 +36,7 @@ def getTrialStats():
     #Return stats dictionary
     return statsDict
 
+#Don't think this function is necessary anymore -toDelete
 #Called after playback view of trial is generated to place arrows where blinking starts
 #(playback analysis)
 def addEyeblinkArrows():
@@ -54,15 +57,19 @@ def addEyeblinkArrows():
 #-----------------------------------------------------------------------------------------------------
 #BELOW ARE THE HELPER FUNCTIONS
 
-def analyzeTrial():
+def analyzeTrial(minSD=4, minDuration=1, data=None):
     #Initialize local variables
     baselineEnd = ts.currentSession.csStartInSamples
-    blinkStarted = False
+    blinking = False
+    count = 0
     dataSize = tg.dataSize
 
     #Initialize global variables
-    global data, baselineTotal, onsetSamples, offsetSamples
-    data = tg.data
+    global baselineTotal, onsetSamples, offsetSamples
+
+    if data == None:
+        data = tg.data
+    
     baselineTotal = 0.00
     onsetSamples = []
     offsetSamples = []
@@ -75,31 +82,33 @@ def analyzeTrial():
 
         #One time, at end of baseline, compute average and standard deviation (SD)
         elif sampleIndex == baselineEnd:
-            computeAverageAndSD()
+            computeAverageAndSD(data)
 
-        #After baseline track when samples go in and out of two SD from average
-        #and place an arrow when samples become greater than two SD from average
+        #After baseline, compute onsets and offsets based on the minimum SDs and duration
+        #required to be counted as a blink
         else:
-            #Is current sample "blinking", AKA greater than two SD from average?
-            blinkValue = checkForBlink(data[sampleIndex])
+            #First, check to see if the value is above the threshold
+            overThreshold = data[sampleIndex] > (baselineAverage + minSD * standardDeviation)
 
-            #Previously blinking, so see if we need to change state to not blinking
-            if blinkStarted:
-                if not blinkValue:
-                    blinkStarted = False
-                    offsetSamples.append(sampleIndex + 1)
+            #Adjust the count of consecutive values above the threshold accordingly
+            count = (count + 1) * overThreshold
 
-            #Previously not blinking, so see if we need to change state to blinking
-            else:
-                if blinkValue:
-                    blinkStarted = True
-                    onsetSamples.append(sampleIndex + 1)
+            #Then check if we can confirm any onsets/offsets
+            #Check to see if a new onset should be registered
+            if not blinking and (count >= minDuration):
+                blinking = True
+                onsetSamples.append(sampleIndex - minDuration + 2)
+
+            #Check to see if a new offset should be registered
+            elif blinking and not overThreshold:
+                blinking = False
+                offsetSamples.append(sampleIndex + 1)
 
 def addToBaselineTotal(number):
     global baselineTotal
     baselineTotal += number
 
-def computeAverageAndSD():
+def computeAverageAndSD(data):
     global baselineAverage, standardDeviation
 
     #Determine number of samples in baseline
@@ -116,6 +125,7 @@ def computeAverageAndSD():
     number = number / baselineSampleCount
     standardDeviation = math.sqrt(number)
 
+#-toDelete
 #Returns whether eyeblink amplitude is high enough to be considered "blinking"
 def checkForBlink(value):
-    return (value > (baselineAverage + (2 * standardDeviation)))
+    return (value > (baselineAverage + (4 * standardDeviation)))
