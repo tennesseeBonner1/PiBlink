@@ -1,157 +1,164 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>matrixViewDialog</class>
+ <widget class="QDialog" name="matrixViewDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>728</width>
-    <height>138</height>
+    <width>505</width>
+    <height>203</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Matrix View of Trials</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QVBoxLayout" name="masterVerticalLayout">
+    <layout class="QHBoxLayout" name="generalButtonsLayout">
      <item>
-      <layout class="QHBoxLayout" name="generalButtonsLayout">
-       <item>
-        <widget class="QPushButton" name="saveButton">
-         <property name="font">
-          <font>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Save As Image</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="regenerateButton">
-         <property name="font">
-          <font>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Change Parameters</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="sessionNameLabel">
-         <property name="font">
-          <font>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Sample Session Name</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="closeButton">
-         <property name="font">
-          <font>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Close</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="Line" name="generalButtonsLine">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QPushButton" name="saveButton">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Save As Image</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QWidget" name="gridWidget" native="true">
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <property name="leftMargin">
+      <widget class="QPushButton" name="regenerateButton">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Change Parameters</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="generalButtonsSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeButton">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="generalButtonsLine">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="gridWidget" native="true">
+     <layout class="QVBoxLayout" name="verticalLayoutAroundGrid">
+      <item>
+       <widget class="QLabel" name="gridInfoLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Loading...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="gridInfoLine">
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="spacing">
          <number>0</number>
         </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <layout class="QGridLayout" name="trialGridLayout">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-         </layout>
-        </item>
        </layout>
-      </widget>
-     </item>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="pageButtonsLine">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalButtonsLayout">
      <item>
-      <widget class="Line" name="pageButtonsLine">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QPushButton" name="previousButton">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Previous Page</string>
        </property>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalButtonLayout">
-       <item>
-        <widget class="QPushButton" name="previousButton">
-         <property name="font">
-          <font>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Previous Page</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="pageNumberLabel">
-         <property name="font">
-          <font>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Page 1 / 1</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="nextButton">
-         <property name="font">
-          <font>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Next Page</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QLabel" name="pageNumberLabel">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Page 1 / 1</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="nextButton">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Next Page</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

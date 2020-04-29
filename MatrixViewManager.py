@@ -4,14 +4,22 @@ from PyQt5.QtGui import QFileDialog
 import TheSession as ts
 import InputManager as im
 import MatrixViewWindow as mvw
-import GridDimensionsWindow as gdw
+import MatrixParametersWindow as mpw
+import math
 
 #Call this to do the whole thingy-ma-doodle
 def generateMatrixView():
-    #First, populate the global trialCaptures list
-    generateTrialCaptures()
+    #First, ask the user what the parameters for the matrix should be
+    operationCancelled = getMatrixParameters()
+    if operationCancelled:
+        return
 
-    #Then, display matrix window using the data from that list
+    #Then, populate the global trialCaptures list
+    operationCancelled = generateTrialCaptures()
+    if operationCancelled:
+        return
+
+    #Finally, display matrix window using the data from that list
     openMatrixViewMenu()
 
 #Populates the global trialCaptures list
@@ -25,7 +33,6 @@ def generateTrialCaptures():
     originalTrialNumber = ts.currentSession.currentTrial
 
     #Define parameters
-    trialImageWidth = 400
     trialCount = ts.currentSession.trialCount
 
     #Initialize trial captures list as empty list
@@ -61,7 +68,8 @@ def generateTrialCaptures():
         trialCapture = im.capture("Graph", True)
 
         #Resize capture (mode specifies to do it without any smoothing to save performance)
-        trialCapture = trialCapture.scaledToWidth(trialImageWidth, mode = Qt.FastTransformation)
+        trialCapture = trialCapture.scaled(trialWidth, trialHeight,
+                                           transformMode = Qt.FastTransformation)
 
         #Save capture in list
         trialCaptures.append(trialCapture)
@@ -77,17 +85,16 @@ def generateTrialCaptures():
     #We should do this regard of if the operation is cancelled (hence before return statement below)
     im.loadTrial(originalTrialNumber)
 
-    #User clicked cancel on operation so stop
-    if inProgress.wasCanceled():
-        return
+    #Return whether operation was cancelled
+    return inProgress.wasCanceled()
 
 #Called to open the matrix view window
 def openMatrixViewMenu():
-    global matrixViewWrapper
+    global matrixViewWrapper, matrixViewWindow
 
     #Create the matrix view window (using the Qt Designer-generated Ui_Dialog)
     matrixViewWindow = QDialog()
-    matrixViewWrapper = mvw.Ui_Dialog()
+    matrixViewWrapper = mvw.Ui_matrixViewDialog()
     matrixViewWrapper.setupUi(matrixViewWindow)
 
     #Fill the window with the trial screenshots
@@ -95,73 +102,65 @@ def openMatrixViewMenu():
     
     #Connect window buttons to handlers
     matrixViewWrapper.saveButton.clicked.connect(saveMatrixAsImage)
-    matrixViewWrapper.regenerateButton.clicked.connect(openGridDimensionsMenu)
+    matrixViewWrapper.regenerateButton.clicked.connect(changeParameters)
     matrixViewWrapper.closeButton.clicked.connect(matrixViewWindow.close)
+    matrixViewWrapper.previousButton.clicked.connect(previousPage)
+    matrixViewWrapper.nextButton.clicked.connect(nextPage)
 
     #Display the window
     matrixViewWindow.exec()
 
-#Called to open the parameters menu for generating the matrix
-def openGridDimensionsMenu():
-    global gridDimensionsWrapper
-
-    gridDimensionsWindow = QDialog()
-    gridDimensionsWrapper = gdw.Ui_gridViewWindow()
-    gridDimensionsWrapper.setupUi(gridDimensionsWindow)
-
-    gridDimensionsWindow.exec()
-
-def calculateRows(value):
-    #Calculate all the numbers that the array's length can be divided by
-    divisibles = []    
-    for i in range(1, value):
-        if (value % i == 0):
-            divisibles.append(i)
-            print("i " + str(i))
-            
-            if ((value // i) != i):
-                divisibles.append(value // i)
-                print("value // i " + str(value //i) )
-
-    #Take the two closest values that the lengh can be divided by, and return a value in between those two
-    if (len(divisibles) % 2 == 0):
-        returnValue = divisibles[(len(divisibles) // 2)] - divisibles[(len(divisibles) // 2) - 1] 
-        testValue = int(float(returnValue) // 2.0)
-        returnValue = divisibles[(len(divisibles) // 2) - 1] + testValue
-        return returnValue
-
-    #return the centermost value of deliverables
-    #EX: value = 9 (divisible by 1, 3 and 9) 
-    else:
-        if (len(divisibles) == 1):
-            return divisibles[0]
-        elif (len(divisibles) == 3):
-            return divisibles[2]
-        else:
-            return divisibles[int(float(len(divisibles)) // 2.0)]
+#Called to close matrix view and reopen parameter window
+def changeParameters():
+    matrixViewWindow.close()
+    generateMatrixView()
 
 #Fill the window with the trial screenshots
 def loadTrialsIntoGridLayout():
-    gridLayout = matrixViewWrapper.trialGridLayout
+    global trialsPerPage, totalPageCount
 
-    #For reference
+    #Perform some preliminary computations
+    computeMaxTrialsPerRowAndColumn()
+    trialsPerPage = maxTrialsPerRow * maxTrialsPerColumn
+    totalPageCount = math.ceil(len(trialCaptures) / trialsPerPage)
+
+    #Start with page 1
+    loadPage(1)
+
+def nextPage():
+    loadPage(pageNumber + 1)
+
+def previousPage():
+    loadPage(pageNumber - 1)
+
+def loadPage(newPageNumber):
+    if newPageNumber < 1:
+        newPageNumber = totalPageCount
+    elif newPageNumber > totalPageCount:
+        newPageNumber = 1
+
+    loadPageNoChecks(newPageNumber)
+
+def loadPageNoChecks(newPageNumber):
+    global pageNumber, trialCount, loadedTrials
+
+    clearGridLayout()
+
+    pageNumber = newPageNumber
     trialCount = len(trialCaptures)
 
-    rows = calculateRows(trialCount)
-    print("Rows should be " + str(rows)) 
+    gridLayout = matrixViewWrapper.gridLayout
+    
+    gridLayout.setSpacing(spacing)
 
-    #Define number of rows and columns
-
-    columns = trialCount // rows #Integer division
-    if columns == 0:
-        columns = 1
-    elif trialCount % rows > 0: #Add left over column if needed
-        columns += 1
+    matrixViewWrapper.pageNumberLabel.setText("Page " + str(pageNumber) + "/" + str(totalPageCount))
+    
+    currentTrialIndex = trialsPerPage * (pageNumber - 1)
+    startingTrial = currentTrialIndex + 1
 
     #Add each trial capture to grid layout in order
-    currentTrialIndex = 0
-    for row in range(rows):
-        for column in range(columns):
+    for row in range(maxTrialsPerColumn):
+        for column in range(maxTrialsPerRow):
             #Make sure there are still trial captures left to add
             if currentTrialIndex == trialCount:
                 break
@@ -177,6 +176,16 @@ def loadTrialsIntoGridLayout():
             #Move onto next trial capture
             currentTrialIndex += 1
 
+    matrixViewWrapper.gridInfoLabel.setText("Showing trials " + str(startingTrial) + "-"
+                                        + str(currentTrialIndex) + " of " + str(trialCount) + ":")
+
+def clearGridLayout():
+    gridLayout = matrixViewWrapper.gridLayout
+
+    #https://stackoverflow.com/questions/4528347/clear-all-widgets-in-a-layout-in-pyqt/13103617
+    for x in reversed(range(gridLayout.count())):
+        gridLayout.itemAt(x).widget().setParent(None)
+
 def saveMatrixAsImage():
     #Take picture of the grid
     matrixAsImage = matrixViewWrapper.gridWidget.grab()
@@ -189,3 +198,111 @@ def saveMatrixAsImage():
     #If user didn't click cancel on "Save As", save screenshot using "Save As" options
     if len(nameAndType[0]) > 0:
         matrixAsImage.save(nameAndType[0], im.extractFileType(nameAndType[1]))
+
+#Opens the matrix parameters window and saves the chosen parameters as global variables
+def getMatrixParameters():
+    global matrixParametersWrapper
+
+    #Create the matrix parameters window (using the Qt Designer-generated Ui_trialMatrixParametersDialog)
+    matrixParametersWindow = QDialog()
+    matrixParametersWrapper = mpw.Ui_trialMatrixParametersDialog()
+    matrixParametersWrapper.setupUi(matrixParametersWindow)
+
+    #Make the window not resizable
+    matrixParametersWindow.setFixedSize(matrixParametersWindow.size())
+
+    #Connect window buttons to handlers
+    matrixParametersWrapper.cancelButton.clicked.connect(
+        lambda: matrixParametersWindow.done(QDialog.Rejected))
+    matrixParametersWrapper.generateButton.clicked.connect(
+        lambda: parametersAccepted(matrixParametersWindow))
+
+    #Make values automatically adjust to each other (to maintain aspect ratio for example)
+    matrixParametersWrapper.trialWidthSpinBox.valueChanged.connect(trialWidthChanged)
+    matrixParametersWrapper.trialHeightSpinBox.valueChanged.connect(preventZeroTrialsPerPage)
+    matrixParametersWrapper.pageWidthSpinBox.valueChanged.connect(preventZeroTrialsPerPage)
+    matrixParametersWrapper.pageHeightSpinBox.valueChanged.connect(preventZeroTrialsPerPage)
+
+    #Set the trial width and height defaults to current size of trial on graph
+    matrixParametersWrapper.trialWidthSpinBox.setValue(im.mainWindow.graphWidget.width())
+
+    #Initialize parameters to default ones displayed on the window
+    readInParametersFromWindow()
+
+    #Display the window
+    result = matrixParametersWindow.exec()
+
+    #Let the calling procedure know if cancel or "X" was pressed
+    return result == QDialog.Rejected
+
+#Set global parameters to those currently displayed on parameters window
+def readInParametersFromWindow():
+    global trialWidth, trialHeight, spacing, maxPageWidth, maxPageHeight, maxRows, maxColumns
+
+    trialWidth = matrixParametersWrapper.trialWidthSpinBox.value()
+    trialHeight = matrixParametersWrapper.trialHeightSpinBox.value()
+
+    spacing = matrixParametersWrapper.spacingSpinBox.value()
+
+    maxPageWidth = matrixParametersWrapper.pageWidthSpinBox.value()
+    maxPageHeight = matrixParametersWrapper.pageHeightSpinBox.value()
+
+    maxRows = matrixParametersWrapper.maxRowsSpinBox.value()
+    maxColumns = matrixParametersWrapper.maxColumnsSpinBox.value()
+
+#User clicked generate button on matrix parameters window
+def parametersAccepted(matrixParametersWindow):
+    #Save parameters
+    readInParametersFromWindow()
+
+    #Close window with accepted state (Cancel and "X" buttons close window with rejected state)
+    matrixParametersWindow.done(QDialog.Accepted)
+
+def trialWidthChanged(newWidth):
+    #Change height to maintain aspect ratio
+    aspectRatio = im.mainWindow.graphWidget.width() / im.mainWindow.graphWidget.height()
+    matrixParametersWrapper.trialHeightSpinBox.setValue(int(newWidth / aspectRatio))
+
+    preventZeroTrialsPerPage()
+
+def preventZeroTrialsPerPage():
+    trialWidth = matrixParametersWrapper.trialWidthSpinBox.value()
+    trialHeight = matrixParametersWrapper.trialHeightSpinBox.value()
+
+    maxPageWidth = matrixParametersWrapper.pageWidthSpinBox.value()
+    maxPageHeight = matrixParametersWrapper.pageHeightSpinBox.value()
+
+    if trialWidth > maxPageWidth:
+        matrixParametersWrapper.pageWidthSpinBox.setValue(trialWidth)
+
+    if trialHeight > maxPageHeight:
+        matrixParametersWrapper.pageHeightSpinBox.setValue(trialHeight)
+
+def computeMaxTrialsPerRowAndColumn():
+    global maxTrialsPerRow, maxTrialsPerColumn
+
+    #Compute max trials per row
+    currentWidth = 0
+    for trial in range(1, maxColumns + 1): 
+        #Add trial width
+        currentWidth += trialWidth
+        if currentWidth > maxPageWidth:
+            break
+
+        maxTrialsPerRow = trial
+
+        #Add spacing
+        currentWidth += spacing
+
+    #Compute max trials per column
+    currentHeight = 0
+    for trial in range(1, maxRows + 1): 
+        #Add trial height
+        currentHeight += trialHeight
+        if currentHeight > maxPageHeight:
+            break
+
+        maxTrialsPerColumn = trial
+
+        #Add spacing
+        currentHeight += spacing
