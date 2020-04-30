@@ -24,9 +24,11 @@ import json
 from datetime import datetime
 import os
 
+saveFilename = ""
+
 #Called on start of program to perform initialization (i.e. getting reference to main window)
-def initialSetUp (theMainWindow):
-    global mainWindow, saveFilename
+def initialSetUp(theMainWindow):
+    global mainWindow
 
     mainWindow = theMainWindow
 
@@ -37,7 +39,7 @@ def initialSetUp (theMainWindow):
 #for trial saving. Also determines the save filename (performed at start of session versus end...
 #because the start date is what we're interested in, not the end date).
 def startDataAcquisition():
-    global trialsSaved, jsonObject
+    global trialsSaved, saveFilename, jsonObject
     	
     trialsSaved = 0
 

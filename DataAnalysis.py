@@ -6,8 +6,8 @@ maxArrowCount = 30
 
 #Called by JSON converter to get the stats to save for each trial
 #(data acquisition analysis)
-def getTrialStats(minSD=4, minDuration=1, data=None):
-    if data == None:
+def getTrialStats(minSD=4, minDuration=1, data=[]):
+    if len(data) == 0:
         data = tg.data
 
     #Compute analysis-related trial stats
@@ -57,7 +57,7 @@ def addEyeblinkArrows():
 #-----------------------------------------------------------------------------------------------------
 #BELOW ARE THE HELPER FUNCTIONS
 
-def analyzeTrial(minSD=4, minDuration=1, data=None):
+def analyzeTrial(minSD=4, minDuration=1, data=[]):
     #Initialize local variables
     baselineEnd = ts.currentSession.csStartInSamples
     blinking = False
@@ -67,7 +67,7 @@ def analyzeTrial(minSD=4, minDuration=1, data=None):
     #Initialize global variables
     global baselineTotal, onsetSamples, offsetSamples
 
-    if data == None:
+    if len(data) == 0:
         data = tg.data
     
     baselineTotal = 0.00

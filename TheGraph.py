@@ -18,17 +18,14 @@ def htmlColorString(qtColor):
     return "rgb(" + str(qtColor.red()) + ", " + str(qtColor.blue()) + ", " + str(qtColor.green()) + ")"
 
 #Initializes global variables that need to have default values or references to objects in main window
-def initialSetUp (theMainWindow):
+def initialSetUp(theMainWindow):
     global graphInitialized, playing, duringITI, done
-    global startedCS, csInProgress, startedUS, usInProgress
     global mainWindow, graphWindow
 
     graphInitialized = False
     playing = False
     duringITI = False
     done = False
-
-    startedCS = csInProgress = startedUS = usInProgress = False
 
     #Graph settings on main window
     mainWindow = theMainWindow
@@ -38,11 +35,11 @@ def initialSetUp (theMainWindow):
     graphWindow.setBackground(None)
 
 #Whether or not the graph is playing
-def isPlaying ():
+def isPlaying():
     return playing
 
 #Sets the graph's play status to parameter (i.e. true = playing, false = paused)
-def setPlaying (play):
+def setPlaying(play):
     global playing, duringITI, graphInitialized
     
     playing = play
@@ -56,16 +53,13 @@ def setPlaying (play):
             createGraph()
 
 #Resets the graph (i.e. removes graph window and is ready for new call to createGraph)
-def resetGraph ():
+def resetGraph():
     global playing, graphInitialized, duringITI, done
-    global startedCS, csInProgress, startedUS, usInProgress
 
     #Reset variables
     playing = False
     graphInitialized = False
     done = False
-
-    startedCS = csInProgress = startedUS = usInProgress = False
 
     #Stop timers
     tco.orderToStopTrial()
@@ -203,10 +197,6 @@ def createGraph():
         arrowCap = min(len(onsets), 30)
         for x in range(arrowCap):
             addArrow(onsets[x] - 1)
-        
-        #This code is more or less obsolete now, so I'm gonna mark this with a -toDelete
-        #Add analysis annotations of trial to graph
-        #da.addEyeblinkArrows()
     else:
         #START DATA ACQUISITION...
         #i.e. start timers
@@ -251,36 +241,6 @@ def displayUpdate():
 displayTimer = QtCore.QTimer()
 displayTimer.timeout.connect(displayUpdate)
 
-#Called by sample update to manage analog (both CS and US) outputs
-#Doesn't need to be called during playback b/c playback shouldn't interact with analog I/O
-def manageAnalogOutputs ():
-    global startedCS, csInProgress, startedUS, usInProgress
-
-    #Manage CS output
-    if startedCS:
-        if csInProgress:
-            if iteration < ts.currentSession.csEndInSamples:
-                dw.setCSAmplitude(True)
-            else:
-                csInProgress = False
-                dw.setCSAmplitude(False)
-    elif iteration >= ts.currentSession.csStartInSamples:
-        startedCS = True
-        csInProgress = True
-        dw.setCSAmplitude(True)
-
-    #Manage US output (exact same thing but for US)
-    if startedUS:
-        if usInProgress:
-            if iteration < ts.currentSession.usEndInSamples:
-                dw.setUSAmplitude(True)
-            else:
-                usInProgress = False
-                dw.setUSAmplitude(False)
-    elif iteration >= ts.currentSession.usStartInSamples:
-        startedUS = True
-        usInProgress = True
-        dw.setUSAmplitude(True)
 
 def endTrialStartITI():
     global itiCountdown, itiInterval, duringITI, countdownLabel, done
