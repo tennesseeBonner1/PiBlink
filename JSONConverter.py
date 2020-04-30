@@ -1,4 +1,9 @@
 """
+    This file's responsibilities are to...
+    1. Save sessions as JSON files.
+    2. Open the JSON saved session files.
+    3. Provide a few common functionalities related to file management.
+
     Detailed below is a basic layout of how the sessions are saved in the JSON format.
 
     At the top layer of the dictionary structure, there are two key-value pairs. The two
@@ -14,23 +19,18 @@
     an array containing all of the sample data.
 """
 
-#This file's responsibilities are to...
-#1. Save sessions as JSON files.
-#2. Open the JSON saved session files.
-
 import TheSession as ts
 import DataAnalysis as da
 import json
 from datetime import datetime
 import os
 
-saveFilename = ""
-
 #Called on start of program to perform initialization (i.e. getting reference to main window)
 def initialSetUp(theMainWindow):
-    global mainWindow
+    global mainWindow, saveFilename
 
     mainWindow = theMainWindow
+    saveFilename = ""
 
 #-----------------------------------------------------------------------------------------------------
 #1. SAVE SESSION/DATA ACQUISITION MODE SUPPORT
@@ -139,18 +139,6 @@ def endDataAcquisition():
         #Close file
         sessionFile.close()
 
-#This can be later extended to give the user the option to choose which directory is...
-#the default directory, or have the system remember the last used directory
-def getSavedSessionDirectory(createIfNonexistent):
-    #Subfolder of current working dir
-    savedSessionDirectory = os.path.join(os.getcwd(), "Saved Sessions")
-
-    #Make the directory if required to exist
-    if createIfNonexistent and (not os.path.exists(savedSessionDirectory)):
-        os.makedirs(savedSessionDirectory)
-
-    return savedSessionDirectory
-
 #-----------------------------------------------------------------------------------------------------
 #2. OPEN SESSION/PLAYBACK MODE SUPPORT
 
@@ -195,3 +183,29 @@ def getOnsets():
 
 def getOffsets():
     return jsonObject["trials"][ts.currentSession.currentTrial - 1]["stats"]["offsetSamples"]
+
+#-----------------------------------------------------------------------------------------------------
+#3. COMMON FILE MANAGEMENT FUNCTIONS
+
+#This can be later extended to give the user the option to choose which directory is...
+#the default directory, or have the system remember the last used directory
+def getSavedSessionDirectory(createIfNonexistent):
+    #Subfolder of current working dir
+    savedSessionDirectory = os.path.join(os.getcwd(), "Saved Sessions")
+
+    #Make the directory if required to exist
+    if createIfNonexistent and (not os.path.exists(savedSessionDirectory)):
+        os.makedirs(savedSessionDirectory)
+
+    return savedSessionDirectory
+
+#Gets the filename of the currently open file and returns it
+def getCurrentFilename():
+	#Partition the lengthy pathname to get only the file name (checking for both \ and / to be safe)
+	justTheName = saveFilename.rpartition('\\')[2]
+	justTheName = justTheName.rpartition('/')[2]
+
+	#remove the file extension
+	justTheName = justTheName.rpartition('.')[0]
+	
+	return justTheName

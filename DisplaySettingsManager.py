@@ -1,8 +1,10 @@
 
-#Module for all management of the display settings. This management is comprised of 3 things...
-#1. Managing the pop-up window (in DisplaySettingsWindow.py) for viewing and editing these settings.
-#2. Managing the text file (Display Settings.txt) for saving these settings.
-#3. Managing the program variables that hold the current state of these settings (ex: dsm.displayRate)
+'''
+Module for all management of the display settings. This management is comprised of 3 things...
+1. Managing the pop-up window (in DisplaySettingsWindow.py) for viewing and editing these settings.
+2. Managing the text file (Display Settings.txt) for saving these settings.
+3. Managing the program variables that hold the current state of these settings (ex: dsm.displayRate)
+'''
 
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QDialog

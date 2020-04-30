@@ -6,7 +6,7 @@ import DisplaySettingsManager as dsm
 import GraphExporter
 import JSONConverter
 import TimeCriticalOperations as tco
-import MatrixViewManager as mvm
+import MatrixManager as mm
 import AnalysisSettingsManager as asm
 from enum import Enum
 
@@ -69,7 +69,7 @@ def connectButtons():
 
     #Detects all "Analyze -> [X]" menu actions
     mainWindow.actionRe_Analyze_Session.triggered.connect(asm.openAnalysisSettingsWindow)
-    mainWindow.actionGenerate_Matrix_View.triggered.connect(mvm.generateMatrixView)
+    mainWindow.actionGenerate_Matrix_View.triggered.connect(mm.generateMatrixView)
 
     #Override close event function of QMainWindow for purpose of adding "are you sure you want to quit?" prompt
     mainWindow.centralwidget.parentWidget().closeEvent = closeEvent

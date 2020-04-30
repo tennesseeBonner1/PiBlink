@@ -25,7 +25,7 @@ def openAnalysisSettingsWindow():
 	windowWrapper.radioButton_GenerateNew.toggled.connect(setFilenameEditorEnabled)
 	
 	#properly set the text in the line editor
-	windowWrapper.lineEdit_customSaveName.setText(getCurrentFilename())
+	windowWrapper.lineEdit_customSaveName.setText(jsCon.getCurrentFilename())
 	
 	dialogWindow.exec()
 
@@ -65,7 +65,7 @@ def reAnalyze():
 	fileString = json.dumps(fileCopy)
 
 	#get the name of the file currently open,
-	oldFileName = getCurrentFilename()
+	oldFileName = jsCon.getCurrentFilename()
 
 	#check if there's already a .json in the new name, removing it if there is
 	if ".json" in customName:
@@ -84,17 +84,6 @@ def reAnalyze():
 	im.openSession(newFilename)
 	if not nameError:
 		closeWindow()
-
-#Gets the filename of the currently open file and returns it
-def getCurrentFilename():
-	#Partition the lengthy pathname to get only the file name (checking for both \ and / to be safe)
-	startName = jsCon.saveFilename.rpartition('\\')[2]
-	startName = startName.rpartition('/')[2]
-
-	#remove the file extension
-	startName = startName.rpartition('.')[0]
-	
-	return startName
 
 #Sets the line editor to be enabled/disabled depending on if the "Save as Custom Name" option is selected
 def setFilenameEditorEnabled():

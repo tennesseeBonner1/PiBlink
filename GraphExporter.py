@@ -1,12 +1,14 @@
 
-#Module that performs screenshots on pyqtgraph items (i.e. the stimulus graph).
+'''
+Module that performs screenshots on pyqtgraph items (i.e. the stimulus graph).
 
-#This file is originally from the pyqtgraph library and was called "ImageExporter.py".
-#However, that file had a bug in it (see BEFORE and AFTER comments below) so I had to create this modified...
-#instance of it in order to get it to work. All credit for this file goes to the author of the pyqtgraph library.
+This file is originally from the pyqtgraph library and was called "ImageExporter.py".
+However, that file had a bug in it (see BEFORE and AFTER comments below) so I had to create this modified...
+instance of it in order to get it to work. All credit for this file goes to the author of the pyqtgraph library.
 
-#Aside from the single bug fix, all instances of "ImageExporter" are now "GraphExporter", imports were fixed to point to...
-#the correct locations and the captureItem function was added below for convenience. That's it.
+Aside from the single bug fix, all instances of "ImageExporter" are now "GraphExporter", imports were fixed to point to...
+the correct locations and the captureItem function was added below for convenience. That's it.
+'''
 
 from pyqtgraph.exporters.Exporter import Exporter
 from pyqtgraph.parametertree import Parameter

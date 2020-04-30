@@ -66,7 +66,7 @@
         <number>10</number>
        </property>
        <property name="maximum">
-        <number>500</number>
+        <number>10000</number>
        </property>
        <property name="singleStep">
         <number>10</number>
@@ -96,7 +96,7 @@
         <number>10</number>
        </property>
        <property name="maximum">
-        <number>500</number>
+        <number>10000</number>
        </property>
        <property name="singleStep">
         <number>10</number>
@@ -126,6 +126,9 @@
          <pointsize>14</pointsize>
         </font>
        </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Pixels of empty space between trials both horizontally and vertically. Spacing is only applied between trials, not on the edges.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>Spacing (px)</string>
        </property>
@@ -139,7 +142,10 @@
         </font>
        </property>
        <property name="maximum">
-        <number>100</number>
+        <number>500</number>
+       </property>
+       <property name="value">
+        <number>10</number>
        </property>
       </widget>
      </item>
@@ -182,7 +188,7 @@
         <number>1</number>
        </property>
        <property name="maximum">
-        <number>100</number>
+        <number>1000</number>
        </property>
        <property name="value">
         <number>100</number>
@@ -195,6 +201,9 @@
         <font>
          <pointsize>14</pointsize>
         </font>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Trials and spacing will be added to each row until the max page width is reached, max columns per page is reached, or there are no more trials to display.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>Max Columns Per Page</string>
@@ -212,7 +221,7 @@
         <number>1</number>
        </property>
        <property name="maximum">
-        <number>100</number>
+        <number>1000</number>
        </property>
        <property name="value">
         <number>100</number>
@@ -238,8 +247,11 @@
          <pointsize>14</pointsize>
         </font>
        </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Trials and spacing will be added to each row until the max page width is reached, max columns per page is reached, or there are no more trials to display.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
-        <string>Page Width (px)</string>
+        <string>Max Page Width (px)</string>
        </property>
       </widget>
      </item>
@@ -260,7 +272,7 @@
         <number>10</number>
        </property>
        <property name="value">
-        <number>900</number>
+        <number>1000</number>
        </property>
       </widget>
      </item>
@@ -271,8 +283,11 @@
          <pointsize>14</pointsize>
         </font>
        </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Once this limit is reached, a new page is made. A page is the set of all trials displayed on the screen at one time.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
-        <string>Page Height (px)</string>
+        <string>Max Page Height (px)</string>
        </property>
       </widget>
      </item>
@@ -293,7 +308,7 @@
         <number>10</number>
        </property>
        <property name="value">
-        <number>900</number>
+        <number>750</number>
        </property>
       </widget>
      </item>
