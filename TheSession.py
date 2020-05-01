@@ -15,7 +15,7 @@ class TheSession(object):
     subjectAge = 30
     subjectSex = Sex.MALE
     sampleInterval = 100
-    trialCount = 60
+    trialCount = 25
     iti = 5
     itiVariance = 3
 
@@ -27,6 +27,7 @@ class TheSession(object):
     interstimulusInterval = 2
     usName = "Air Puff"
     usDuration = 2
+    usDelay = 0
 
     #General variables
     currentTrial = 1
@@ -73,6 +74,7 @@ class TheSession(object):
         self.interstimulusInterval = mainWindow.interstimulusIntervalSpinBox.value()
         self.usName = mainWindow.usNameLineEdit.text()
         self.usDuration = mainWindow.usDurationSpinBox.value()
+        self.usDelay = mainWindow.usDelaySpinBox.value()
 
     #Reads in values from JSON settings header and stores them in the session settings
     def readInSettingsFromJSON (self, jsonSettings):
@@ -92,6 +94,7 @@ class TheSession(object):
         self.interstimulusInterval = int(jsonSettings["isi"])
         self.usName = jsonSettings["usName"]
         self.usDuration = int(jsonSettings["usDuration"])
+        self.usDelay = int(jsonSettings["usDelay"])
 
     #Outputs the values from this session object to the settings GUI panel
     def outputSettingsToGUI (self, mainWindow):
@@ -111,14 +114,20 @@ class TheSession(object):
         mainWindow.interstimulusIntervalSpinBox.setValue(self.interstimulusInterval)
         mainWindow.usNameLineEdit.setText(self.usName)
         mainWindow.usDurationSpinBox.setValue(self.usDuration)
+        mainWindow.usDelaySpinBox.setValue(self.usDelay)
 
     #Used by the graph to convert from milliseconds to samples
     def computeSampleMeasurements(self):
         self.trialLengthInSamples = int(self.trialDuration / self.sampleInterval)
+
         self.csStartInSamples = int(self.baselineDuration / self.sampleInterval)
         self.csEndInSamples = self.csStartInSamples + int(self.csDuration / self.sampleInterval)
+
         self.usStartInSamples = self.csEndInSamples + int(self.interstimulusInterval / self.sampleInterval)
         self.usEndInSamples = self.usStartInSamples + int(self.usDuration / self.sampleInterval)
+
+        self.usSignalStartInSamples = self.usStartInSamples - int(self.usDelay / self.sampleInterval)
+        self.usSignalEndInSamples = self.usEndInSamples - int(self.usDelay / self.sampleInterval)
 
     #Returns "TRIAL [X] / [Y]"
     def getTrialProgressString(self):

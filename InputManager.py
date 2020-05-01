@@ -17,18 +17,23 @@ class PlayMode(Enum):
 
 #Called on start of program to perform all needed initialization
 #Need initialization for default values, references, button icons, and button handlers
-def initialSetUp(theMainWindow, thePlayIcon, theUnlockedIcon):
+def initialSetUp(theMainWindow):
 
-    global settingsLocked, mainWindow, playMode
+    global programCrashing, settingsLocked, mainWindow, playMode
     global playIcon, pauseIcon, unlockedIcon, lockedIcon
     
+    #Used when intercepting a window close event to determine what to do
+    programCrashing = False
+
     #If false you can change the trial, session or system settings
     settingsLocked = False
 
-    #Sets the mainWindow, playIcon and UnlockedIcon to the variables that were passed
+    #Get reference to the main window
     mainWindow = theMainWindow
-    playIcon = thePlayIcon
-    unlockedIcon = theUnlockedIcon
+
+    #Set play and unlocked icons
+    playIcon = mainWindow.playButton.icon()
+    unlockedIcon = mainWindow.lockButton.icon()
     
     #Sets the icon for the pause button
     pauseIcon = QtGui.QIcon()
@@ -62,7 +67,6 @@ def connectButtons():
     mainWindow.actionCaptureGraph.triggered.connect(lambda: capture("Graph", False))
     mainWindow.actionCaptureWindow.triggered.connect(lambda: capture("Window", False))
     mainWindow.actionCaptureScreen.triggered.connect(lambda: capture("Screen", False))
-    mainWindow.actionClose.triggered.connect(closeWindow)
 
     #Detects all "Edit -> [X]" menu actions
     mainWindow.actionDisplaySettings.triggered.connect(dsm.openDisplaySettingsMenu)
@@ -113,13 +117,14 @@ def loadTrial(trialNumber):
     tg.createGraph()
 
 #Tell the window(QMainWindow) to close (this will then be intercepted by the close event function below)
-def closeWindow():
-    mainWindow.centralwidget.parentWidget().close()
+#This is not currently being called but might be of use in the future
+#def closeWindow():
+#    mainWindow.centralwidget.parentWidget().close()
 
 #Whenever the window is supposed to close, this event intercepts/overrides the default close event
 def closeEvent(event):
     #Must stop session before we can close window
-    if ts.currentSession:
+    if ts.currentSession and (not programCrashing):
         stopSessionConditionalConfirmation()
 
         #If the user does not want to close session, the session will remain after above line
@@ -201,6 +206,7 @@ def setAccessibilityOfSettings(accessible):
     mainWindow.interstimulusIntervalSpinBox.setEnabled(accessible)
     mainWindow.usNameLineEdit.setEnabled(accessible)
     mainWindow.usDurationSpinBox.setEnabled(accessible)
+    mainWindow.usDelaySpinBox.setEnabled(accessible)
 
 #Checks the current settings and brings up a message box if anything is invalid
 #Returns if the settings are valid or not
@@ -502,7 +508,7 @@ def resetSettingsToDefaults():
     mainWindow.subjectAgeSpinBox.setValue(30)
     mainWindow.subjectSexComboBox.setCurrentIndex(0)
     mainWindow.sampleIntervalSpinBox.setValue(1)
-    mainWindow.trialCountSpinBox.setValue(60)
+    mainWindow.trialCountSpinBox.setValue(25)
     mainWindow.itiSpinBox.setValue(15)
     mainWindow.itiVarianceSpinBox.setValue(3)
     mainWindow.trialDurationSpinBox.setValue(3000)
@@ -512,3 +518,9 @@ def resetSettingsToDefaults():
     mainWindow.interstimulusIntervalSpinBox.setValue(500)
     mainWindow.usNameLineEdit.setText("Air Puff")
     mainWindow.usDurationSpinBox.setValue(100)
+    mainWindow.usDelaySpinBox.setValue(0)
+
+def closeWindowsOnCrash():
+    global programCrashing
+    programCrashing = True
+    QtGui.QApplication.instance().closeAllWindows()

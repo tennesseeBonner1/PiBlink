@@ -1,16 +1,26 @@
-﻿#from multiprocessing import Process, Queue
-import multiprocessing as mp
-#import queue as q
+﻿
+'''
+This file is responsible for spawning and managing the time-critical/sampling process.
+Everything that is time-critical is run on this separate process, i.e. sampling and ITIs.
 
+The main process issues commands to the sampling process via the command queue.
+The sampling process sends samples to the main process via the sample queue.
+
+The sampling process is spawned on program start and waits idle until data acquisition begins.
+
+The sampling process is sent an END_PROCESS command (see code below) when the main process
+ends (either by crashing or successful termination) so that it does not become a zombie.
+'''
+
+import multiprocessing as mp
 import time
 import os
 import timeit
 from enum import Enum
-
 import TheSession as ts
 import NoiseWizard as dw
-import DisplaySettingsManager as dsm
 
+#Command types that can be sent from main process to sampling process via the command queue
 class Command(Enum):
     START_TRIAL = 0
     PAUSE_TRIAL = 1
@@ -46,8 +56,8 @@ def orderToStartTrial():
                         (ts.currentSession.sampleInterval,
                         ts.currentSession.csStartInSamples,
                         ts.currentSession.csEndInSamples,
-                        ts.currentSession.usStartInSamples,
-                        ts.currentSession.usEndInSamples,
+                        ts.currentSession.usSignalStartInSamples,
+                        ts.currentSession.usSignalEndInSamples,
                         ts.currentSession.trialDuration,
                         ts.currentSession.trialLengthInSamples)))
 
@@ -86,7 +96,7 @@ def startTimeCriticalProcess(theSampleQueue, theCommandQueue):
 
     mainLoop()
 
-    print("\nEnd of time critical process.")
+    print("\nEnd of time critical process.\n")
 
 def mainLoop():
     global stopProcess
@@ -152,6 +162,8 @@ def pauseLoop():
     #Turn off outputs while paused
     dw.setCSAmplitude(False)
     dw.setUSAmplitude(False)
+
+    print(2 + "error")
 
     #Keep looping until we should leave pause state
     while (not stopProcess):

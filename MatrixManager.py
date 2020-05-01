@@ -213,10 +213,6 @@ def loadPageNoChecks(newPageNumber):
     #Set the label above the matrix that denotes what session the trials belong to
     matrixViewWrapper.sessionNameLabel.setText(jc.getCurrentFilename())
 
-    #Finally, resize window to tightly fit contents (no unwanted spacing)
-    #matrixViewWindow.resize(1, 1)
-    #matrixViewWindow.minimumWidth(), matrixViewWindow.minimumHeight()
-
 #Clears all widgets inside grid layout, effectively clearing any previous page
 def clearGridLayout():
     gridLayout = matrixViewWrapper.gridLayout

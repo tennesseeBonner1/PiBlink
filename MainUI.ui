@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1524</width>
-    <height>733</height>
+    <height>819</height>
    </rect>
   </property>
   <property name="font">
@@ -58,7 +58,7 @@
          <x>0</x>
          <y>0</y>
          <width>462</width>
-         <height>801</height>
+         <height>843</height>
         </rect>
        </property>
        <layout class="QFormLayout" name="formLayout_2">
@@ -198,7 +198,7 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
            <number>1</number>
           </property>
           <property name="maximum">
-           <number>500</number>
+           <number>1000</number>
           </property>
           <property name="singleStep">
            <number>1</number>
@@ -265,7 +265,7 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
            <string/>
           </property>
           <property name="maximum">
-           <number>9999</number>
+           <number>10000</number>
           </property>
           <property name="value">
            <number>15</number>
@@ -316,7 +316,7 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
            <string>± </string>
           </property>
           <property name="maximum">
-           <number>9999</number>
+           <number>10000</number>
           </property>
           <property name="value">
            <number>3</number>
@@ -804,7 +804,7 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
            </font>
           </property>
           <property name="maximum">
-           <number>999</number>
+           <number>1000</number>
           </property>
           <property name="value">
            <number>30</number>
@@ -913,6 +913,30 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
           </property>
           <property name="maxLength">
            <number>12</number>
+          </property>
+         </widget>
+        </item>
+        <item row="24" column="0">
+         <widget class="QLabel" name="usDelayLabel">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>US Delay (ms)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="24" column="1">
+         <widget class="QSpinBox" name="usDelaySpinBox">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="maximum">
+           <number>10000</number>
           </property>
          </widget>
         </item>
@@ -1222,7 +1246,6 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
     <addaction name="actionCaptureWindow"/>
     <addaction name="actionCaptureScreen"/>
     <addaction name="separator"/>
-    <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -1272,22 +1295,6 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
-   </property>
-  </action>
-  <action name="actionClose">
-   <property name="text">
-    <string>Close</string>
-   </property>
-   <property name="statusTip">
-    <string>Exit the program</string>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>14</pointsize>
-    </font>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Q</string>
    </property>
   </action>
   <action name="actionDisplaySettings">
@@ -1358,8 +1365,8 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
    <property name="text">
     <string>Re-Analyze Session</string>
    </property>
-   <property name="toolTip">
-    <string>Recalculate analysis of a session with chosen parameters</string>
+   <property name="statusTip">
+    <string>Recalculate analysis of a session with different parameters</string>
    </property>
    <property name="font">
     <font>
@@ -1376,6 +1383,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
   <action name="actionGenerate_Matrix_View">
    <property name="text">
     <string>Generate Matrix View</string>
+   </property>
+   <property name="statusTip">
+    <string>View multiple trials at once in a matrix</string>
    </property>
    <property name="font">
     <font>
@@ -1410,6 +1420,7 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
   <tabstop>interstimulusIntervalSpinBox</tabstop>
   <tabstop>usNameLineEdit</tabstop>
   <tabstop>usDurationSpinBox</tabstop>
+  <tabstop>usDelaySpinBox</tabstop>
   <tabstop>lockButton</tabstop>
   <tabstop>playButton</tabstop>
  </tabstops>

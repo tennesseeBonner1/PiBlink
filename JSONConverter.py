@@ -94,7 +94,8 @@ def startDataAcquisition():
                         "csDuration": ts.currentSession.csDuration,
                         "isi": ts.currentSession.interstimulusInterval,
                         "usName": ts.currentSession.usName,
-                        "usDuration": ts.currentSession.usDuration
+                        "usDuration": ts.currentSession.usDuration,
+                        "usDelay": ts.currentSession.usDelay
                     },
 
                     "trials": [],

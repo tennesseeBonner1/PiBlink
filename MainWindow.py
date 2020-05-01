@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1524, 733)
+        MainWindow.resize(1524, 819)
         font = QtGui.QFont()
         font.setFamily("MS Sans Serif")
         MainWindow.setFont(font)
@@ -35,7 +35,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 462, 801))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 462, 843))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.formLayout_2 = QtWidgets.QFormLayout(self.scrollAreaWidgetContents)
         self.formLayout_2.setObjectName("formLayout_2")
@@ -98,7 +98,7 @@ class Ui_MainWindow(object):
         self.trialCountSpinBox.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
         self.trialCountSpinBox.setSuffix("")
         self.trialCountSpinBox.setMinimum(1)
-        self.trialCountSpinBox.setMaximum(500)
+        self.trialCountSpinBox.setMaximum(1000)
         self.trialCountSpinBox.setSingleStep(1)
         self.trialCountSpinBox.setProperty("value", 25)
         self.trialCountSpinBox.setObjectName("trialCountSpinBox")
@@ -123,7 +123,7 @@ class Ui_MainWindow(object):
         self.itiSpinBox.setFont(font)
         self.itiSpinBox.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.itiSpinBox.setSuffix("")
-        self.itiSpinBox.setMaximum(9999)
+        self.itiSpinBox.setMaximum(10000)
         self.itiSpinBox.setProperty("value", 15)
         self.itiSpinBox.setObjectName("itiSpinBox")
         self.formLayout_2.setWidget(10, QtWidgets.QFormLayout.FieldRole, self.itiSpinBox)
@@ -145,7 +145,7 @@ class Ui_MainWindow(object):
         self.itiVarianceSpinBox.setFont(font)
         self.itiVarianceSpinBox.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.itiVarianceSpinBox.setSuffix("")
-        self.itiVarianceSpinBox.setMaximum(9999)
+        self.itiVarianceSpinBox.setMaximum(10000)
         self.itiVarianceSpinBox.setProperty("value", 3)
         self.itiVarianceSpinBox.setObjectName("itiVarianceSpinBox")
         self.formLayout_2.setWidget(11, QtWidgets.QFormLayout.FieldRole, self.itiVarianceSpinBox)
@@ -344,7 +344,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(14)
         self.subjectAgeSpinBox.setFont(font)
-        self.subjectAgeSpinBox.setMaximum(999)
+        self.subjectAgeSpinBox.setMaximum(1000)
         self.subjectAgeSpinBox.setProperty("value", 30)
         self.subjectAgeSpinBox.setObjectName("subjectAgeSpinBox")
         self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.subjectAgeSpinBox)
@@ -386,6 +386,19 @@ class Ui_MainWindow(object):
         self.sessionNameLineEdit.setMaxLength(12)
         self.sessionNameLineEdit.setObjectName("sessionNameLineEdit")
         self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.sessionNameLineEdit)
+        self.usDelayLabel = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.usDelayLabel.setFont(font)
+        self.usDelayLabel.setObjectName("usDelayLabel")
+        self.formLayout_2.setWidget(24, QtWidgets.QFormLayout.LabelRole, self.usDelayLabel)
+        self.usDelaySpinBox = QtWidgets.QSpinBox(self.scrollAreaWidgetContents)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.usDelaySpinBox.setFont(font)
+        self.usDelaySpinBox.setMaximum(10000)
+        self.usDelaySpinBox.setObjectName("usDelaySpinBox")
+        self.formLayout_2.setWidget(24, QtWidgets.QFormLayout.FieldRole, self.usDelaySpinBox)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.rootHorizontalLayout.addWidget(self.scrollArea)
         self.middleVerticalLine = QtWidgets.QFrame(self.centralwidget)
@@ -533,11 +546,6 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.actionCaptureWindow.setFont(font)
         self.actionCaptureWindow.setObjectName("actionCaptureWindow")
-        self.actionClose = QtWidgets.QAction(MainWindow)
-        font = QtGui.QFont()
-        font.setPointSize(14)
-        self.actionClose.setFont(font)
-        self.actionClose.setObjectName("actionClose")
         self.actionDisplaySettings = QtWidgets.QAction(MainWindow)
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -578,7 +586,6 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionCaptureWindow)
         self.menuFile.addAction(self.actionCaptureScreen)
         self.menuFile.addSeparator()
-        self.menuFile.addAction(self.actionClose)
         self.menuEdit.addAction(self.actionDisplaySettings)
         self.menuAnalyze.addAction(self.actionRe_Analyze_Session)
         self.menuAnalyze.addAction(self.actionGenerate_Matrix_View)
@@ -601,28 +608,9 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.csDurationSpinBox, self.interstimulusIntervalSpinBox)
         MainWindow.setTabOrder(self.interstimulusIntervalSpinBox, self.usNameLineEdit)
         MainWindow.setTabOrder(self.usNameLineEdit, self.usDurationSpinBox)
-        MainWindow.setTabOrder(self.usDurationSpinBox, self.lockButton)
+        MainWindow.setTabOrder(self.usDurationSpinBox, self.usDelaySpinBox)
+        MainWindow.setTabOrder(self.usDelaySpinBox, self.lockButton)
         MainWindow.setTabOrder(self.lockButton, self.playButton)
-
-        #Set up the input manager
-        import InputManager as im
-        im.initialSetUp(self, icon1, icon)
-
-        #Set up the graph
-        import TheGraph as tg
-        tg.initialSetUp(self)
-
-        #Set up the display settings
-        import DisplaySettingsManager as dsm
-        dsm.initialSetUp()
-
-        #Set up the json converter
-        import JSONConverter as jc
-        jc.initialSetUp(self)
-
-        #Launch the time critical process
-        import TimeCriticalOperations as tco
-        tco.initialSetUp()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -662,6 +650,7 @@ class Ui_MainWindow(object):
         self.subjectSexLabel.setText(_translate("MainWindow", "Subject Sex"))
         self.subjectSexComboBox.setItemText(0, _translate("MainWindow", "MALE"))
         self.subjectSexComboBox.setItemText(1, _translate("MainWindow", "FEMALE"))
+        self.usDelayLabel.setText(_translate("MainWindow", "US Delay (ms)"))
         self.lockButton.setToolTip(_translate("MainWindow", "Lock/unlock settings"))
         self.playButton.setToolTip(_translate("MainWindow", "Pause/resume data acquisition"))
         self.previousButton.setToolTip(_translate("MainWindow", "Previous trial"))
@@ -681,9 +670,6 @@ class Ui_MainWindow(object):
         self.actionCaptureWindow.setText(_translate("MainWindow", "Capture Window..."))
         self.actionCaptureWindow.setStatusTip(_translate("MainWindow", "Save a screenshot of the window"))
         self.actionCaptureWindow.setShortcut(_translate("MainWindow", "Ctrl+W"))
-        self.actionClose.setText(_translate("MainWindow", "Close"))
-        self.actionClose.setStatusTip(_translate("MainWindow", "Exit the program"))
-        self.actionClose.setShortcut(_translate("MainWindow", "Ctrl+Q"))
         self.actionDisplaySettings.setText(_translate("MainWindow", "Graph Display Settings"))
         self.actionDisplaySettings.setStatusTip(_translate("MainWindow", "Configure how the graph will appear"))
         self.actionDisplaySettings.setShortcut(_translate("MainWindow", "Ctrl+D"))
@@ -697,18 +683,61 @@ class Ui_MainWindow(object):
         self.actionNew.setStatusTip(_translate("MainWindow", "Create a new session in data acquisition mode"))
         self.actionNew.setShortcut(_translate("MainWindow", "Ctrl+N"))
         self.actionRe_Analyze_Session.setText(_translate("MainWindow", "Re-Analyze Session"))
-        self.actionRe_Analyze_Session.setToolTip(_translate("MainWindow", "Recalculate analysis of a session with chosen parameters"))
+        self.actionRe_Analyze_Session.setStatusTip(_translate("MainWindow", "Recalculate analysis of a session with different parameters"))
         self.actionRe_Analyze_Session.setShortcut(_translate("MainWindow", "Ctrl+R"))
         self.actionGenerate_Matrix_View.setText(_translate("MainWindow", "Generate Matrix View"))
+        self.actionGenerate_Matrix_View.setStatusTip(_translate("MainWindow", "View multiple trials at once in a matrix"))
         self.actionGenerate_Matrix_View.setShortcut(_translate("MainWindow", "Ctrl+M"))
 from pyqtgraph import GraphicsLayoutWidget
 
 
+#Replace auto-generated main method in MainWindow.py with the block below to run the program
+#-------------------------------------------------------------------------------------------------
+from traceback import format_exception
+import InputManager as im
+import TheGraph as tg
+import DisplaySettingsManager as dsm
+import JSONConverter as jc
+import TimeCriticalOperations as tco
+
+#Called whenever there is an error in the main process
+def mainProcessErrorHandler(exceptionType, exceptionValue, exceptionTraceback):
+    #Print error
+    print(format_exception(exceptionType, exceptionValue, exceptionTraceback))
+    
+    #End sampling process
+    tco.orderToStopProcess()
+
+    #Tell PyQt system to quit (otherwise the windows hang)
+    im.closeWindowsOnCrash()
+
+    #End main process
+    sys.exit(0)
+
+#Main method
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+
+    #If there's an error in the main process, we need special error handling to close the...
+    #child process, i.e. the sampling process, so it doesn't become a zombie.
+    sys.excepthook = mainProcessErrorHandler
+
+    #Perform all necessary set up including launching the time critical (sampling) process
+    im.initialSetUp(ui)
+    tg.initialSetUp(ui)
+    dsm.initialSetUp()
+    jc.initialSetUp(ui)
+    tco.initialSetUp()
+
+    #Start of program
     MainWindow.show()
-    sys.exit(app.exec_())
+    app.exec_() #Run the main Qt Event loop (for listening to UI input)
+    
+    #End of program
+    tco.orderToStopProcess() #Make sure the sampling process terminates
+    sys.exit(0) #Exit program with no errors
+#-------------------------------------------------------------------------------------------------
