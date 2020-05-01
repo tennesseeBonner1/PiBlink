@@ -163,8 +163,6 @@ def pauseLoop():
     dw.setCSAmplitude(False)
     dw.setUSAmplitude(False)
 
-    print(2 + "error")
-
     #Keep looping until we should leave pause state
     while (not stopProcess):
         #Waiting for command
