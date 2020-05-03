@@ -60,6 +60,7 @@ These files are listed separately from the main files as they come directly from
 external library and are much less interconnected to the previous set of files, having 
 been created for a broad range of implementations. Still, they are crucial to the program, 
 as these files are directly responsible for the A/D and D/A conversion.
+
 - **DAC8552_default_config.py**:
     Part of the default files included for the DAC conversion (needed to output the 
 	signals for the CS and US).
@@ -105,11 +106,11 @@ within it.
 - **MatrixManager.py**:
 
 ---
+## Session Files
 These files hold session information (i.e. trial data, session settings, etc). The JSON 
 files are *The* session files, as all other files in this category are a subset of and/or 
 are generated from a JSON file. They hold all session information.
 
-## Session Files	
 - **JSON files**:
     These are the saved session files. If the user tries to save a session with the same name as
 	an already saved session, a numbering scheme will ensure the new session is given a new name
