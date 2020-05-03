@@ -1,3 +1,14 @@
+
+'''
+This file is responsible for implementing all operations related to the graph displayed on the
+main window.
+
+More specifically, it implements the operations for creating, updating, clearing, pausing/resuming,
+and annotating (i.e. adding arrows to) the graph. The emphasis here is on implementing the code to
+make them work, not the code for managing the logic of when they should happen. Other files,
+particularly input manager, act as the driver/controller for when they should be called.
+'''
+
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg

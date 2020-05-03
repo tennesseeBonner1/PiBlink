@@ -56,7 +56,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
+         <y>-110</y>
          <width>462</width>
          <height>843</height>
         </rect>
@@ -102,7 +102,8 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
            </font>
           </property>
           <property name="toolTip">
-           <string>Time between samples</string>
+           <string>Time between each sample.
+A sample interval of 1 ms would generate 1000 samples per second.</string>
           </property>
           <property name="text">
            <string>Sample Interval (ms)</string>
@@ -922,6 +923,12 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
            <font>
             <pointsize>14</pointsize>
            </font>
+          </property>
+          <property name="toolTip">
+           <string>Delay in ms from the time the signal is sent to
+the time the stimulus actually begins. The system
+compensates for this delay by sending the signal
+this amount of ms early so that it occurs on time.</string>
           </property>
           <property name="text">
            <string>US Delay (ms)</string>

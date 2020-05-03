@@ -1,4 +1,13 @@
 
+'''
+This file is responsible for encapsulating the basic information and operations
+related to a single session.
+
+It contains a class called TheSession which performs this encapsulation and a
+single, global instance (i.e. a singleton) of this class called currentSession
+which represents the session currently opened in the program.
+'''
+
 from enum import Enum
 
 #Singleton instance of session

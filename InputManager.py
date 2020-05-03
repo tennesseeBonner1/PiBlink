@@ -1,3 +1,17 @@
+
+'''
+This file is responsible for handling all input from the main window (and only the main window).
+Other windows are managed by separate managers made just for those windows.
+
+This file also controls a few high level concerns. Namely, the creation/deletion of the current
+session, the play mode of the program (i.e. data acquisition vs. playback), and the play status
+of the current session if in data acquisition mode (i.e. playing vs. paused).
+
+Because of this file's role in managing high level concerns, it could be considered to be the
+controller of the program but that may need to be broken off into a different file at some point
+if this file continous to be expanded upon.
+'''
+
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QMessageBox, QApplication
 import TheGraph as tg
