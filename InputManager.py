@@ -75,6 +75,9 @@ def connectButtons():
     #Detects when the rest of the button bar buttons are pressed
     mainWindow.stopButton.clicked.connect(stopSessionConditionalConfirmation)
 
+    #Detects the "What's This?" button being pressed
+    mainWindow.WhatsThisToolButton.clicked.connect(enableWhatsThisMode)
+
     #Detects all "File -> [X]" menu actions
     mainWindow.actionNew.triggered.connect(newSession)
     mainWindow.actionOpen.triggered.connect(lambda: openSession())
@@ -213,6 +216,8 @@ def setAccessibilityOfSettings(accessible):
     mainWindow.trialCountSpinBox.setEnabled(accessible)
     mainWindow.itiSpinBox.setEnabled(accessible)
     mainWindow.itiVarianceSpinBox.setEnabled(accessible)
+    mainWindow.thresholdSDSpinBox.setEnabled(accessible)
+    mainWindow.thresholdMinDurSpinBox.setEnabled(accessible)
     mainWindow.trialDurationSpinBox.setEnabled(accessible)
     mainWindow.baselineDurationSpinBox.setEnabled(accessible)
     mainWindow.csNameLineEdit.setEnabled(accessible)
@@ -324,6 +329,9 @@ def stopSessionWithoutConfirmation():
 
     #Always go back to default acquisition mode when no session is pulled up
     setPlayMode(PlayMode.ACQUISITION)
+
+def enableWhatsThisMode():
+    QtGui.QWhatsThis.enterWhatsThisMode()
 
 #Takes a screenshot (of graph, window, or whole screen depending on captureType) and then...
 #IF returnCapture: Returns the capture
