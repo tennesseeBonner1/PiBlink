@@ -37,29 +37,33 @@ def reAnalyze():
 	newFile = windowWrapper.radioButton_GenerateNew.isChecked()
 	customName = windowWrapper.lineEdit_customSaveName.text()
 	stdDevNumber = windowWrapper.spinBox_StdDev.value()
-	minSamples = windowWrapper.spinBox_MinSamp.value()
+	minDuration = windowWrapper.spinBox_MinDuration.value()
 
 	nameError = False
 
 	#first we check to see if we're saving with a custom name that's valid
 	if not overwrite or newFile:
 		if ("\\" in customName or "/" in customName or ":" in customName or "<" in customName or ">" in customName or "*" in customName or "?" in customName or "\"" in customName or "|" in customName):
+			nameError = True
 			invalidSettingsNotice = QMessageBox()
 			invalidSettingsNotice.setText("Filename may not contain any of the following characters: \\ / : * ? \" < > |\n")
 			invalidSettingsNotice.setWindowTitle("Invalid Filename")
 			invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
 			invalidSettingsNotice.setIcon(QMessageBox.Warning)
-			nameError = True
 			invalidSettingsNotice.exec()
 			return
 
 	fileCopy = jsCon.jsonObject
 	
+	#Update the threshold parameters to the new ones
+	fileCopy["header"]["thresholdStdDev"] = stdDevNumber
+	fileCopy["header"]["thresholdMinDuration"] = minDuration
+
 	#Go through all of the trials, calculate their stats based on their data, and store that in place
 	#of the old stats
 	numTrials = int(fileCopy["header"]["trialCount"])
 	for x in range(numTrials):
-		fileCopy["trials"][x]["stats"] = da.getTrialStats(stdDevNumber, minSamples, fileCopy["trials"][x]["samples"])
+		fileCopy["trials"][x]["stats"] = da.getTrialStats(stdDevNumber, minDuration, fileCopy["trials"][x]["samples"])
 	
 	#Get the contents ready to be written to file
 	fileString = json.dumps(fileCopy)

@@ -27,6 +27,8 @@ class TheSession(object):
     trialCount = 25
     iti = 5
     itiVariance = 3
+    thresholdStdDev = 4
+    thresholdMinDuration = 10
 
     #Default trial settings
     trialDuration = 12
@@ -74,6 +76,8 @@ class TheSession(object):
         self.trialCount = mainWindow.trialCountSpinBox.value()
         self.iti = mainWindow.itiSpinBox.value()
         self.itiVariance = mainWindow.itiVarianceSpinBox.value()
+        self.thresholdStdDev = mainWindow.thresholdSDSpinBox.value()
+        self.thresholdMinDuration = mainWindow.thresholdMinDurSpinBox.value()
 
         #Trial duration settings
         self.trialDuration = mainWindow.trialDurationSpinBox.value()
@@ -94,6 +98,8 @@ class TheSession(object):
         self.trialCount = int(jsonSettings["trialCount"])
         self.iti = int(jsonSettings["iti"])
         self.itiVariance = int(jsonSettings["itiVariance"])
+        self.thresholdStdDev = int(jsonSettings["thresholdStdDev"])
+        self.thresholdMinDuration = int(jsonSettings["thresholdMinDuration"])
 
         #Trial duration settings
         self.trialDuration = int(jsonSettings["trialDuration"])
@@ -114,6 +120,8 @@ class TheSession(object):
         mainWindow.trialCountSpinBox.setValue(self.trialCount)
         mainWindow.itiSpinBox.setValue(self.iti)
         mainWindow.itiVarianceSpinBox.setValue(self.itiVariance)
+        mainWindow.thresholdSDSpinBox.setValue(self.thresholdStdDev)
+        mainWindow.thresholdMinDurSpinBox.setValue(self.thresholdMinDuration)
 
         #Trial duration settings
         mainWindow.trialDurationSpinBox.setValue(self.trialDuration)

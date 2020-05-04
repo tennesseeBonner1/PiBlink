@@ -95,7 +95,9 @@ def startDataAcquisition():
                         "isi": ts.currentSession.interstimulusInterval,
                         "usName": ts.currentSession.usName,
                         "usDuration": ts.currentSession.usDuration,
-                        "usDelay": ts.currentSession.usDelay
+                        "usDelay": ts.currentSession.usDelay,
+                        "thresholdStdDev": ts.currentSession.thresholdStdDev,
+                        "thresholdMinDuration": ts.currentSession.thresholdMinDuration
                     },
 
                     "trials": [],
@@ -115,7 +117,7 @@ def saveTrial(trialDataArray, previousITI):
     trialObject = {
                        "trialNumber": trialsSaved,
                        "previousITI": previousITI,
-                       "stats": da.getTrialStats(),
+                       "stats": da.getTrialStats(ts.currentSession.thresholdStdDev, ts.currentSession.thresholdMinDuration),
                        "samples": trialDataList
                   }
 
