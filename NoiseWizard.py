@@ -1,29 +1,26 @@
+""" NoiseWizard.py
+    Last Modified: 5/4/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
 
-#Returns random noise to act as a substitute for getNextSample in Data Wizard.
-#This is used on projects that run outside of the Pi that still need some kind of data...
-#to be plot on the graph for debugging purposes.
+    This file generates random data for the graph so the program can be run without the need for the pi
 
-#UPDATE: Revised to more closely imitate the look of real data for testing of data analysis.
-
-#For random number generation
+    Returns random noise to act as a substitute for getNextSample in Data Wizard.
+    This is used on projects that run outside of the Pi that still need some kind of data...
+    to be plot on the graph for debugging purposes.
+"""
 import numpy as np
-
-#For simulating timing function of ADC library
 import timeit
-
-#-----------------------------------------------------------------------------------------------------
-#GLOBAL VARIABLES
 
 #Random initial baseline value
 nextSample = nextSample = np.random.uniform(1, 4)
 
-#-----------------------------------------------------------------------------------------------------
-#METHODS
-
 #Returns a number between 1 and 10 to plot on graph that is +/- 1 of the last number it returned
-#Waits until data is ready to read and return value (new sample every ~1 ms)
 timeOfLastSample = timeit.default_timer()
+
+
+#Generates the next sample
 def getNextSample():
+
     global timeOfLastSample, nextSample
 
     #Wait until data is ready
@@ -41,17 +38,18 @@ def getNextSample():
 
     return nextSample
 
+
 def onTrialStart():
     pass
+
 
 def setCSAmplitude(high):
     pass
 
+
 def setUSAmplitude(high):
     pass
 
-#-----------------------------------------------------------------------------------------------------
-#HELPER METHODS
 
 def clamp(value, minimum, maximum):
     return min(maximum, max(minimum, value))

@@ -1,24 +1,27 @@
+""" TheSession.py
+    Last Modified: 5/4/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
 
-'''
-This file is responsible for encapsulating the basic information and operations
-related to a single session.
-
-It contains a class called TheSession which performs this encapsulation and a
-single, global instance (i.e. a singleton) of this class called currentSession
-which represents the session currently opened in the program.
-'''
-
+    This file is responsible for encapsulating the basic information and operations
+    related to a single session. It contains a class called TheSession which performs this encapsulation and a
+    single, global instance of this class called currentSession which represents the session currently opened in the program.
+"""
 from enum import Enum
+
 
 #Singleton instance of session
 currentSession = None
 
+
 #Sex options enum
 class Sex(Enum):
+
     MALE = 0
     FEMALE = 1
 
+
 class TheSession(object):
+
     #Default session settings
     sessionName = ""
     subjectAge = 30
@@ -27,6 +30,8 @@ class TheSession(object):
     trialCount = 25
     iti = 5
     itiVariance = 3
+    thresholdStdDev = 4
+    thresholdMinDuration = 10
 
     #Default trial settings
     trialDuration = 12
@@ -48,25 +53,32 @@ class TheSession(object):
     usStartInSamples = 0
     usEndInSamples = 0
 
-    #There can only be one constructor/initializer in python so this uses optional arguments to determine...
-    #which "constructor" to call
+    #There can only be one constructor/initializer in python so this uses optional arguments to determine which "constructor" to call
     def __init__ (self, mainWindow, jsonSettings = None):
+
         if jsonSettings:
             self.openSessionConstructor(mainWindow, jsonSettings)
+
         else:
             self.newSessionConstructor(mainWindow)
 
+    #Get session from JSON file
     def openSessionConstructor (self, mainWindow, jsonSettings):
+
         self.readInSettingsFromJSON(jsonSettings)
         self.outputSettingsToGUI(mainWindow)
         self.computeSampleMeasurements()
 
+    #Create new Session
     def newSessionConstructor (self, mainWindow):
+
         self.readInSettingsFromGUI(mainWindow)
         self.computeSampleMeasurements()
 
+
     #Reads in values from settings panel and stores them in the session settings
     def readInSettingsFromGUI (self, mainWindow):
+
         self.sessionName = mainWindow.sessionNameLineEdit.text()
         self.subjectAge = mainWindow.subjectAgeSpinBox.value()
         self.subjectSex = Sex(mainWindow.subjectSexComboBox.currentIndex())
@@ -74,6 +86,8 @@ class TheSession(object):
         self.trialCount = mainWindow.trialCountSpinBox.value()
         self.iti = mainWindow.itiSpinBox.value()
         self.itiVariance = mainWindow.itiVarianceSpinBox.value()
+        self.thresholdStdDev = mainWindow.thresholdSDSpinBox.value()
+        self.thresholdMinDuration = mainWindow.thresholdMinDurSpinBox.value()
 
         #Trial duration settings
         self.trialDuration = mainWindow.trialDurationSpinBox.value()
@@ -85,8 +99,10 @@ class TheSession(object):
         self.usDuration = mainWindow.usDurationSpinBox.value()
         self.usDelay = mainWindow.usDelaySpinBox.value()
 
+
     #Reads in values from JSON settings header and stores them in the session settings
     def readInSettingsFromJSON (self, jsonSettings):
+
         self.sessionName = jsonSettings["name"]
         self.subjectAge = int(jsonSettings["age"])
         self.subjectSex = Sex[jsonSettings["sex"]]
@@ -94,6 +110,8 @@ class TheSession(object):
         self.trialCount = int(jsonSettings["trialCount"])
         self.iti = int(jsonSettings["iti"])
         self.itiVariance = int(jsonSettings["itiVariance"])
+        self.thresholdStdDev = int(jsonSettings["thresholdStdDev"])
+        self.thresholdMinDuration = int(jsonSettings["thresholdMinDuration"])
 
         #Trial duration settings
         self.trialDuration = int(jsonSettings["trialDuration"])
@@ -105,8 +123,10 @@ class TheSession(object):
         self.usDuration = int(jsonSettings["usDuration"])
         self.usDelay = int(jsonSettings["usDelay"])
 
+
     #Outputs the values from this session object to the settings GUI panel
     def outputSettingsToGUI (self, mainWindow):
+
         mainWindow.sessionNameLineEdit.setText(self.sessionName)
         mainWindow.subjectAgeSpinBox.setValue(self.subjectAge)
         mainWindow.subjectSexComboBox.setCurrentIndex(self.subjectSex.value)
@@ -114,6 +134,8 @@ class TheSession(object):
         mainWindow.trialCountSpinBox.setValue(self.trialCount)
         mainWindow.itiSpinBox.setValue(self.iti)
         mainWindow.itiVarianceSpinBox.setValue(self.itiVariance)
+        mainWindow.thresholdSDSpinBox.setValue(self.thresholdStdDev)
+        mainWindow.thresholdMinDurSpinBox.setValue(self.thresholdMinDuration)
 
         #Trial duration settings
         mainWindow.trialDurationSpinBox.setValue(self.trialDuration)
@@ -125,8 +147,10 @@ class TheSession(object):
         mainWindow.usDurationSpinBox.setValue(self.usDuration)
         mainWindow.usDelaySpinBox.setValue(self.usDelay)
 
+
     #Used by the graph to convert from milliseconds to samples
     def computeSampleMeasurements(self):
+
         self.trialLengthInSamples = int(self.trialDuration / self.sampleInterval)
 
         self.csStartInSamples = int(self.baselineDuration / self.sampleInterval)
@@ -138,6 +162,8 @@ class TheSession(object):
         self.usSignalStartInSamples = self.usStartInSamples - int(self.usDelay / self.sampleInterval)
         self.usSignalEndInSamples = self.usEndInSamples - int(self.usDelay / self.sampleInterval)
 
+
     #Returns "TRIAL [X] / [Y]"
     def getTrialProgressString(self):
+
         return "TRIAL " + str(self.currentTrial) + " / " + str(self.trialCount)

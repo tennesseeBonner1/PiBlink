@@ -1,15 +1,16 @@
+""" GraphExporter.py
+    Last Modified: 5/4/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
 
-'''
-Module that performs screenshots on pyqtgraph items (i.e. the stimulus graph).
+    This file performs screenshots on pyqtgraph items (the stimulus graph).
 
-This file is originally from the pyqtgraph library and was called "ImageExporter.py".
-However, that file had a bug in it (see BEFORE and AFTER comments below) so I had to create this modified...
-instance of it in order to get it to work. All credit for this file goes to the author of the pyqtgraph library.
+    This file is originally from the pyqtgraph library and was called "ImageExporter.py".
+    However, that file had a bug in it (see BEFORE and AFTER comments below) so I had to create this modified
+    instance of it in order to get it to work. All credit for this file goes to the author of the pyqtgraph library.
 
-Aside from the single bug fix, all instances of "ImageExporter" are now "GraphExporter", imports were fixed to point to...
-the correct locations and the captureItem function was added below for convenience. That's it.
-'''
-
+    Aside from the single bug fix, all instances of "ImageExporter" are now "GraphExporter", imports were fixed to point to
+    the correct locations and the captureItem function was added below for convenience. That's it.
+"""
 from pyqtgraph.exporters.Exporter import Exporter
 from pyqtgraph.parametertree import Parameter
 from pyqtgraph.Qt import QtGui, QtCore, QtSvg, USE_PYSIDE
@@ -18,9 +19,10 @@ import numpy as np
 
 __all__ = ['GraphExporter']
 
-#Returns a QPixMap type screenshot of item passed in as parameter with following type requirement...
-#From PyQtGraph's Exporter.py: "[Parameter] can be an individual graphics item or a scene."
+
+#Returns a QPixMap type screenshot of item passed in as parameter with following type requirement from PyQtGraph's Exporter.py: "[Parameter] can be an individual graphics item or a scene."
 def captureItem(toCapture):
+
     #Create exporter object and pass it item to screenshot
     exporter = GraphExporter(toCapture)
 
@@ -32,19 +34,28 @@ def captureItem(toCapture):
     #Convert screenshot from QImage to QPixMap and return it
     return QtGui.QPixmap.fromImage(qImageResult)
 
+
+#The exporter object class
 class GraphExporter(Exporter):
+
     Name = "Image File (PNG, TIF, JPG, ...)"
     allowCopy = True
     
+    #Initialize the exporter
     def __init__(self, item):
+
         Exporter.__init__(self, item)
         tr = self.getTargetRect()
+
         if isinstance(item, QtGui.QGraphicsItem):
             scene = item.scene()
+
         else:
             scene = item
+
         bgbrush = scene.views()[0].backgroundBrush()
         bg = bgbrush.color()
+
         if bgbrush.style() == QtCore.Qt.NoBrush:
             bg.setAlpha(0)
             
@@ -57,39 +68,52 @@ class GraphExporter(Exporter):
         self.params.param('width').sigValueChanged.connect(self.widthChanged)
         self.params.param('height').sigValueChanged.connect(self.heightChanged)
         
+
+    #Adjust the height relative to the width if the width changes
     def widthChanged(self):
+
         sr = self.getSourceRect()
         ar = float(sr.height()) / sr.width()
         self.params.param('height').setValue(self.params['width'] * ar, blockSignal=self.heightChanged)
         
+
+    #Adjust the width relative to the height if the width changes
     def heightChanged(self):
+
         sr = self.getSourceRect()
         ar = float(sr.width()) / sr.height()
         self.params.param('width').setValue(self.params['height'] * ar, blockSignal=self.widthChanged)
         
+
     def parameters(self):
         return self.params
+
     
     def export(self, fileName=None, toBytes=False, copy=False):
+
         if fileName is None and not toBytes and not copy:
+
             if USE_PYSIDE:
                 filter = ["*."+str(f) for f in QtGui.QImageWriter.supportedImageFormats()]
+
             else:
                 filter = ["*."+bytes(f).decode('utf-8') for f in QtGui.QImageWriter.supportedImageFormats()]
             preferred = ['*.png', '*.tif', '*.jpg']
+
             for p in preferred[::-1]:
+
                 if p in filter:
                     filter.remove(p)
                     filter.insert(0, p)
+
             self.fileSaveDialog(filter=filter)
             return
             
         targetRect = QtCore.QRect(0, 0, self.params['width'], self.params['height'])
         sourceRect = self.getSourceRect()
 
-        #self.png = QtGui.QImage(targetRect.size(), QtGui.QImage.Format_ARGB32)
-        #self.png.fill(pyqtgraph.mkColor(self.params['background']))
         w, h = self.params['width'], self.params['height']
+
         if w == 0 or h == 0:
             raise Exception("Cannot export image with size=0 (requested export size is %dx%d)" % (w,h))
         
@@ -114,26 +138,25 @@ class GraphExporter(Exporter):
         ## set resolution of image:
         origTargetRect = self.getTargetRect()
         resolutionScale = targetRect.width() / origTargetRect.width()
-        #self.png.setDotsPerMeterX(self.png.dotsPerMeterX() * resolutionScale)
-        #self.png.setDotsPerMeterY(self.png.dotsPerMeterY() * resolutionScale)
         
         painter = QtGui.QPainter(self.png)
-        #dtr = painter.deviceTransform()
+
         try:
             self.setExportMode(True, {'antialias': self.params['antialias'], 'background': self.params['background'], 'painter': painter, 'resolutionScale': resolutionScale})
             painter.setRenderHint(QtGui.QPainter.Antialiasing, self.params['antialias'])
             self.getScene().render(painter, QtCore.QRectF(targetRect), QtCore.QRectF(sourceRect))
+
         finally:
             self.setExportMode(False)
         painter.end()
         
         if copy:
             QtGui.QApplication.clipboard().setImage(self.png)
+
         elif toBytes:
             return self.png
+
         else:
             self.png.save(fileName)
         
 GraphExporter.register()        
-        
-

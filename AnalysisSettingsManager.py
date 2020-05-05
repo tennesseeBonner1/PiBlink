@@ -1,8 +1,9 @@
+""" AnalysisSettingsManager.py
+    Last Modified: 5/4/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    
+    This program handles all of the user interaction with AnalysisSettingsWindow.py (All of the events that happen once Analyze -> Re-Analyze Session is pressed in the menu bar) 
 """
-	Handles all of the events that happen once Analyze -> Re-Analyze Session is pressed in the
-	menu bar.
-"""
-
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QDialog, QMessageBox
 import AnalysisSettingsWindow as asw
@@ -12,82 +13,92 @@ import JSONConverter as jsCon
 import DataAnalysis as da
 import InputManager as im
 
-#sets up the window for re-analyzing the currently open session
+
+#Set up and open the window for re-analyzing the currently open session
 def openAnalysisSettingsWindow():
-	global windowWrapper, dialogWindow
+    global windowWrapper, dialogWindow
 
-	dialogWindow = QDialog()
-	windowWrapper = asw.Ui_AnalysisSettingsWindow()
-	windowWrapper.setupUi(dialogWindow)
+    # Set up the window
+    dialogWindow = QDialog()
+    windowWrapper = asw.Ui_AnalysisSettingsWindow()
+    windowWrapper.setupUi(dialogWindow)
 
-	#set connections
-	windowWrapper.pushButton_ReAnalyze.released.connect(reAnalyze)
-	windowWrapper.radioButton_GenerateNew.toggled.connect(setFilenameEditorEnabled)
+    #Set connections for the buttons
+    windowWrapper.pushButton_ReAnalyze.released.connect(reAnalyze)
+    windowWrapper.radioButton_GenerateNew.toggled.connect(setFilenameEditorEnabled)
 	
-	#properly set the text in the line editor
-	windowWrapper.lineEdit_customSaveName.setText(jsCon.getCurrentFilename())
+    #Properly set the text in the line editor
+    windowWrapper.lineEdit_customSaveName.setText(jsCon.getCurrentFilename())
 	
-	dialogWindow.exec()
+    #Shows the window
+    dialogWindow.exec()
 
-#This function is the main course of the whole module meal
-#Takes the values from the analysis settings menu, grabs the json file of the session currently
-#open, and loops through each trial, replacing its onsets and offsets with results from DataAnalysis
+
+#This function takes the user's changes and creates a new JSON file or edits the existing one
 def reAnalyze():
-	overwrite = windowWrapper.radioButton_Overwrite.isChecked()
-	newFile = windowWrapper.radioButton_GenerateNew.isChecked()
-	customName = windowWrapper.lineEdit_customSaveName.text()
-	stdDevNumber = windowWrapper.spinBox_StdDev.value()
-	minSamples = windowWrapper.spinBox_MinSamp.value()
 
-	nameError = False
+    #Save the values that the user entered in the analysis settings window
+    overwrite = windowWrapper.radioButton_Overwrite.isChecked()
+    newFile = windowWrapper.radioButton_GenerateNew.isChecked()
+    customName = windowWrapper.lineEdit_customSaveName.text()
+    stdDevNumber = windowWrapper.spinBox_StdDev.value()
+    minDuration = windowWrapper.spinBox_MinDuration.value()
 
-	#first we check to see if we're saving with a custom name that's valid
-	if not overwrite or newFile:
-		if ("\\" in customName or "/" in customName or ":" in customName or "<" in customName or ">" in customName or "*" in customName or "?" in customName or "\"" in customName or "|" in customName):
-			invalidSettingsNotice = QMessageBox()
-			invalidSettingsNotice.setText("Filename may not contain any of the following characters: \\ / : * ? \" < > |\n")
-			invalidSettingsNotice.setWindowTitle("Invalid Filename")
-			invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
-			invalidSettingsNotice.setIcon(QMessageBox.Warning)
-			nameError = True
-			invalidSettingsNotice.exec()
-			return
+    nameError = False
+    
+    #Check to see if the user is saving with a valid file name
+    if not overwrite or newFile:
+        if ("\\" in customName or "/" in customName or ":" in customName or "<" in customName or ">" in customName or "*" in customName or "?" in customName or "\"" in customName or "|" in customName):
+            invalidSettingsNotice = QMessageBox()
+            invalidSettingsNotice.setText("Filename may not contain any of the following characters: \\ / : * ? \" < > |\n")
+            invalidSettingsNotice.setWindowTitle("Invalid Filename")
+            invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
+            invalidSettingsNotice.setIcon(QMessageBox.Warning)
+            nameError = True
+            invalidSettingsNotice.exec()
+            return
 
-	fileCopy = jsCon.jsonObject
+    #Remove '.json' if the user put it in the custom name
+    if ".json" in customName:
+        customName = customName.replace(".json", "")
+
+    #Create JSON object
+    fileCopy = jsCon.jsonObject
 	
-	#Go through all of the trials, calculate their stats based on their data, and store that in place
-	#of the old stats
-	numTrials = int(fileCopy["header"]["trialCount"])
-	for x in range(numTrials):
-		fileCopy["trials"][x]["stats"] = da.getTrialStats(stdDevNumber, minSamples, fileCopy["trials"][x]["samples"])
+    #Update the threshold parameters
+    fileCopy["header"]["thresholdStdDev"] = stdDevNumber
+    fileCopy["header"]["thresholdMinDuration"] = minDuration
 	
-	#Get the contents ready to be written to file
-	fileString = json.dumps(fileCopy)
+    #Go through all of the trials, calculate the new stats, and store the newly generated data 
+    numTrials = int(fileCopy["header"]["trialCount"])
+    for x in range(numTrials):
+        fileCopy["trials"][x]["stats"] = da.getTrialStats(stdDevNumber, minDuration, fileCopy["trials"][x]["samples"])
+	
+    #Convert the saved data to a JSON readable format
+    fileString = json.dumps(fileCopy)
 
-	#get the name of the file currently open,
-	oldFileName = jsCon.getCurrentFilename()
+    #Open the old file
+    oldFileName = jsCon.getCurrentFilename()
 
-	#check if there's already a .json in the new name, removing it if there is
-	if ".json" in customName:
-		customName = customName.replace(".json", "")
+    #Replace oldFilename with customName (should be the same if 'Overwrite Current File' is enabled)
+    newFilename = jsCon.saveFilename.replace(oldFileName, customName)
 
-	#replace the old name with the new name
-	#oldFilename and customName should be the same if "Overwrite Current File" is enabled
-	newFilename = jsCon.saveFilename.replace(oldFileName, customName)
+    #Open the file, write the json data, then close the file
+    saveFile = open(newFilename, "w")
+    saveFile.write(fileString)
+    saveFile.close()
 
-	print(newFilename)
+    #Open the newly created session
+    im.openSession(newFilename)
+    if not nameError:
+        closeWindow()
 
-	saveFile = open(newFilename, "w")
-	saveFile.write(fileString)
-	saveFile.close()
 
-	im.openSession(newFilename)
-	if not nameError:
-		closeWindow()
-
-#Sets the line editor to be enabled/disabled depending on if the "Save as Custom Name" option is selected
+#Sets the line editor to be enabled/disabled depending on the 'Save as Custom Name' option
 def setFilenameEditorEnabled():
-	windowWrapper.lineEdit_customSaveName.setEnabled(windowWrapper.radioButton_GenerateNew.isChecked())
+    windowWrapper.lineEdit_customSaveName.setEnabled(windowWrapper.radioButton_GenerateNew.isChecked())
 
+
+#Close the dialog window
 def closeWindow():
-	dialogWindow.close()
+    dialogWindow.close()

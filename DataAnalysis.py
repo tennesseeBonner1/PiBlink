@@ -1,12 +1,20 @@
-﻿import math
+﻿""" DataAnalysis.py
+    Last Modified: 5/4/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+
+    This program contains funtions that are used by the JSON Converter in order to make stat calculations. 
+    These include calculations for the eyeblinks as well as all the calculations needed for it.
+"""    
+import math
 import TheGraph as tg
 import TheSession as ts
 
-maxArrowCount = 30
+#maxArrowCount = 30
 
-#Called by JSON converter to get the stats to save for each trial
-#(data acquisition analysis)
+#Called by JSON converter to get the stats to save for each trial(data acquisition analysis)
 def getTrialStats(minSD=4, minDuration=1, data=[]):
+
+    #Fill data with the data in the graph if it is empty
     if len(data) == 0:
         data = tg.data
 
@@ -36,46 +44,29 @@ def getTrialStats(minSD=4, minDuration=1, data=[]):
     #Return stats dictionary
     return statsDict
 
-#Don't think this function is necessary anymore -toDelete
-#Called after playback view of trial is generated to place arrows where blinking starts
-#(playback analysis)
-def addEyeblinkArrows():
-    #Needed to compute eyeblink onset samples
-    analyzeTrial()
 
-    #For each eyeblink onset, add an arrow marking it on the graph
-    #The number of arrows added is capped at maxArrowCount
-    numberOfArrows = min(len(onsetSamples), maxArrowCount)
-    for x in range(numberOfArrows):
-        tg.addArrow(onsetSamples[x] - 1) #Decrement by one to convert to indices
-
-    #print("Onsets: " + str(len(onsetSamples)))
-    #print("SD: " + str(standardDeviation))
-    #print("Avg: " + str(baselineAverage) + "\n")
-
-#ABOVE ARE THE BIG BOY FUNCTIONS
-#-----------------------------------------------------------------------------------------------------
-#BELOW ARE THE HELPER FUNCTIONS
-
+#This function analyses the data to calculate the onsets and offsets of the eyeblinks
 def analyzeTrial(minSD=4, minDuration=1, data=[]):
+
+    #Initialize global variables
+    global baselineTotal, onsetSamples, offsetSamples
+
     #Initialize local variables
     baselineEnd = ts.currentSession.csStartInSamples
     blinking = False
     count = 0
     dataSize = tg.dataSize
-
-    #Initialize global variables
-    global baselineTotal, onsetSamples, offsetSamples
-
-    if len(data) == 0:
-        data = tg.data
-    
     baselineTotal = 0.00
     onsetSamples = []
     offsetSamples = []
 
-    #Go through all samples in order...
+    #Fill data with the data in the graph if it is empty
+    if len(data) == 0:
+        data = tg.data
+   
+    #Go through all samples in order
     for sampleIndex in range(dataSize):
+
         #For baseline samples, simply aggregate total amplitude (for computation of average later)
         if sampleIndex < baselineEnd:
             addToBaselineTotal(data[sampleIndex])
@@ -84,16 +75,15 @@ def analyzeTrial(minSD=4, minDuration=1, data=[]):
         elif sampleIndex == baselineEnd:
             computeAverageAndSD(data)
 
-        #After baseline, compute onsets and offsets based on the minimum SDs and duration
-        #required to be counted as a blink
+        #After baseline, compute onsets and offsets based on the minimum SDs and duration required to be counted as a blink
         else:
+
             #First, check to see if the value is above the threshold
             overThreshold = data[sampleIndex] > (baselineAverage + minSD * standardDeviation)
 
             #Adjust the count of consecutive values above the threshold accordingly
             count = (count + 1) * overThreshold
 
-            #Then check if we can confirm any onsets/offsets
             #Check to see if a new onset should be registered
             if not blinking and (count >= minDuration):
                 blinking = True
@@ -104,11 +94,18 @@ def analyzeTrial(minSD=4, minDuration=1, data=[]):
                 blinking = False
                 offsetSamples.append(sampleIndex + 1)
 
+
+#Add to the baseline in order to calculate the SD
 def addToBaselineTotal(number):
+
     global baselineTotal
+
     baselineTotal += number
 
+
+#Compute the Average and SD
 def computeAverageAndSD(data):
+
     global baselineAverage, standardDeviation
 
     #Determine number of samples in baseline
@@ -117,15 +114,10 @@ def computeAverageAndSD(data):
     #Compute baseline average
     baselineAverage = baselineTotal / baselineSampleCount
 
-    #Compute standard deviation (SD)...
+    #Compute standard deviation (SD)
     number = 0.00
     for i in range(baselineSampleCount):
         number += math.pow(data[i] - baselineAverage, 2)
 
     number = number / baselineSampleCount
     standardDeviation = math.sqrt(number)
-
-#-toDelete
-#Returns whether eyeblink amplitude is high enough to be considered "blinking"
-def checkForBlink(value):
-    return (value > (baselineAverage + (4 * standardDeviation)))

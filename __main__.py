@@ -1,8 +1,10 @@
+""" __main__.py
+    Last Modified: 5/4/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
 
-'''
     Run this file to start the program.
 
-    This file contains...
+    This file contains:
     1. The main function
     2. The error handler for all otherwise uncaught exceptions
     
@@ -11,11 +13,9 @@
     input handling).
 
     The error handler ensures that all necessary clean up is performed before exiting on a crash.
-'''
-
+"""
 from traceback import format_exception
 from PyQt5 import QtWidgets
-
 import MainWindow as mw
 import InputManager as im
 import TheGraph as tg
@@ -23,8 +23,10 @@ import DisplaySettingsManager as dsm
 import JSONConverter as jc
 import TimeCriticalOperations as tco
 
+
 #Called whenever there is an error in the main process
 def mainProcessErrorHandler(exceptionType, exceptionValue, exceptionTraceback):
+
     #Print error
     print(format_exception(exceptionType, exceptionValue, exceptionTraceback))
     
@@ -37,8 +39,10 @@ def mainProcessErrorHandler(exceptionType, exceptionValue, exceptionTraceback):
     #End main process
     sys.exit(0)
 
+
 #Main method
 if __name__ == "__main__":
+
     #Necessary initialization for Qt system
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -48,8 +52,7 @@ if __name__ == "__main__":
     ui = mw.Ui_MainWindow()
     ui.setupUi(MainWindow)
 
-    #If there's an error in the main process, we need special error handling to close the...
-    #child process, i.e. the sampling process, so it doesn't become a zombie.
+    #If there's an error in the main process, we need special error handling to close the child process (the sampling process), so it doesn't become a zombie.
     sys.excepthook = mainProcessErrorHandler
 
     #Perform all necessary set up including launching the time critical (sampling) process
@@ -63,6 +66,8 @@ if __name__ == "__main__":
     MainWindow.show()
     app.exec_() #Run the main Qt Event loop (for listening to UI input)
     
-    #End of program
-    tco.orderToStopProcess() #Make sure the sampling process terminates
-    sys.exit(0) #Exit program with no errors
+    #Make sure the sampling process terminates
+    tco.orderToStopProcess() 
+
+    #Exit program with no errors
+    sys.exit(0) 

@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'AnalysisSettingsUI.ui'
-#
-# Created by: PyQt5 UI code generator 5.14.1
-#
-# WARNING! All changes made in this file will be lost!
-
-
+""" AnalysisSettingsWindow.py
+    Last Modified: 5/4/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    
+    This program sets up all of the UI in the Analysis Settings Window
+"""
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -61,31 +58,32 @@ class Ui_AnalysisSettingsWindow(object):
         self.label_StdDev.setWordWrap(False)
         self.label_StdDev.setObjectName("label_StdDev")
         self.formLayout_Threshold.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_StdDev)
-        self.label_MinSamp = QtWidgets.QLabel(AnalysisSettingsWindow)
+        self.label_MinDuration = QtWidgets.QLabel(AnalysisSettingsWindow)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_MinSamp.sizePolicy().hasHeightForWidth())
-        self.label_MinSamp.setSizePolicy(sizePolicy)
+        sizePolicy.setHeightForWidth(self.label_MinDuration.sizePolicy().hasHeightForWidth())
+        self.label_MinDuration.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(14)
-        self.label_MinSamp.setFont(font)
-        self.label_MinSamp.setToolTip("")
-        self.label_MinSamp.setStatusTip("")
-        self.label_MinSamp.setWordWrap(True)
-        self.label_MinSamp.setObjectName("label_MinSamp")
-        self.formLayout_Threshold.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_MinSamp)
-        self.spinBox_MinSamp = QtWidgets.QSpinBox(AnalysisSettingsWindow)
+        self.label_MinDuration.setFont(font)
+        self.label_MinDuration.setToolTip("")
+        self.label_MinDuration.setStatusTip("")
+        self.label_MinDuration.setWordWrap(True)
+        self.label_MinDuration.setObjectName("label_MinDuration")
+        self.formLayout_Threshold.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_MinDuration)
+        self.spinBox_MinDuration = QtWidgets.QSpinBox(AnalysisSettingsWindow)
         font = QtGui.QFont()
         font.setPointSize(14)
-        self.spinBox_MinSamp.setFont(font)
-        self.spinBox_MinSamp.setToolTip("")
-        self.spinBox_MinSamp.setAlignment(QtCore.Qt.AlignCenter)
-        self.spinBox_MinSamp.setMinimum(1)
-        self.spinBox_MinSamp.setMaximum(300)
-        self.spinBox_MinSamp.setSingleStep(1)
-        self.spinBox_MinSamp.setObjectName("spinBox_MinSamp")
-        self.formLayout_Threshold.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.spinBox_MinSamp)
+        self.spinBox_MinDuration.setFont(font)
+        self.spinBox_MinDuration.setToolTip("")
+        self.spinBox_MinDuration.setAlignment(QtCore.Qt.AlignCenter)
+        self.spinBox_MinDuration.setMinimum(1)
+        self.spinBox_MinDuration.setMaximum(1000)
+        self.spinBox_MinDuration.setSingleStep(1)
+        self.spinBox_MinDuration.setProperty("value", 10)
+        self.spinBox_MinDuration.setObjectName("spinBox_MinDuration")
+        self.formLayout_Threshold.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.spinBox_MinDuration)
         self.spinBox_StdDev = QtWidgets.QSpinBox(AnalysisSettingsWindow)
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -203,9 +201,9 @@ class Ui_AnalysisSettingsWindow(object):
         self.label_ThresholdSettings.setText(_translate("AnalysisSettingsWindow", "Threshold Settings"))
         self.label_StdDev.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The number of standard deviations away from the average that the sample must be in order to be above the eyeblink threshold</span></p></body></html>"))
         self.label_StdDev.setText(_translate("AnalysisSettingsWindow", "Standard Deviations"))
-        self.label_MinSamp.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The minimum amount of time that the signal must be above the threshold in order to register as an eyeblink onset.</span></p><p><span style=\" font-size:12pt;\">Higher values make the analysis less susceptible to noise</span></p></body></html>"))
-        self.label_MinSamp.setText(_translate("AnalysisSettingsWindow", "Minimum Duration Required (ms)"))
-        self.spinBox_MinSamp.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The minimum amount of time that the signal must be above the threshold in order to register as an eyeblink onset.</span></p><p><span style=\" font-size:12pt;\">Higher values make the analysis less susceptible to noise</span></p></body></html>"))
+        self.label_MinDuration.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The minimum amount of time that the signal must be above the threshold in order to register as an eyeblink onset.</span></p><p><span style=\" font-size:12pt;\">Higher values make the analysis less susceptible to noise</span></p></body></html>"))
+        self.label_MinDuration.setText(_translate("AnalysisSettingsWindow", "Minimum Duration Required (ms)"))
+        self.spinBox_MinDuration.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The minimum amount of time that the signal must be above the threshold in order to register as an eyeblink onset.</span></p><p><span style=\" font-size:12pt;\">Higher values make the analysis less susceptible to noise</span></p></body></html>"))
         self.spinBox_StdDev.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The number of standard deviations away from the average that the sample must be in order to be above the eyeblink threshold</span></p></body></html>"))
         self.label_FileSettings.setText(_translate("AnalysisSettingsWindow", "File Settings"))
         self.label_Overwrite.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">Replaces the current onset and offsest values of the file with the new ones. </span></p></body></html>"))
@@ -214,6 +212,6 @@ class Ui_AnalysisSettingsWindow(object):
         self.radioButton_GenerateNew.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The file generated will be saved under the name specified in the following line editor</span></p></body></html>"))
         self.label_GenerateNew.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The file generated will be saved under the name specified in the following line editor</span></p></body></html>"))
         self.label_GenerateNew.setText(_translate("AnalysisSettingsWindow", "Save as Custom Name"))
-        self.lineEdit_customSaveName.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">Holds the custom name that the generated file will be saved under (if &quot;Save as Custom Name&quot; is enabled)</span></p><p><span style=\" font-size:12pt;\">May not contain any of the following characters: \\ / : * ? &quot; &lt; &gt; |</span></p></body></html>"))
+        self.lineEdit_customSaveName.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">Holds the custom filename that the generated file will be saved under (if &quot;Save as Custom Name&quot; is enabled). The &quot;.json&quot; does not need to be included.</span></p><p><span style=\" font-size:12pt;\">Please note that the filename is </span><span style=\" font-size:12pt; font-weight:600;\">not</span><span style=\" font-size:12pt;\"> the same as the session name.</span></p><p><span style=\" font-size:12pt;\">May not contain any of the following characters: \\ / : * ? &quot; &lt; &gt; |</span></p></body></html>"))
         self.pushButton_ReAnalyze.setText(_translate("AnalysisSettingsWindow", "Re-Analyze"))
         self.pushButton_Cancel.setText(_translate("AnalysisSettingsWindow", "Cancel"))

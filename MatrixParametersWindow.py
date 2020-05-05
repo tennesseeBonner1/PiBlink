@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
+""" MatrixParametersWindow.py
+    Last Modified: 5/4/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
 
-# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\CsCrMachineCode\MatrixParametersUI.ui'
-#
-# Created by: PyQt5 UI code generator 5.13.0
-#
-# WARNING! All changes made in this file will be lost!
-
-
+    This program sets up all of the UI in the Matrix Parameters Window
+"""
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -177,6 +175,7 @@ class Ui_trialMatrixParametersDialog(object):
         trialMatrixParametersDialog.setTabOrder(self.maxRowsSpinBox, self.maxColumnsSpinBox)
         trialMatrixParametersDialog.setTabOrder(self.maxColumnsSpinBox, self.generateButton)
         trialMatrixParametersDialog.setTabOrder(self.generateButton, self.cancelButton)
+
 
     def retranslateUi(self, trialMatrixParametersDialog):
         _translate = QtCore.QCoreApplication.translate

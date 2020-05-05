@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
-
+""" DAC8552_default_config.py
+    Last Modified: 5/3/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    
+    This file stores configuraion data that is used by dac8552.py
+"""
 # ###############  Raspberry Pi Physical Interface Properties  #################
 # SPI bus configuration and GPIO pins used for the ADS1255/ADS1256.
 # These defaults are used by the constructor of the ADS1256 class.

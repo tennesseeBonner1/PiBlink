@@ -1,14 +1,15 @@
+""" TheGraph.py
+    Last Modified: 5/4/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
 
-'''
-This file is responsible for implementing all operations related to the graph displayed on the
-main window.
+    This file is responsible for implementing all operations related to the graph displayed on the
+    main window.
 
-More specifically, it implements the operations for creating, updating, clearing, pausing/resuming,
-and annotating (i.e. adding arrows to) the graph. The emphasis here is on implementing the code to
-make them work, not the code for managing the logic of when they should happen. Other files,
-particularly input manager, act as the driver/controller for when they should be called.
-'''
-
+    More specifically, it implements the operations for creating, updating, clearing, pausing/resuming,
+    and annotating (adding arrows to) the graph. The emphasis here is on implementing the code to
+    make them work, not the code for managing the logic of when they should happen. Other files,
+    particularly input manager, act as the driver/controller for when they should be called.
+"""
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
@@ -20,18 +21,23 @@ import InputManager as im
 import DataAnalysis as da
 import TimeCriticalOperations as tco
 
+
 #Helper methods used later on
 def clamp(value, minimum, maximum):
+
     return min(maximum, max(minimum, value))
+
 
 #Converts the colors
 def htmlColorString(qtColor):
+
     return "rgb(" + str(qtColor.red()) + ", " + str(qtColor.blue()) + ", " + str(qtColor.green()) + ")"
+
 
 #Initializes global variables that need to have default values or references to objects in main window
 def initialSetUp(theMainWindow):
-    global graphInitialized, playing, duringITI, done
-    global mainWindow, graphWindow
+
+    global graphInitialized, playing, duringITI, done, mainWindow, graphWindow
 
     graphInitialized = False
     playing = False
@@ -45,12 +51,16 @@ def initialSetUp(theMainWindow):
     #Also set the "color" of the blank graph screen
     graphWindow.setBackground(None)
 
+
 #Whether or not the graph is playing
 def isPlaying():
+
     return playing
+
 
 #Sets the graph's play status to parameter (i.e. true = playing, false = paused)
 def setPlaying(play):
+
     global playing, duringITI, graphInitialized
     
     playing = play
@@ -60,11 +70,14 @@ def setPlaying(play):
         tco.orderToSetPlaying(play)
 
     if not duringITI:
+
         if play and (not graphInitialized):
             createGraph()
 
-#Resets the graph (i.e. removes graph window and is ready for new call to createGraph)
+
+#Resets the graph (removes graph window and is ready for new call to createGraph)
 def resetGraph():
+
     global playing, graphInitialized, duringITI, done
 
     #Reset variables
@@ -84,11 +97,12 @@ def resetGraph():
     graphWindow.clear()
     graphWindow.setBackground(None)
 
+
 #Creates the graph
 def createGraph():
+
     #Variables that persist outside this function call
-    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights
-    global graphInitialized, playing, done, itiSize
+    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done, itiSize
 
     #Update the session info label in the main window to reflect trial number
     im.updateSessionInfoLabel()
@@ -106,6 +120,7 @@ def createGraph():
 
     #Add bar graph only when in data acquisition mode (no use for it in playback)
     if im.playMode == im.PlayMode.ACQUISITION:
+
         #Create bar graph
         barGraph = graphWindow.addPlot()
         barGraph.setMaximumWidth(100)
@@ -129,10 +144,7 @@ def createGraph():
 
     #Create data array (this array will be displayed as the line on the graph)
     dataSize = ts.currentSession.trialLengthInSamples #Array size
-    data = np.full(shape = dataSize,
-                   fill_value = -7,
-                   dtype = np.float32) #Create array with all elements initialized to -7 (so they're off-screen)
-    #If you don't specify the data type here^, it assumes integers
+    data = np.full(shape = dataSize, fill_value = -7, dtype = np.float32) #initialized to -7 (so they're off-screen)
     
     #Create empty graph
     stimulusGraph = graphWindow.addPlot()
@@ -140,14 +152,13 @@ def createGraph():
     #Plot line in graph
     if dsm.shading:
         curve = stimulusGraph.plot(y = data, fillLevel = -0.3, brush = dataColor)
+
     else:
         curve = stimulusGraph.plot(y = data, fillLevel = -0.3, pen = dataColor)
 
     #Add graph labels
-    stimulusGraph.setLabel('bottom',
-        "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Time (ms)</span>")
-    stimulusGraph.setLabel('left',
-        "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Eyeblink Amplitude (VDC)</span>")
+    stimulusGraph.setLabel('bottom', "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Time (ms)</span>")
+    stimulusGraph.setLabel('left', "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Eyeblink Amplitude (VDC)</span>")
 
     #Axis line/tick color
     stimulusGraph.getAxis('bottom').setPen(axisColor)
@@ -165,8 +176,6 @@ def createGraph():
     #Disables the context menu you see when right-clicking on the graph
     stimulusGraph.setMenuEnabled(False)
 
-    #Add CS and US start/end lines in graph...
-
     #Create CS lines and shaded area between lines
     csStart = ts.currentSession.csStartInSamples
     csEnd = ts.currentSession.csEndInSamples
@@ -176,8 +185,7 @@ def createGraph():
     stimulusGraph.addItem(csRegion)
 
     #Add CS label to middle of shaded area
-    csLabel = pg.TextItem(html = "<span style = \"font-size: 16pt; color: " + 
-                        htmlColorString(textColor) + "\">CS</span>", color = textColor, anchor = (0.5, 0))
+    csLabel = pg.TextItem(html = "<span style = \"font-size: 16pt; color: " + htmlColorString(textColor) + "\">CS</span>", color = textColor, anchor = (0.5, 0))
     stimulusGraph.addItem(csLabel)
     csLabel.setPos((csStart + csEnd) / 2, 7)
 
@@ -189,28 +197,26 @@ def createGraph():
     usRegion.lines[1].setPen(stimulusColor)
     stimulusGraph.addItem(usRegion)
 
-    usLabel = pg.TextItem(html = "<span style = \"font-size: 16pt; color: " + 
-                        htmlColorString(textColor) + "\">US</span>", anchor = (0.5, 0))
+    usLabel = pg.TextItem(html = "<span style = \"font-size: 16pt; color: " + htmlColorString(textColor) + "\">US</span>", anchor = (0.5, 0))
     stimulusGraph.addItem(usLabel)
     usLabel.setPos((usStart + usEnd) / 2, 7)
 
     #Launch graph based on play mode
     if im.playMode == im.PlayMode.PLAYBACK:
-        #LOAD IN PLAYBACK VIEW OF TRIAL...
 
         #Update graph with array of samples for trial
         data = JSONConverter.openTrial()
         curve.setData(data)
 
-        #The data for the eyeblinks should have already been calculated, so just read in the onsets
-        #to know where to place the "Arrows of Analysis"
+        #The data for the eyeblinks should have already been calculated, so just read in the onsets to place the "Arrows"
         onsets = JSONConverter.getOnsets()
         arrowCap = min(len(onsets), 30)
+
         for x in range(arrowCap):
             addArrow(onsets[x] - 1)
+
+    #Data Acquisition    
     else:
-        #START DATA ACQUISITION...
-        #i.e. start timers
 
         #Regularly sample data (according to sample rate defined in session settings)
         iteration = 0
@@ -224,13 +230,16 @@ def createGraph():
     done = False #As in done with session, which we are not (we are just starting the session!!!)
     graphInitialized = True
 
+
 #Updates the display
 def displayUpdate():
+
     #Variables that need to be survive across multiple calls to update function
     global iteration, dataSize, curve, data, bars, barHeights, playing
 
     #Read in new samples
     while not tco.sampleQueue.empty():
+
         data[iteration] = tco.sampleQueue.get(block = False)
 
         iteration += 1
@@ -238,15 +247,19 @@ def displayUpdate():
     #Update stimulus graph
     curve.setData(data)
 
-    #Update bar graph
     lastSample = iteration - 1
+
+    #Update bar graph
     if lastSample != -1 and lastSample < dataSize:
+
         barHeights[0] = data[lastSample]
         bars.setOpts(height = barHeights)
 
     #End of trial?
     if iteration >= dataSize:
+
         endTrialStartITI()
+
 
 #Create timer to run sample update function (start is called on the timer in createGraph function above)
 displayTimer = QtCore.QTimer()
@@ -254,6 +267,7 @@ displayTimer.timeout.connect(displayUpdate)
 
 
 def endTrialStartITI():
+
     global itiCountdown, itiInterval, duringITI, countdownLabel, done
 
     #Save trial
@@ -288,18 +302,10 @@ def endTrialStartITI():
     itiCountdown = itiSize
 
     #Create countdown label "Next trial in..."
-    graphWindow.addLabel(text = "Next trial in...",
-                         size = "20pt",
-                         color = "#000000",
-                         row = 0,
-                         col = 0)
+    graphWindow.addLabel(text = "Next trial in...", size = "20pt", color = "#000000", row = 0, col = 0)
 
     #Create countdown label "X.X"
-    countdownLabel = graphWindow.addLabel(text = "{:5.1f}".format(itiCountdown),
-                         size = "69pt",
-                         color = "#000000",
-                         row = 1,
-                         col = 0)
+    countdownLabel = graphWindow.addLabel(text = "{:5.1f}".format(itiCountdown), size = "69pt", color = "#000000", row = 1, col = 0)
 
     #Establish how long to wait between calls to itiUpdate (in ms)
     itiInterval = 100
@@ -309,7 +315,10 @@ def endTrialStartITI():
     setPlaying(True)
     itiTimer.start(itiInterval) #Parameter is millisecond interval between updates
 
+
+#Update the iti for the countdown
 def itiUpdate():
+
     global itiCountdown
 
     #ITI can be paused
@@ -326,11 +335,14 @@ def itiUpdate():
     if itiCountdown <= 0:
         endITIStartTrial()
 
+
 #Create timer to run ITI (start is called on the timer in startITI function above)
 itiTimer = QtCore.QTimer()
 itiTimer.timeout.connect(itiUpdate)
 itiTimer.setTimerType(QtCore.Qt.PreciseTimer)
 
+
+#Stop the ITI and begin the next trial
 def endITIStartTrial():
     #Stop ITI (does the following: clear countdown from graph, duringITI = False, itiTimer.stop())
     resetGraph()
@@ -341,8 +353,10 @@ def endITIStartTrial():
     #Begin new trial (calls createGraph for us since no graph currently exists)
     setPlaying(True)
 
+
 #Computes the itiSize global variable, using current session's ITI and ITI variance durations
 def generateITISize():
+
     global itiSize
 
     #Base ITI (in seconds)
@@ -352,8 +366,7 @@ def generateITISize():
     if ts.currentSession.itiVariance > 0:
         #Generate variance
         #Returns numpy.ndarray of size 1 so we index that array at 0 to get random number
-        itiVariance = np.random.randint(low = -ts.currentSession.itiVariance,
-                                        high = ts.currentSession.itiVariance, size = 1)[0]
+        itiVariance = np.random.randint(low = -ts.currentSession.itiVariance, high = ts.currentSession.itiVariance, size = 1)[0]
         
         #Apply variance
         itiSize += itiVariance
@@ -362,16 +375,13 @@ def generateITISize():
         if itiSize < 0:
             itiSize = 0
 
+
 #Adds arrow on top of data at xPosition (in samples) on graph
 def addArrow(xPositionInSamples):
-    #Create arrow with style options
-    #Make sure to specify rotation in constructor, b/c there's a bug in PyQtGraph (or PyQt)...
-    #where you can't update the rotation of the arrow after creation
+
+    #Create arrow with style options Make sure to specify rotation in constructor, b/c there's a bug in PyQtGraph (or PyQt) where you can't update the rotation of the arrow after creation
     #See (http://www.pyqtgraph.org/documentation/graphicsItems/arrowitem.html) for options
-    arrow = pg.ArrowItem(angle = -90,
-                         headLen = 25,
-                         headWidth = 25,
-                         brush = dsm.colors[dsm.ColorAttribute.AXIS.value])
+    arrow = pg.ArrowItem(angle = -90, headLen = 25, headWidth = 25, brush = dsm.colors[dsm.ColorAttribute.AXIS.value])
 
     #Set arrow's x and y positions respectively
     arrow.setPos(xPositionInSamples, data[xPositionInSamples])
