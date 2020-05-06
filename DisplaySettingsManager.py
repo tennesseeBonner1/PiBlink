@@ -1,6 +1,6 @@
 """ DisplaySettingsManager.py
-    Last Modified: 5/4/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This program manages the display settings, but more specifically it does the following:
         1. Managing the pop-up window (in DisplaySettingsWindow.py) for viewing and editing these settings.

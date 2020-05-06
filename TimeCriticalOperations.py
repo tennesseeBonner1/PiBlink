@@ -1,12 +1,13 @@
 """ TheSession.py
-    Last Modified: 5/4/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for spawning and managing the time-critical/sampling process.
     Everything that is time-critical is run on this separate process, (sampling and ITIs).
 
     The main process issues commands to the sampling process via the command queue.
     The sampling process sends samples to the main process via the sample queue.
+    The sampling process sends ITI time updates to the main process via the ITI queue.
 
     The sampling process is spawned on program start and waits idle until data acquisition begins.
 
@@ -17,18 +18,21 @@ import multiprocessing as mp
 import time
 import os
 import timeit
+import numpy as np
 from enum import Enum
 import TheSession as ts
 import NoiseWizard as dw
 
+#Set this to false to eliminate performance print outs
+printPerformanceMeasurements = True
 
 #Command types that can be sent from main process to sampling process via the command queue
 class Command(Enum):
 
-    START_TRIAL = 0
-    PAUSE_TRIAL = 1
-    RESUME_TRIAL = 2
-    STOP_TRIAL = 3
+    START_SESSION = 0
+    PAUSE_SESSION = 1
+    RESUME_SESSION = 2
+    STOP_SESSION = 3
     END_PROCESS = 4
 
 
@@ -36,84 +40,86 @@ class Command(Enum):
 class CurrentlyIn(Enum):
 
     MAIN_LOOP = 0
-    TRIAL = 1
-    PAUSE_LOOP = 2
+    RUNNING_SESSION = 1
+    PAUSED_SESSION = 2
 
 
 #Called at start of program to launch other process, establishes communication, and gets it ready for use (will sit in low-powerish polling state until data acquisition begins)
 def initialSetUp():
 
     #Queues used for inter-process communication
-    sampleQueue = mp.Queue(2000) #Output of time critical process, input of main process
-    commandQueue = mp.Queue(2000) #Output of main process, input of time critical process
+    sampleQueue = mp.Queue(2000) #Direction: Output of sampling process, input of main process
+    itiQueue = mp.Queue(200) #Same direction
+    commandQueue = mp.Queue(200) #Opposite direction
 
     #Create and start time critical process (target is function called on time critical process to start it)
-    timeCriticalProcess = mp.Process(target = startTimeCriticalProcess, args = (sampleQueue, commandQueue))
+    timeCriticalProcess = mp.Process(target = startTimeCriticalProcess,
+                                     args = (sampleQueue, itiQueue, commandQueue))
 
     timeCriticalProcess.start()
 
     #Save as global variables after starting time critical process so that process has no chance of gettings its global variables mixed up with ours
-    saveQueuesAsGlobalVars(sampleQueue, commandQueue)
+    saveQueuesAsGlobalVars(sampleQueue, itiQueue, commandQueue)
 
 
 #This tells the time critical process to begin sampling with all the parameters it needs
-def orderToStartTrial():
+def orderToStartSession():
 
-    commandQueue.put((Command.START_TRIAL,
-                        (ts.currentSession.sampleInterval,
-                        ts.currentSession.csStartInSamples,
-                        ts.currentSession.csEndInSamples,
-                        ts.currentSession.usSignalStartInSamples,
-                        ts.currentSession.usSignalEndInSamples,
-                        ts.currentSession.trialDuration,
-                        ts.currentSession.trialLengthInSamples)))
+    #First, clean out any previous sampling process output so we start with clean slate
+    while not sampleQueue.empty():
+        sampleQueue.get(block = False)
+    while not itiQueue.empty():
+        itiQueue.get(block = False)
+
+    commandQueue.put((Command.START_SESSION, ts.currentSession))
 
 
-#The playing setting of whatever trial
+#Control play status, i.e. True = play, False = pause
 def orderToSetPlaying(play):
 
     if play:
-        commandQueue.put((Command.RESUME_TRIAL, None))
+        commandQueue.put((Command.RESUME_SESSION, None))
 
     else:
-        commandQueue.put((Command.PAUSE_TRIAL, None))
+        commandQueue.put((Command.PAUSE_SESSION, None))
 
 #Stop trial
-def orderToStopTrial():
+def orderToStopSession():
 
-    commandQueue.put((Command.STOP_TRIAL, None))
+    commandQueue.put((Command.STOP_SESSION, None))
 
 #Stop Process
 def orderToStopProcess():
 
     commandQueue.put((Command.END_PROCESS, None))
 
-
-
 #The below function is called separately by both processes as part of set up
-def saveQueuesAsGlobalVars (theSampleQueue, theCommandQueue):
+def saveQueuesAsGlobalVars (theSampleQueue, theITIQueue, theCommandQueue):
 
-    global sampleQueue, commandQueue
+    global sampleQueue, itiQueue, commandQueue
 
     sampleQueue = theSampleQueue
+    itiQueue = theITIQueue
     commandQueue = theCommandQueue
 
 
 #Function called when time critical process is launched
-def startTimeCriticalProcess(theSampleQueue, theCommandQueue):
+def startTimeCriticalProcess(theSampleQueue, theITIQueue, theCommandQueue):
 
     #Establish communication medium with main process
-    saveQueuesAsGlobalVars(theSampleQueue, theCommandQueue)
+    saveQueuesAsGlobalVars(theSampleQueue, theITIQueue, theCommandQueue)
 
     #testPerformance()
 
     mainLoop()
 
-#Main loop for time critical processes
+    print("\nEnd of sampling process.\n")
+
+#Main loop for time critical process
+#Waits on command to start data acquisition
 def mainLoop():
 
     global stopProcess
-
     stopProcess = False
 
     while (not stopProcess):
@@ -130,15 +136,36 @@ def mainLoop():
             break
 
 
-#Runs a data acquisition trial
-def runDataAcquisitionTrial(trialParameters):
+#Begins running data acquisition session according to session settings passed in
+def runSession(sessionObject):
 
-    global stopTrial
+    recordSessionStart()
+    
+    initializeSession(sessionObject)
 
-    stopTrial = False
+    #Session loop
+    for trial in range(1, trialCount + 1):
+        #Run trial
+        runTrial()
+        if stopSession or stopProcess:
+            break
+
+        #Run ITI (except for last trial where there is no following ITI)
+        if trial < trialCount:
+            runITI()
+            if stopSession or stopProcess:
+                break
+
+    #Benchmarking (only if session is not interrupted)
+    if (not stopSession) and (not stopProcess):
+        assessSessionTiming()
+
+
+#Runs a single data acquisition trial
+def runTrial():
 
     #Start data acquisition trial
-    initializeTrial(trialParameters)
+    initializeTrial()
 
     #Used to implement sample interval parameter (see loop below for usage)
     msLeftInCurrentInterval = sampleIntervalInMS
@@ -151,7 +178,7 @@ def runDataAcquisitionTrial(trialParameters):
         #Process single command
         if not commandQueue.empty():
 
-            breakOnReturn = processCommand(CurrentlyIn.TRIAL)
+            breakOnReturn = processCommand(CurrentlyIn.RUNNING_SESSION)
 
             if breakOnReturn:
                 break
@@ -160,7 +187,7 @@ def runDataAcquisitionTrial(trialParameters):
         msLeftInCurrentInterval -= 1
         newSample = dw.getNextSample()  #Busy waits until sample is ready
 
-        #If sample interval has expired, send sample to main process(Otherwise, discard sample)
+        #If sample interval has expired, send sample to main process (otherwise, discard sample)
         if msLeftInCurrentInterval == 0:
 
             #Send sample to main process
@@ -174,16 +201,47 @@ def runDataAcquisitionTrial(trialParameters):
             manageAnalogOutputs(samplingIteration)
 
             #Record benchmarking information
-            recordRealSampleInterval()
+            recordTrialStart()
 
     #End of data-acquisition trial (Turn off outputs and perform benchmarking)
     dw.setCSAmplitude(False)
     dw.setUSAmplitude(False)
-    assessSamplingAccuracy()
+    assessTrialTiming()
+    addToSessionTime(trialDurationInMS / 1000)
 
+#Generate the duration of and run a single ITI
+def runITI():
+
+    #Generate ITI duration
+    itiCountdown = generateITISize()
+
+    #Benchmarking
+    addToSessionTime(itiCountdown)
+
+    #Every tenth of a second (decisecond), update ITI
+    while itiCountdown > 0:
+        #Send main process update of ITI timing
+        itiQueue.put(itiCountdown)
+
+        #Wait a tenth of a second
+        busyWait()
+
+        #Update ITI
+        itiCountdown -= 0.1
+
+        #Process single command
+        if not commandQueue.empty():
+            breakOnReturn = processCommand(CurrentlyIn.RUNNING_SESSION)
+            if breakOnReturn:
+                break
+
+    #Last update to indicate done with ITI
+    itiQueue.put(0)
 
 #Pauses the processes until they resume or are stopped
 def pauseLoop():
+
+    recordPauseStart()
 
     #Turn off outputs while paused
     dw.setCSAmplitude(False)
@@ -197,16 +255,60 @@ def pauseLoop():
             blockWait() #Can afford innacuracy in reaction to resuming trial
 
         #Process single command
-        breakOnReturn = processCommand(CurrentlyIn.PAUSE_LOOP)
+        breakOnReturn = processCommand(CurrentlyIn.PAUSED_SESSION)
 
         if breakOnReturn:
             break
 
+    recordPauseEnd()
+
+#Initialize a session
+def initializeSession(sessionObject):
+
+    global stopSession
+    global sampleIntervalInMS, trialCount, baseITI, itiVariance
+    global csStart, csEnd, usStart, usEnd, trialDurationInMS, trialLengthInSamples
+
+    #Only set to true when session execution needs to be terminated (i.e. stop button pressed)
+    stopSession = False
+
+    #Get sample interval
+    sampleIntervalInMS = sessionObject.sampleInterval
+
+    #Get trial count
+    trialCount = sessionObject.trialCount
+
+    #Get ITI base and variance
+    baseITI = sessionObject.iti
+    itiVariance = sessionObject.itiVariance
+
+    #Get CS/US start/end
+    csStart = sessionObject.csStartInSamples
+    csEnd = sessionObject.csEndInSamples
+    usStart = sessionObject.usSignalStartInSamples
+    usEnd = sessionObject.usSignalEndInSamples
+
+    #Get trial length in samples
+    trialLengthInSamples = sessionObject.trialLengthInSamples
+
+    '''
+    Get target trial duration in MS.
+    This might be slightly more than the time of the final sample.
+    
+    Example:
+    Trial Duration = 5000 ms, Sample Interval = 3 ms
+    So Sample count = int(5000 / 3) = 1666.
+    This means the last sample occurs at 1666 * 3 = 4998 ms, 2 ms before 5000 ms duration.
+    The sampling loop DELIBERATELY waits those extra 2 ms, collecting no extra samples...
+    to ensure the timing accuracy/pacing remains on track.
+    The timing difference would accumulate over many trials, so this might matter?
+    '''
+    trialDurationInMS = sessionObject.trialDuration
 
 #Initializes a trial
-def initializeTrial(trialParameters):
+def initializeTrial():
 
-    global startedCS, csInProgress, startedUS, usInProgress, sampleIntervalInMS, csStart, csEnd, usStart, usEnd, trialDurationInMS, trialLength
+    global startedCS, csInProgress, startedUS, usInProgress
     
     #Prepare ADC library for sampling
     dw.onTrialStart()
@@ -217,26 +319,11 @@ def initializeTrial(trialParameters):
     startedUS = False
     usInProgress = False
 
-    #Get sample interval
-    sampleIntervalInMS = trialParameters[0]
 
-    #Get CS/US start/end
-    csStart = trialParameters[1]
-    csEnd = trialParameters[2]
-    usStart = trialParameters[3]
-    usEnd = trialParameters[4]
-
-    #Get trial duration in MS
-    trialDurationInMS = trialParameters[5]
-
-    #Get trial length
-    trialLength = trialParameters[6]
-
-
-#Process a single command from main process like resume trial or end process
+#Process a single command from main process like resume or end process
 def processCommand(currentlyIn):
 
-    global stopTrial
+    global stopSession
 
     #Extract the command
     fullCommand = commandQueue.get(block = False)
@@ -246,22 +333,22 @@ def processCommand(currentlyIn):
     breakOnReturn = False
 
     #Identify the command and process it if applicable to current situation
-    if command == Command.START_TRIAL and currentlyIn == CurrentlyIn.MAIN_LOOP:
-        runDataAcquisitionTrial(commandArguments)
+    if command == Command.START_SESSION and currentlyIn == CurrentlyIn.MAIN_LOOP:
+        runSession(commandArguments)
 
-    elif command == Command.PAUSE_TRIAL and currentlyIn == CurrentlyIn.TRIAL:
+    elif command == Command.PAUSE_SESSION and currentlyIn == CurrentlyIn.RUNNING_SESSION:
 
         pauseLoop()
 
-        if stopTrial:   #If stop button was pressed while in pause loop
+        if stopSession:   #If stop button was pressed while in pause loop
             breakOnReturn = True
 
-    elif command == Command.RESUME_TRIAL and currentlyIn == CurrentlyIn.PAUSE_LOOP:
+    elif command == Command.RESUME_SESSION and currentlyIn == CurrentlyIn.PAUSED_SESSION:
         breakOnReturn = True
 
-    elif command == Command.STOP_TRIAL and (
-        currentlyIn == CurrentlyIn.TRIAL or currentlyIn == CurrentlyIn.PAUSE_LOOP):
-        stopTrial = True
+    elif command == Command.STOP_SESSION and (
+        currentlyIn == CurrentlyIn.RUNNING_SESSION or currentlyIn == CurrentlyIn.PAUSED_SESSION):
+        stopSession = True
         breakOnReturn = True
 
     elif command == Command.END_PROCESS:
@@ -320,12 +407,12 @@ def manageAnalogOutputs (samplingIteration):
         dw.setUSAmplitude(True)
 
 
-#Fast version of wait used during ITI (more CPU-intensive) (Sampling intervals are achieved automatically when reading the samples)
+#Fast version of wait used during ITI (more CPU-intensive)
 def busyWait():
 
-    startTime = timeit.default_timer()
+    theStartTime = timeit.default_timer()
 
-    while timeit.default_timer() - startTime < 0.1:
+    while timeit.default_timer() - theStartTime < 0.1:
         pass
 
 
@@ -350,9 +437,33 @@ startedSampling = False
 startTime = timeit.default_timer()
 totalSampleCount = 0
 
+#Generates and returns the ITI size in seconds, using base ITI and ITI variance
+def generateITISize():
+
+    #Base ITI (in seconds)
+    generatedITI = baseITI
+    
+    #Apply ITI variance (also in seconds)
+    if itiVariance > 0:
+        #Generate variance
+        #Returns numpy.ndarray of size 1 so we index that array at 0 to get random number
+        generatedVariance = np.random.randint(low = -itiVariance, high = itiVariance, size = 1)[0]
+        
+        #Apply variance
+        generatedITI += generatedVariance
+
+        #Ensure ITI isn't negative (variance could be larger in magnitude than base duration and be subtracted)
+        if generatedITI < 0:
+            generatedITI = 0
+
+    #We're done here
+    return generatedITI
+
+#-----------------------------------------------------------------------------------------------
+#Rest of file is for benchmarking/performance testing
 
 #Accumulates total sample count and timing info for computation of average time elapsed between samples
-def recordRealSampleInterval():
+def recordTrialStart():
 
     global startedSampling, startTime, totalSampleCount
 
@@ -367,7 +478,7 @@ def recordRealSampleInterval():
 
 
 #Compute average sample interval duration based on accumulated totals from function above and assesses accuracy
-def assessSamplingAccuracy():
+def assessTrialTiming():
 
     global startedSampling, startTime, totalSampleCount
 
@@ -381,16 +492,56 @@ def assessSamplingAccuracy():
     #Average sample interval duration (in ms)
     average = (endTime - startTime) / totalSampleCount
 
-    #print("Avg Interval: " + str(average) + " ms")
-    #print("Avg Latency: " + str(average - sampleIntervalInMS) + " ms\n")
+    if printPerformanceMeasurements:
+        print("\nTrial complete.")
+        print("Avg Interval: " + str(average) + " ms")
+        print("Avg Latency: " + str(average - sampleIntervalInMS) + " ms\n")
 
     #Reset totals
     startedSampling = False
     totalSampleCount = 0
 
 
+def recordSessionStart():
+    global expectedSessionTime, sessionStartTime
+
+    expectedSessionTime = 0
+    sessionStartTime = timeit.default_timer()
+
+def addToSessionTime(amountInSeconds):
+    global expectedSessionTime
+
+    expectedSessionTime += amountInSeconds
+
+def assessSessionTiming():
+    sessionEndTime = timeit.default_timer()
+    actualSessionTime = sessionEndTime - sessionStartTime
+    latency = 100 * ((actualSessionTime - expectedSessionTime) / expectedSessionTime)
+
+    if printPerformanceMeasurements:
+        print("\nSession completed.")
+        print("Expected time: " + str(expectedSessionTime) + " seconds")
+        print("Actual time: " + str(actualSessionTime) + " seconds")
+        print("Latency: " + str(latency) + "%\n")
+
+def recordPauseStart():
+    global pauseStart
+    pauseStart = timeit.default_timer()
+
+def recordPauseEnd():
+    global sessionStartTime, startTime
+    
+    pauseEnd = timeit.default_timer()
+    pauseDuration = pauseEnd - pauseStart
+    
+    #Factor time paused out of performance measurements
+    sessionStartTime += pauseDuration #For total session time
+    startTime += pauseDuration * 1000 #For single trial time
+
 #Can be used during debugging to determine the time it takes for each basic operation
 def testPerformance():
+    if not printPerformanceMeasurements:
+        return
 
     #Wait for things to settle down
     time.sleep(1)
@@ -399,7 +550,7 @@ def testPerformance():
     getTime = timeit.timeit(stmt = testGet, number = 1000)
     putTime = timeit.timeit(stmt = testPut, number = 1000)
     busyWaitTime = timeit.timeit(stmt = testBusyWait, number = 1000)
-    recordRSITime = timeit.timeit(stmt = recordRealSampleInterval, number = 1000)
+    recordRSITime = timeit.timeit(stmt = recordTrialStart, number = 1000)
 
     #Run a thousand times + delay measured in seconds = Avg delay of 1 run of operation in ms
     print("MS delay for each operation...\n")

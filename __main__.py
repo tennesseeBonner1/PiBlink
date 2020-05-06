@@ -1,6 +1,6 @@
 """ __main__.py
-    Last Modified: 5/4/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     Run this file to start the program.
 

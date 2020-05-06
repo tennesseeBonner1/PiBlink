@@ -1,6 +1,6 @@
 """ TheSession.py
-    Last Modified: 5/4/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for encapsulating the basic information and operations
     related to a single session. It contains a class called TheSession which performs this encapsulation and a
@@ -52,6 +52,8 @@ class TheSession(object):
     csEndInSamples = 0
     usStartInSamples = 0
     usEndInSamples = 0
+    usSignalStartInSamples = 0
+    usSignalEndInSamples = 0
 
     #There can only be one constructor/initializer in python so this uses optional arguments to determine which "constructor" to call
     def __init__ (self, mainWindow, jsonSettings = None):

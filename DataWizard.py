@@ -1,6 +1,15 @@
 
-#This file handles the analog input and output.
-#Call getNextSample to busy wait on and then retrieve the next sample when it becomes available.
+""" DataWizard.py
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
+    
+    This file provides the code for interfacing with the analog I/O libraries.
+    The top half as marked is for analog input and the bottom half is for analog output.
+
+    Replace where this is imported in TimeCriticalOperations.py with NoiseWizard.py
+    if your system is not connected to any physical analog I/O and you still want the program
+    to work (but in that case your data will only be noise and no outputs will occur).
+"""
 
 #ADC (analog input)------------------------------------------------------------------------------------
 

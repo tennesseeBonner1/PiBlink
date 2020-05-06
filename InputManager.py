@@ -1,6 +1,6 @@
 """ InputManager.py
-    Last Modified: 5/4/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for handling all input from the main window. This file also controls a few high level concerns including the 
     creation/deletion of the current session, the play mode of the program (data acquisition vs. playback), and the play status of the 
@@ -205,8 +205,12 @@ def stopSessionWithConfirmation():
 #Stops the session immediately without asking user
 def stopSessionWithoutConfirmation():
 
-    #Save data acquisition session
+    #For data acquisition sessions, stop sampling and save to file
     if playMode == PlayMode.ACQUISITION:
+        #Stop sampling
+        tco.orderToStopSession()
+
+        #Save session to file
         JSONConverter.endDataAcquisition()
 
     #Clears the session
@@ -568,7 +572,7 @@ def updateSessionInfoLabel():
 
 #Resets all setting fields on the UI to have their default values
 def resetSettingsToDefaults():
-
+    #Session settings
     mainWindow.sessionNameLineEdit.setText("")
     mainWindow.subjectAgeSpinBox.setValue(30)
     mainWindow.subjectSexComboBox.setCurrentIndex(0)
@@ -576,6 +580,10 @@ def resetSettingsToDefaults():
     mainWindow.trialCountSpinBox.setValue(25)
     mainWindow.itiSpinBox.setValue(15)
     mainWindow.itiVarianceSpinBox.setValue(3)
+    mainWindow.thresholdSDSpinBox.setValue(4)
+    mainWindow.thresholdMinDurSpinBox.setValue(10)
+
+    #Trial settings
     mainWindow.trialDurationSpinBox.setValue(3000)
     mainWindow.baselineDurationSpinBox.setValue(1000)
     mainWindow.csNameLineEdit.setText("Tone")

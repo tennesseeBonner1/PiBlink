@@ -1,6 +1,6 @@
 """ AnalysisSettingsWindow.py
-    Last Modified: 5/4/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
     
     This program sets up all of the UI in the Analysis Settings Window
 """

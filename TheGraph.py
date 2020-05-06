@@ -1,6 +1,6 @@
 """ TheGraph.py
-    Last Modified: 5/4/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for implementing all operations related to the graph displayed on the
     main window.
@@ -69,10 +69,11 @@ def setPlaying(play):
     if im.playMode == im.PlayMode.ACQUISITION:
         tco.orderToSetPlaying(play)
 
-    if not duringITI:
-
-        if play and (not graphInitialized):
-            createGraph()
+    #When we press play and there is no graph, create one
+    #Need to check duringITI b/c graph is not initialized during ITI but ITI
+    #shouldn't be interrupted
+    if play and (not graphInitialized) and (not duringITI):
+        createGraph()
 
 
 #Resets the graph (removes graph window and is ready for new call to createGraph)
@@ -86,7 +87,6 @@ def resetGraph():
     done = False
 
     #Stop timers
-    tco.orderToStopTrial()
     displayTimer.stop()
     itiTimer.stop()
 
@@ -102,7 +102,7 @@ def resetGraph():
 def createGraph():
 
     #Variables that persist outside this function call
-    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done, itiSize
+    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done, previousITI
 
     #Update the session info label in the main window to reflect trial number
     im.updateSessionInfoLabel()
@@ -220,13 +220,14 @@ def createGraph():
 
         #Regularly sample data (according to sample rate defined in session settings)
         iteration = 0
-        tco.orderToStartTrial()
+        if ts.currentSession.currentTrial == 1:
+            tco.orderToStartSession()
+            previousITI = 0 #First trial's previous ITI is 0
 
         #Regularly update display (according to display rate defined in display settings)
         displayTimer.start(1000 / dsm.displayRate)
 
     #Done initializing/creating/launching the graph
-    itiSize = 0 #First trial's previous ITI is 0
     done = False #As in done with session, which we are not (we are just starting the session!!!)
     graphInitialized = True
 
@@ -257,7 +258,6 @@ def displayUpdate():
 
     #End of trial?
     if iteration >= dataSize:
-
         endTrialStartITI()
 
 
@@ -268,13 +268,10 @@ displayTimer.timeout.connect(displayUpdate)
 
 def endTrialStartITI():
 
-    global itiCountdown, itiInterval, duringITI, countdownLabel, done
+    global previousITI, duringITI, itiCountdown, countdownLabel, done
 
     #Save trial
-    JSONConverter.saveTrial(data, int(itiSize))
-
-    #Determine ITI duration
-    generateITISize()
+    JSONConverter.saveTrial(data, int(previousITI))
 
     #Stop current trial
     resetGraph()
@@ -297,23 +294,22 @@ def endTrialStartITI():
 
         #Return before ITI starts
         return
-    
-    #Restart countdown timer (indicates how long ITI has left in ms)
-    itiCountdown = itiSize
 
     #Create countdown label "Next trial in..."
     graphWindow.addLabel(text = "Next trial in...", size = "20pt", color = "#000000", row = 0, col = 0)
 
-    #Create countdown label "X.X"
-    countdownLabel = graphWindow.addLabel(text = "{:5.1f}".format(itiCountdown), size = "69pt", color = "#000000", row = 1, col = 0)
+    #Wait for start of ITI updates (if it takes TCO more than 3 seconds then raise hell!)
+    itiCountdown = tco.itiQueue.get(timeout = 3)
+    previousITI = itiCountdown
 
-    #Establish how long to wait between calls to itiUpdate (in ms)
-    itiInterval = 100
+    #Create countdown label "X.X"
+    countdownLabel = graphWindow.addLabel(text = "{:5.1f}".format(itiCountdown),
+                                          size = "69pt", color = "#000000", row = 1, col = 0)
 
     #Begin ITI
     duringITI = True
     setPlaying(True)
-    itiTimer.start(itiInterval) #Parameter is millisecond interval between updates
+    itiTimer.start(100) #Parameter is millisecond interval between updates
 
 
 #Update the iti for the countdown
@@ -325,8 +321,11 @@ def itiUpdate():
     if not playing:
         return
 
-    #Update how long ITI has been going (countdown is in seconds, interval is in ms)
-    itiCountdown -= itiInterval / 1000
+    #Update how long ITI has been going (countdown is in seconds)
+    #Each item in the ITI queue was the latest countdown value at the time it was sent,
+    #so just empty out queue and set countdown to latest push
+    while not tco.itiQueue.empty():
+        itiCountdown = tco.itiQueue.get(block = False)
 
     #Display updated countdown (format countdown from int to string with 1 decimal point precision)
     countdownLabel.setText(text = "{:5.1f}".format(itiCountdown))
@@ -352,28 +351,6 @@ def endITIStartTrial():
 
     #Begin new trial (calls createGraph for us since no graph currently exists)
     setPlaying(True)
-
-
-#Computes the itiSize global variable, using current session's ITI and ITI variance durations
-def generateITISize():
-
-    global itiSize
-
-    #Base ITI (in seconds)
-    itiSize = ts.currentSession.iti
-    
-    #Apply ITI variance
-    if ts.currentSession.itiVariance > 0:
-        #Generate variance
-        #Returns numpy.ndarray of size 1 so we index that array at 0 to get random number
-        itiVariance = np.random.randint(low = -ts.currentSession.itiVariance, high = ts.currentSession.itiVariance, size = 1)[0]
-        
-        #Apply variance
-        itiSize += itiVariance
-
-        #Ensure ITI isn't negative (variance could be larger in magnitude than base duration and be subtracted)
-        if itiSize < 0:
-            itiSize = 0
 
 
 #Adds arrow on top of data at xPosition (in samples) on graph

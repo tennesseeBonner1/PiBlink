@@ -1,8 +1,9 @@
 """ AnalysisSettingsManager.py
-    Last Modified: 5/4/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
     
-    This program handles all of the user interaction with AnalysisSettingsWindow.py (All of the events that happen once Analyze -> Re-Analyze Session is pressed in the menu bar) 
+    This program handles all of the user interaction with AnalysisSettingsWindow.py
+    (All of the events that happen once Analyze -> Re-Analyze Session is pressed in the menu bar) 
 """
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QDialog, QMessageBox

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ dac8552.py
-    Last Modified: 5/3/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
     
     This file is used for Digital to Audio conversion in the dac8552 chip. This uses settings in the DAC8552_default_config.py file. 
     The following comments are by the person that originally wrote this program. 

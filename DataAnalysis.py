@@ -1,6 +1,6 @@
 ﻿""" DataAnalysis.py
-    Last Modified: 5/4/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah Khalid Shaik, Collin Vaille
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This program contains funtions that are used by the JSON Converter in order to make stat calculations. 
     These include calculations for the eyeblinks as well as all the calculations needed for it.
