@@ -778,4 +778,5 @@ class Ui_MainWindow(object):
         self.actionGenerate_Matrix_View.setText(_translate("MainWindow", "Generate Matrix View"))
         self.actionGenerate_Matrix_View.setStatusTip(_translate("MainWindow", "View multiple trials at once in a matrix"))
         self.actionGenerate_Matrix_View.setShortcut(_translate("MainWindow", "Ctrl+M"))
+
 from pyqtgraph import GraphicsLayoutWidget

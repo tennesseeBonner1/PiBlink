@@ -66,7 +66,7 @@ def reAnalyze():
     fileCopy = jsCon.jsonObject
 	
     #Update the threshold parameters
-    fileCopy["header"]["thresholdStdDev"] = stdDevNumber
+    fileCopy["header"]["thresholdSD"] = stdDevNumber
     fileCopy["header"]["thresholdMinDuration"] = minDuration
 	
     #Go through all of the trials, calculate the new stats, and store the newly generated data 

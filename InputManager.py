@@ -361,6 +361,9 @@ def enableWhatsThisMode():
     QtGui.QWhatsThis.enterWhatsThisMode()
 
 
+def enableWhatsThisMode():
+    QtGui.QWhatsThis.enterWhatsThisMode()
+
 #Takes a screenshot (of graph, window, or whole screen depending on captureType) and then...
 def capture(captureType, returnCapture):
 
