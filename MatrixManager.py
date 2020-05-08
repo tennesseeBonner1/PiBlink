@@ -74,7 +74,8 @@ def generateTrialCaptures():
     trialCaptures = []
 
     #Create progress bar pop up (specify flags to remove "?" button on top of window)
-    inProgress = QProgressDialog(flags = Qt.WindowSystemMenuHint | Qt.WindowTitleHint)
+    #flags = Qt.WindowSystemMenuHint | Qt.WindowTitleHint
+    inProgress = QProgressDialog()
 
     #Customize progress bar
     inProgress.setLabelText("Preparing for trial capture...")

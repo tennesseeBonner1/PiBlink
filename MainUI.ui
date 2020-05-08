@@ -67,7 +67,7 @@
          <x>0</x>
          <y>0</y>
          <width>466</width>
-         <height>793</height>
+         <height>942</height>
         </rect>
        </property>
        <layout class="QFormLayout" name="formLayout_2">
@@ -1385,7 +1385,7 @@
            <enum>Qt::ClickFocus</enum>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Stops and ends the current session. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;In &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;data acquisition mode&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;, this will cause the program to save all completed trials in the current session before closing ending it. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;In &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;playback mode&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;, this will simply end viewing of the opened session and return the program to acquisition mode, without altering any files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Stops and ends the current session. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;In &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;data acquisition mode&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;, this will cause the program to save all completed trials in the current session before ending it. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;In &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;playback mode&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;, this will simply end viewing of the opened session and return the program to acquisition mode, without altering any files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="whatsThis">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Stops and ends the current session. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;In &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;data acquisition mode&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;, this will cause the program to save all completed trials in the current session before closing ending it. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;In &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;playback mode&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;, this will simply end viewing of the opened session and return the program to acquisition mode, without altering any files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1504,7 +1504,7 @@
      <x>0</x>
      <y>0</y>
      <width>1524</width>
-     <height>31</height>
+     <height>37</height>
     </rect>
    </property>
    <property name="font">
@@ -1694,6 +1694,8 @@
   <tabstop>trialCountSpinBox</tabstop>
   <tabstop>itiSpinBox</tabstop>
   <tabstop>itiVarianceSpinBox</tabstop>
+  <tabstop>thresholdSDSpinBox</tabstop>
+  <tabstop>thresholdMinDurSpinBox</tabstop>
   <tabstop>trialDurationSpinBox</tabstop>
   <tabstop>baselineDurationSpinBox</tabstop>
   <tabstop>csNameLineEdit</tabstop>
@@ -1704,6 +1706,7 @@
   <tabstop>usDelaySpinBox</tabstop>
   <tabstop>lockButton</tabstop>
   <tabstop>playButton</tabstop>
+  <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources/>
  <connections/>

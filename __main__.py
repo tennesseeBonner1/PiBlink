@@ -16,6 +16,7 @@
 """
 from traceback import format_exception
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt
 import MainWindow as mw
 import InputManager as im
 import TheGraph as tg
@@ -46,6 +47,9 @@ if __name__ == "__main__":
     #Necessary initialization for Qt system
     import sys
     app = QtWidgets.QApplication(sys.argv)
+
+    #Removes the "?" button from all windows
+    QtWidgets.QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton)
 
     #Create and set up the main window
     MainWindow = QtWidgets.QMainWindow()

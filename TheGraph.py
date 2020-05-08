@@ -243,7 +243,9 @@ def displayUpdate():
     global iteration, dataSize, curve, data, bars, barHeights, playing
 
     #Read in new samples
-    while not tco.sampleQueue.empty():
+    #If ITI = 0, then there might be samples in the queue for the next trial already...
+    #so make sure we don't go past our limit for this trial
+    while (not tco.sampleQueue.empty()) and iteration < dataSize:
 
         data[iteration] = tco.sampleQueue.get(block = False)
 

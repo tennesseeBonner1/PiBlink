@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MainUI.ui'
+# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\CsCrMachineCode\MainUI.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.1
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -38,7 +38,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 466, 793))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 466, 942))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.formLayout_2 = QtWidgets.QFormLayout(self.scrollAreaWidgetContents)
         self.formLayout_2.setContentsMargins(10, 10, 0, 15)
@@ -581,7 +581,7 @@ class Ui_MainWindow(object):
         self.rootHorizontalLayout.addLayout(self.rightSide)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1524, 31))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1524, 37))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.menubar.setFont(font)
@@ -662,7 +662,9 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.sampleIntervalSpinBox, self.trialCountSpinBox)
         MainWindow.setTabOrder(self.trialCountSpinBox, self.itiSpinBox)
         MainWindow.setTabOrder(self.itiSpinBox, self.itiVarianceSpinBox)
-        MainWindow.setTabOrder(self.itiVarianceSpinBox, self.trialDurationSpinBox)
+        MainWindow.setTabOrder(self.itiVarianceSpinBox, self.thresholdSDSpinBox)
+        MainWindow.setTabOrder(self.thresholdSDSpinBox, self.thresholdMinDurSpinBox)
+        MainWindow.setTabOrder(self.thresholdMinDurSpinBox, self.trialDurationSpinBox)
         MainWindow.setTabOrder(self.trialDurationSpinBox, self.baselineDurationSpinBox)
         MainWindow.setTabOrder(self.baselineDurationSpinBox, self.csNameLineEdit)
         MainWindow.setTabOrder(self.csNameLineEdit, self.csDurationSpinBox)
@@ -672,6 +674,7 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.usDurationSpinBox, self.usDelaySpinBox)
         MainWindow.setTabOrder(self.usDelaySpinBox, self.lockButton)
         MainWindow.setTabOrder(self.lockButton, self.playButton)
+        MainWindow.setTabOrder(self.playButton, self.scrollArea)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -758,7 +761,7 @@ class Ui_MainWindow(object):
         self.previousButton.setShortcut(_translate("MainWindow", "Left"))
         self.nextButton.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:10pt;\">Next Trial</span></p></body></html>"))
         self.nextButton.setShortcut(_translate("MainWindow", "Right"))
-        self.stopButton.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">Stops and ends the current session. </span></p><p><span style=\" font-size:12pt;\">In </span><span style=\" font-size:12pt; font-weight:600;\">data acquisition mode</span><span style=\" font-size:12pt;\">, this will cause the program to save all completed trials in the current session before closing ending it. </span></p><p><span style=\" font-size:12pt;\">In </span><span style=\" font-size:12pt; font-weight:600;\">playback mode</span><span style=\" font-size:12pt;\">, this will simply end viewing of the opened session and return the program to acquisition mode, without altering any files.</span></p></body></html>"))
+        self.stopButton.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">Stops and ends the current session. </span></p><p><span style=\" font-size:12pt;\">In </span><span style=\" font-size:12pt; font-weight:600;\">data acquisition mode</span><span style=\" font-size:12pt;\">, this will cause the program to save all completed trials in the current session before ending it. </span></p><p><span style=\" font-size:12pt;\">In </span><span style=\" font-size:12pt; font-weight:600;\">playback mode</span><span style=\" font-size:12pt;\">, this will simply end viewing of the opened session and return the program to acquisition mode, without altering any files.</span></p></body></html>"))
         self.stopButton.setWhatsThis(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">Stops and ends the current session. </span></p><p><span style=\" font-size:12pt;\">In </span><span style=\" font-size:12pt; font-weight:600;\">data acquisition mode</span><span style=\" font-size:12pt;\">, this will cause the program to save all completed trials in the current session before closing ending it. </span></p><p><span style=\" font-size:12pt;\">In </span><span style=\" font-size:12pt; font-weight:600;\">playback mode</span><span style=\" font-size:12pt;\">, this will simply end viewing of the opened session and return the program to acquisition mode, without altering any files.</span></p></body></html>"))
         self.sessionInfoLabel.setText(_translate("MainWindow", "DATA ACQUISITION\n"
 "\n"
@@ -791,3 +794,13 @@ class Ui_MainWindow(object):
         self.actionGenerate_Matrix_View.setStatusTip(_translate("MainWindow", "View multiple trials at once in a matrix"))
         self.actionGenerate_Matrix_View.setShortcut(_translate("MainWindow", "Ctrl+M"))
 from pyqtgraph import GraphicsLayoutWidget
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())

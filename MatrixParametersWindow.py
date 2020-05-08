@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-""" MatrixParametersWindow.py
-    Last Modified: 5/6/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
-    This program sets up all of the UI in the Matrix Parameters Window
-"""
+# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\CsCrMachineCode\MatrixParametersUI.ui'
+#
+# Created by: PyQt5 UI code generator 5.13.0
+#
+# WARNING! All changes made in this file will be lost!
+
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -176,21 +178,21 @@ class Ui_trialMatrixParametersDialog(object):
         trialMatrixParametersDialog.setTabOrder(self.maxColumnsSpinBox, self.generateButton)
         trialMatrixParametersDialog.setTabOrder(self.generateButton, self.cancelButton)
 
-
     def retranslateUi(self, trialMatrixParametersDialog):
         _translate = QtCore.QCoreApplication.translate
         trialMatrixParametersDialog.setWindowTitle(_translate("trialMatrixParametersDialog", "Trial Matrix Parameters"))
         self.trialMatrixParametersLabel.setText(_translate("trialMatrixParametersDialog", "Trial Matrix Parameters"))
         self.trialHeightLabel.setText(_translate("trialMatrixParametersDialog", "Trial Height (px)"))
-        self.spacingLabel.setWhatsThis(_translate("trialMatrixParametersDialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Pixels of empty space between trials both horizontally and vertically. Spacing is only applied between trials, not on the edges.</span></p></body></html>"))
+        self.spacingLabel.setToolTip(_translate("trialMatrixParametersDialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Pixels of empty space between trials both horizontally and vertically. Spacing is only applied between trials, not on the edges.</span></p></body></html>"))
         self.spacingLabel.setText(_translate("trialMatrixParametersDialog", "Spacing (px)"))
+        self.maxRowsLabel.setToolTip(_translate("trialMatrixParametersDialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Once this limit is reached, a new page is made. A page is the set of all trials displayed on the screen at one time.</span></p></body></html>"))
         self.maxRowsLabel.setText(_translate("trialMatrixParametersDialog", "Max Rows Per Page"))
-        self.maxColumnsLabel.setWhatsThis(_translate("trialMatrixParametersDialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Trials and spacing will be added to each row until the max page width is reached, max columns per page is reached, or there are no more trials to display.</span></p></body></html>"))
+        self.maxColumnsLabel.setToolTip(_translate("trialMatrixParametersDialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Trials and spacing will be added to each row until the max page width is reached, max columns per page is reached, or there are no more trials to display.</span></p></body></html>"))
         self.maxColumnsLabel.setText(_translate("trialMatrixParametersDialog", "Max Columns Per Page"))
         self.trialWidthLabel.setText(_translate("trialMatrixParametersDialog", "Trial Width (px)"))
-        self.pageWidthLabel.setWhatsThis(_translate("trialMatrixParametersDialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Trials and spacing will be added to each row until the max page width is reached, max columns per page is reached, or there are no more trials to display.</span></p></body></html>"))
+        self.pageWidthLabel.setToolTip(_translate("trialMatrixParametersDialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Trials and spacing will be added to each row until the max page width is reached, max columns per page is reached, or there are no more trials to display.</span></p></body></html>"))
         self.pageWidthLabel.setText(_translate("trialMatrixParametersDialog", "Max Page Width (px)"))
-        self.pageHeightLabel.setWhatsThis(_translate("trialMatrixParametersDialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Once this limit is reached, a new page is made. A page is the set of all trials displayed on the screen at one time.</span></p></body></html>"))
+        self.pageHeightLabel.setToolTip(_translate("trialMatrixParametersDialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Once this limit is reached, a new page is made. A page is the set of all trials displayed on the screen at one time.</span></p></body></html>"))
         self.pageHeightLabel.setText(_translate("trialMatrixParametersDialog", "Max Page Height (px)"))
         self.cancelButton.setText(_translate("trialMatrixParametersDialog", "Cancel"))
         self.generateButton.setText(_translate("trialMatrixParametersDialog", "Generate Matrix"))

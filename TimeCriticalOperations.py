@@ -24,7 +24,7 @@ import TheSession as ts
 import NoiseWizard as dw
 
 #Set this to false to eliminate performance print outs
-printPerformanceMeasurements = True
+printPerformanceMeasurements = False
 
 #Command types that can be sent from main process to sampling process via the command queue
 class Command(Enum):
@@ -83,12 +83,12 @@ def orderToSetPlaying(play):
     else:
         commandQueue.put((Command.PAUSE_SESSION, None))
 
-#Stop trial
+#Stop session
 def orderToStopSession():
 
     commandQueue.put((Command.STOP_SESSION, None))
 
-#Stop Process
+#Stop process
 def orderToStopProcess():
 
     commandQueue.put((Command.END_PROCESS, None))
@@ -113,7 +113,8 @@ def startTimeCriticalProcess(theSampleQueue, theITIQueue, theCommandQueue):
 
     mainLoop()
 
-    print("\nEnd of sampling process.\n")
+    if printPerformanceMeasurements:
+        print("\nEnd of sampling process.\n")
 
 #Main loop for time critical process
 #Waits on command to start data acquisition
