@@ -1,5 +1,5 @@
 # CsCrMachineCode
-As of 5/2/2020, the project is comprised of the files listed below.\
+As of 5/8/2020, the project is comprised of the files listed below.\
 The general categories of files are:
 - Main Files
 - Reference Files
@@ -12,7 +12,14 @@ These files (along with the ones listed in "Reference Files") are responsible fo
 primary functionality of the program: Reading in data to session files and opening session 
 files for viewing.
 
+- **__main__.py**:
+    File responsible for starting the program. Also contains the catch-all error handler for
+    clean up.
+
 - **DataAnalysis.py**:
+    This file contains funtions that are used by the JSON Converter in order to make stat
+    calculations. These include calculations for the eyeblinks as well as all the calculations
+    needed for it.
 
 - **DataWizard.py**:
     Handles all of the analog input and outputs.
@@ -53,7 +60,9 @@ files for viewing.
 	seconds and milliseconds to samples).
 
 - **TimeCriticalOperations.py**:
-
+    The file that has all the code for managing/running the sampling/time-critical process.
+    This process controls the timing of data acquisition trials. So it runs both trials and ITIs.
+    This does not include the act of retrieving the sample, that is done in DataWizard.py.
 ---	
 ## Reference Files
 These files are listed separately from the main files as they come directly from an 
@@ -83,9 +92,11 @@ UI files. They handle the opening of the GUI window itself and define the functi
 within it. 
 
 - **AnalysisSettingsUI.ui** & **AnalysisSettingsWindow.py**:
+    GUI window for displaying/editing the parameters for re-analyzing a session.
 
 - **AnalysisSettingsManager.py**:
-
+    Manages the re-analysis feature of the program including the re-analysis window.
+    
 - **DisplaySettingsUI.ui** & **DisplaySettingsWindow.py**:
     All the settings for the display settings window are initialized and all of the 
 	various text elements of this window are modified and updated.
@@ -98,13 +109,18 @@ within it.
 	settings window. The file is currently regenerated on save.
 
 - **MainUI.ui** & **MainWindow.py**:
+    Main GUI window for the program.
 
 - **MatrixParametersUI.ui** & **MatrixParametersWindow.py**:
+    GUI window for displaying/editing the parameters for the matrix view.
 
 - **MatrixViewUI.ui** & **MatrixViewWindow.py**:
+    GUI window for displaying the actual matrix.
 
 - **MatrixManager.py**:
-
+    Manages everything to do with the matrix view of trials. This includes the parameters
+    window, view window, and the process of acquiring the images that occurs in between the
+    two windows.
 ---
 ## Session Files
 These files hold session information (i.e. trial data, session settings, etc). The JSON 
@@ -117,3 +133,4 @@ are generated from a JSON file. They hold all session information.
 	and the old one is not overwritten.
 
 - **Capture & Matrix View Files**
+    These are simple PNG or JPG/JPEG files of the item in question.
