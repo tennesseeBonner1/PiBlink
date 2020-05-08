@@ -10,3 +10,6 @@ data color = #0000ff
 text color = #000000
 stimulus color = #4b4b4b
 axis color = #000000
+render offset arrows = True
+onset color = #0a141e
+offset color = #787887

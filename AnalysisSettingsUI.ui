@@ -110,7 +110,7 @@
         <bool>false</bool>
        </property>
        <property name="toolTip">
-        <string/>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The number of standard deviations away from the average that the sample must be in order to be above the eyeblink threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="whatsThis">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The number of standard deviations away from the average that the sample must be in order to be above the eyeblink threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -137,7 +137,7 @@
         </font>
        </property>
        <property name="toolTip">
-        <string/>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The minimum amount of time that the signal must be above the threshold in order to register as an eyeblink onset.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Higher values make the analysis less susceptible to noise&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="statusTip">
         <string/>
@@ -161,7 +161,7 @@
         </font>
        </property>
        <property name="toolTip">
-        <string/>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The minimum amount of time that the signal must be above the threshold in order to register as an eyeblink onset.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Higher values make the analysis less susceptible to noise&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="whatsThis">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The minimum amount of time that the signal must be above the threshold in order to register as an eyeblink onset.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Higher values make the analysis less susceptible to noise&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -194,7 +194,7 @@
         <bool>true</bool>
        </property>
        <property name="toolTip">
-        <string/>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The number of standard deviations away from the average that the sample must be in order to be above the eyeblink threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="whatsThis">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The number of standard deviations away from the average that the sample must be in order to be above the eyeblink threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -271,6 +271,9 @@
          <pointsize>14</pointsize>
         </font>
        </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Replaces the current onset and offsest values of the file with the new ones. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="whatsThis">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Replaces the current onset and offsest values of the file with the new ones. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
@@ -332,6 +335,9 @@
          <pointsize>14</pointsize>
         </font>
        </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The file generated will be saved under the name specified in the following line editor&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="whatsThis">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The file generated will be saved under the name specified in the following line editor&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
@@ -352,6 +358,9 @@
         <font>
          <pointsize>10</pointsize>
         </font>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Holds the custom filename that the generated file will be saved under (if &amp;quot;Save as Custom Name&amp;quot; is enabled). The &amp;quot;.json&amp;quot; does not need to be included.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Please note that the filename is &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;not&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; the same as the session name.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;May not contain any of the following characters: \ / : * ? &amp;quot; &amp;lt; &amp;gt; |&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="whatsThis">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Holds the custom filename that the generated file will be saved under (if &amp;quot;Save as Custom Name&amp;quot; is enabled). The &amp;quot;.json&amp;quot; does not need to be included.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Please note that the filename is &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;not&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; the same as the session name.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;May not contain any of the following characters: \ / : * ? &amp;quot; &amp;lt; &amp;gt; |&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -383,6 +392,11 @@
      </property>
      <item>
       <widget class="QPushButton" name="pushButton_ReAnalyze">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>Re-Analyze</string>
        </property>
@@ -390,6 +404,11 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_Cancel">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>Cancel</string>
        </property>

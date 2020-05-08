@@ -208,12 +208,16 @@ def createGraph():
         data = JSONConverter.openTrial()
         curve.setData(data)
 
-        #The data for the eyeblinks should have already been calculated, so just read in the onsets to place the "Arrows"
+        #Get the onset and offset data
         onsets = JSONConverter.getOnsets()
-        arrowCap = min(len(onsets), 30)
 
-        for x in range(arrowCap):
+        for x in range(len(onsets)):
             addArrow(onsets[x] - 1)
+
+        if(dsm.renderOffset):
+            offsets = JSONConverter.getOffsets()
+            for x in range(len(offsets)):
+                addArrow(offsets[x] - 1, False)
 
     #Data Acquisition    
     else:
@@ -354,11 +358,16 @@ def endITIStartTrial():
 
 
 #Adds arrow on top of data at xPosition (in samples) on graph
-def addArrow(xPositionInSamples):
+def addArrow(xPositionInSamples, onset=True):
+
+    if(onset):
+        arrowColor = dsm.colors[dsm.ColorAttribute.ONSET.value]
+    else:
+        arrowColor = dsm.colors[dsm.ColorAttribute.OFFSET.value]
 
     #Create arrow with style options Make sure to specify rotation in constructor, b/c there's a bug in PyQtGraph (or PyQt) where you can't update the rotation of the arrow after creation
     #See (http://www.pyqtgraph.org/documentation/graphicsItems/arrowitem.html) for options
-    arrow = pg.ArrowItem(angle = -90, headLen = 25, headWidth = 25, brush = dsm.colors[dsm.ColorAttribute.AXIS.value])
+    arrow = pg.ArrowItem(angle = -90, headLen = 25, headWidth = 25, brush = arrowColor)
 
     #Set arrow's x and y positions respectively
     arrow.setPos(xPositionInSamples, data[xPositionInSamples])

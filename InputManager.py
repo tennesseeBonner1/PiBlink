@@ -70,9 +70,6 @@ def connectButtons():
     #Detects when the rest of the button bar buttons are pressed
     mainWindow.stopButton.clicked.connect(stopSessionConditionalConfirmation)
 
-    #Detects the "What's This?" button being pressed
-    mainWindow.WhatsThisToolButton.clicked.connect(enableWhatsThisMode)
-
     #Detects all "File -> [X]" menu actions
     mainWindow.actionNew.triggered.connect(newSession)
     mainWindow.actionOpen.triggered.connect(lambda: openSession())
@@ -358,15 +355,6 @@ def assignDefaultsToEmptyFields():
     if not mainWindow.usNameLineEdit.text():
         mainWindow.usNameLineEdit.setText(mainWindow.usNameLineEdit.placeholderText())
 
-
-#Enables pyqt5's whatsThisMode
-def enableWhatsThisMode():
-
-    QtGui.QWhatsThis.enterWhatsThisMode()
-
-
-def enableWhatsThisMode():
-    QtGui.QWhatsThis.enterWhatsThisMode()
 
 #Takes a screenshot (of graph, window, or whole screen depending on captureType) and then...
 def capture(captureType, returnCapture):

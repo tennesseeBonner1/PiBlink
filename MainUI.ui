@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1524</width>
-    <height>743</height>
+    <height>770</height>
    </rect>
   </property>
   <property name="font">
@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Phoenix Conditioning Stimuli Device</string>
+   <string>PiBlink</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="rootHorizontalLayout">
@@ -67,7 +67,7 @@
          <x>0</x>
          <y>0</y>
          <width>466</width>
-         <height>947</height>
+         <height>793</height>
         </rect>
        </property>
        <layout class="QFormLayout" name="formLayout_2">
@@ -108,10 +108,7 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>Prepended to beginning of file name for readability
-
-Max length of 12 characters
-May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Prepended to beginning of file name for readability&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Max length of 12 characters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;May not contain any of the following characters: \ / : * ? &amp;quot; &amp;lt; &amp;gt; |&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Session Name</string>
@@ -142,6 +139,9 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
            <font>
             <pointsize>14</pointsize>
            </font>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Prepended to beginning of file name for readability&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Max length of 12 characters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;May not contain any of the following characters: \ / : * ? &amp;quot; &amp;lt; &amp;gt; |&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="maxLength">
            <number>12</number>
@@ -270,11 +270,10 @@ May not contain any of the following characters: \ / : * ? &quot; &lt; &gt; |</s
            </font>
           </property>
           <property name="toolTip">
-           <string>Time between each sample.
-A sample interval of 1 ms would generate 1000 samples per second.</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The sample interval determines how often the signal is sampled. As the signal itself is updated 1000 times a second, it can be sampled as quickly as every millisecond.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="whatsThis">
-           <string>Test</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The sample interval determines how often the signal is sampled. As the signal itself is updated 1000 times a second, it can be sampled as quickly as every millisecond.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Sample Interval (ms)</string>
@@ -312,6 +311,12 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Time between each sample.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;A sample interval of 1 ms would generate 1000 samples per second.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The sample interval determines how often the signal is sampled. As the signal itself is updated 1000 times a second, it can be sampled as quickly as every millisecond.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="suffix">
            <string/>
           </property>
@@ -333,8 +338,11 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
             <pointsize>14</pointsize>
            </font>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program will normally run the full number of trials and save the data acquired immediately upon each trial's completion. In cases where the data acquisition is stopped before the full number of trials have been completed, only the fully-finished trials will be kept, and the number of complete trials that is saved on the file will be updated to accurately reflect such.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="whatsThis">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Test&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program will normally run the full number of trials and save the data acquired immediately upon each trial's completion. In cases where the data acquisition is stopped before the full number of trials have been completed, only the fully-finished trials will be kept, and the number of complete trials that is saved on the file will be updated to accurately reflect such.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Number of Trials</string>
@@ -369,6 +377,12 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Number of trials for this session&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program will normally run the full number of trials and save the data acquired immediately upon each trial's completion. In cases where the data acquisition is stopped before the full number of trials have been completed, only the fully-finished trials will be kept, and the number of complete trials that is saved on the file will be updated to accurately reflect such.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="buttonSymbols">
            <enum>QAbstractSpinBox::UpDownArrows</enum>
           </property>
@@ -385,7 +399,7 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            <number>1</number>
           </property>
           <property name="value">
-           <number>25</number>
+           <number>20</number>
           </property>
          </widget>
         </item>
@@ -413,10 +427,10 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            </font>
           </property>
           <property name="toolTip">
-           <string>Abbreviated as ITI</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the base value of the time between the end of one trial and the start of another. This base value is used with the ITI Variance value directly underneath it, such that the time between any two trials will be in a range of&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;[ interval - variance, interval + variance ]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program also checks for negative ITI values, so it will never have an ITI below zero.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="whatsThis">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;TeEEeSt&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the base value of the time between the end of one trial and the start of another. This base value is used with the ITI Variance value directly underneath it, such that the time between any two trials will be in a range of&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;[ interval - variance, interval + variance ]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program also checks for negative ITI values, so it will never have an ITI below zero.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Inter-trial Interval (s)</string>
@@ -445,6 +459,12 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Abbreviated as ITI&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the base value of the time between the end of one trial and the start of another. This base value is used with the ITI Variance value directly underneath it, such that the time between any two trials will be in a range of&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;[ interval - variance, interval + variance ]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program also checks for negative ITI values, so it will never have an ITI below zero.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="suffix">
            <string/>
           </property>
@@ -464,10 +484,10 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            </font>
           </property>
           <property name="toolTip">
-           <string>Random value from 0 to variance is added/subtracted to base duration each ITI</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The ITI Variance determines how far from the base ITI any one specific trial's ITI can be. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="whatsThis">
-           <string>tes t</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The ITI Variance determines how far from the base ITI any one specific trial's ITI can be. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;ITI Variance (s)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -496,6 +516,12 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Random value from 0 to variance is added/subtracted to base duration each ITI&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The ITI Variance determines how far from the base ITI any one specific trial's ITI can be. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="suffix">
            <string/>
           </property>
@@ -521,7 +547,7 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>10</height>
+            <height>5</height>
            </size>
           </property>
          </spacer>
@@ -532,6 +558,12 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            <font>
             <pointsize>14</pointsize>
            </font>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program determines the threshold by calculating the average and standard deviation of the values recorded during the initial &lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;baseline&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; portion of the trial. The threshold is then set to be however many standard deviations specified away from the average.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The threshold determines the minimum amplitude required for the signal to register as an eyeblink.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program determines the threshold by calculating the average and standard deviation of the values recorded during the initial &lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;baseline&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; portion of the trial. The threshold is then set to be however many standard deviations specified away from the average.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The threshold determines the minimum amplitude required for the signal to register as an eyeblink.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Threshold Std. Deviations</string>
@@ -560,6 +592,12 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;The number of standard deviations from the average the threshold is set to&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program determines the threshold by calculating the average and standard deviation of the values recorded during the initial baseline portion of the trial. The threshold is then set to be however many standard deviations specified away from the average.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The threshold determines the minimum amplitude required for the signal to register as an eyeblink.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="minimum">
            <number>1</number>
           </property>
@@ -577,6 +615,12 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            <font>
             <pointsize>14</pointsize>
            </font>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This variable determines how long the signal must stay above the threshold in order for an eyeblink onset to be recorded. If the signal registers as an eyeblink, the program will record the &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;first&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; sample of the eyeblink that was above the threshold.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Example:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;f samples 20 - 90 were above the threshold and the minimum duration were 10 ms, sample 20 would be marked as the onset, not sample 30.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This variable determines how long the signal must stay above the threshold in order for an eyeblink onset to be recorded. If the signal registers as an eyeblink, the program will record the &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;first&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; sample of the eyeblink that was above the threshold.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Example:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;f samples 20 - 90 were above the threshold and the minimum duration were 10 ms, sample 20 would be marked as the onset, not sample 30.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Threshold Min. Duration (ms)</string>
@@ -604,6 +648,12 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           </property>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;How long the signal must stay over the threshold to record an onset&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This variable determines how long the signal must stay above the threshold in order for an eyeblink onset to be recorded. If the signal registers as an eyeblink, the program will record the &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;first&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; sample of the eyeblink that was above the threshold.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Example:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;f samples 20 - 90 were above the threshold and the minimum duration were 10 ms, sample 20 would be marked as the onset, not sample 30.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="suffix">
            <string/>
@@ -641,7 +691,10 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            </font>
           </property>
           <property name="toolTip">
-           <string>Must be greater than or equal to baseline + CS + ISI + US</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the total duration of the trial, including baseline, conditioned stimulus (CS), interstimulus interval, and unconditioned stimulus (US). The program will check before the settings are locked to ensure that the trial duration is sufficient given the other durations set.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the total duration of the trial, including baseline, conditioned stimulus (CS), interstimulus interval, and unconditioned stimulus (US). The program will check before the settings are locked to ensure that the trial duration is sufficient given the other durations set.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Trial Duration (ms)</string>
@@ -670,6 +723,12 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Must be greater than or equal to baseline + CS + ISI + US&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the total duration of the trial, including baseline, conditioned stimulus (CS), interstimulus interval, and unconditioned stimulus (US). The program will check before the settings are locked to ensure that the trial duration is sufficient given the other durations set.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="suffix">
            <string/>
           </property>
@@ -695,7 +754,10 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            </font>
           </property>
           <property name="toolTip">
-           <string>Duration before start of CS</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the duration before the conditioned stimulus. The samples collected during this portion of the trial will be used to determine where the eyeblink threshold is for all other parts of the trial.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the duration before the conditioned stimulus. The samples collected during this portion of the trial will be used to determine where the eyeblink threshold is for all other parts of the trial.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Baseline Duration (ms)</string>
@@ -723,6 +785,12 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           </property>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Duration before start of CS&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the duration before the conditioned stimulus. The samples collected during this portion of the trial will be used to determine where the eyeblink threshold is for all other parts of the trial.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="suffix">
            <string/>
@@ -765,7 +833,7 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            </font>
           </property>
           <property name="toolTip">
-           <string>Conditioned stimulus name</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Conditioned Stimulus name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>CS Name</string>
@@ -800,6 +868,9 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Conditioned Stimulus name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -816,7 +887,7 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            </font>
           </property>
           <property name="toolTip">
-           <string>Conditioned stimulus duration</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Conditioned Stimulus duration&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>CS Duration (ms)</string>
@@ -844,6 +915,9 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           </property>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Conditioned Stimulus duration&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="suffix">
            <string/>
@@ -886,7 +960,10 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            </font>
           </property>
           <property name="toolTip">
-           <string>Abbreviated as ISI</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the time between the conditioned stimulus (CS) and unconditioned stimulus (US).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the time between the conditioned stimulus (CS) and unconditioned stimulus (US).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Interstimulus Interval (ms)</string>
@@ -914,6 +991,12 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           </property>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Abbreviated as ISI&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the time between the conditioned stimulus (CS) and unconditioned stimulus (US).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="suffix">
            <string/>
@@ -954,7 +1037,7 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            </font>
           </property>
           <property name="toolTip">
-           <string>Unconditioned stimulus name</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Unconditioned Stimulus name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>US Name</string>
@@ -989,6 +1072,9 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Unconditioned Stimulus name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -1006,7 +1092,7 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            </font>
           </property>
           <property name="toolTip">
-           <string>Unconditioned stimulus duration</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Unconditioned Stimulus duration&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>US Duration (ms)</string>
@@ -1035,6 +1121,9 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Unconditioned Stimulus duration&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="suffix">
            <string/>
           </property>
@@ -1060,10 +1149,10 @@ A sample interval of 1 ms would generate 1000 samples per second.</string>
            </font>
           </property>
           <property name="toolTip">
-           <string>Delay in ms from the time the signal is sent to
-the time the stimulus actually begins. The system
-compensates for this delay by sending the signal
-this amount of ms early so that it occurs on time.</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The US delay represents how long it takes for the actual, physical administering of the unconditioned stimulus after the signal has been sent. It thus represents how many milliseconds &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-style:italic;&quot;&gt;before&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; the start of the US section that the signal will be sent to account for the delay.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The US delay represents how long it takes for the actual, physical administering of the unconditioned stimulus after the signal has been sent. It thus represents how many milliseconds &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-style:italic;&quot;&gt;before&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; the start of the US section that the signal will be sent to account for the delay.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>US Delay (ms)</string>
@@ -1089,71 +1178,16 @@ this amount of ms early so that it occurs on time.</string>
             <pointsize>14</pointsize>
            </font>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Delay in ms from the time the signal is sent to the time the stimulus actually begins. The system compensates for this delay by sending the signal this amount of ms early so that it occurs on time.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The US delay represents how long it takes for the actual, physical administering of the unconditioned stimulus after the signal has been sent. It thus represents how many milliseconds &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-style:italic;&quot;&gt;before&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; the start of the US section that the signal will be sent to account for the delay.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="maximum">
            <number>10000</number>
           </property>
          </widget>
-        </item>
-        <item row="0" column="1">
-         <layout class="QHBoxLayout" name="WhatsThisLayout">
-          <property name="rightMargin">
-           <number>10</number>
-          </property>
-          <item>
-           <spacer name="WhatsThisSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QToolButton" name="WhatsThisToolButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>22</width>
-              <height>22</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Click to enter &amp;quot;What's This?&amp;quot; mode.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Click again while in &amp;quot;What's This?&amp;quot; mode for more info.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Shortcut: Ctrl + Shift + Z&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="whatsThis">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&amp;quot;What's This?&amp;quot; mode allows you to &lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;gain additional information&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; about most parts of the program, should you find anything unclear.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;When in &amp;quot;What's This?&amp;quot; mode, the cursor will change depending on if it is hovering over a component that you can view more information about. If it is, there will be a question mark next to the cursor.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Clicking on a valid component will bring up a small dialog box like the one you are currently reading and exit the mode.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;The shortcut to enter &amp;quot;What's This?&amp;quot; mode is &lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Ctrl + Shift + Z&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normaloff>Images/What'sThis.png</normaloff>Images/What'sThis.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="shortcut">
-             <string>Ctrl+Shift+Z</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
         <item row="15" column="0">
          <spacer name="trialSettingsSpacer">
@@ -1204,7 +1238,10 @@ this amount of ms early so that it occurs on time.</string>
            </sizepolicy>
           </property>
           <property name="toolTip">
-           <string>Lock/unlock settings</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Locks and unlocks the settings. Settings must be locked before data acquisition can begin.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;When this button is pressed to lock the settings, the program runs through all of the settings to verify their validity. If any problem is detected, a notification will appear and the settings will not lock.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Locks and unlocks the settings. Settings must be locked before data acquisition can begin.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;When this button is pressed to lock the settings, the program runs through all of the settings to verify their validity. If any problem is detected, a notification will appear and the settings will not lock.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string/>
@@ -1233,7 +1270,10 @@ this amount of ms early so that it occurs on time.</string>
            </sizepolicy>
           </property>
           <property name="toolTip">
-           <string>Pause/resume data acquisition</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Pause/Unpause data acquisition&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Plays/pauses the current session. This pauses data acquisition during trials and also pauses the countdown of the ITI when between trials. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string/>
@@ -1262,7 +1302,7 @@ this amount of ms early so that it occurs on time.</string>
            <enum>Qt::ClickFocus</enum>
           </property>
           <property name="toolTip">
-           <string>Previous trial</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Previous Trial&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string/>
@@ -1294,7 +1334,7 @@ this amount of ms early so that it occurs on time.</string>
            <enum>Qt::ClickFocus</enum>
           </property>
           <property name="toolTip">
-           <string>Next trial</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Next Trial&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string/>
@@ -1345,7 +1385,10 @@ this amount of ms early so that it occurs on time.</string>
            <enum>Qt::ClickFocus</enum>
           </property>
           <property name="toolTip">
-           <string>Stops the current session</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Stops and ends the current session. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;In &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;data acquisition mode&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;, this will cause the program to save all completed trials in the current session before closing ending it. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;In &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;playback mode&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;, this will simply end viewing of the opened session and return the program to acquisition mode, without altering any files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Stops and ends the current session. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;In &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;data acquisition mode&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;, this will cause the program to save all completed trials in the current session before closing ending it. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;In &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;playback mode&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;, this will simply end viewing of the opened session and return the program to acquisition mode, without altering any files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string/>
@@ -1446,6 +1489,9 @@ this amount of ms early so that it occurs on time.</string>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="cursor">
+         <cursorShape>ArrowCursor</cursorShape>
+        </property>
        </widget>
       </item>
      </layout>
@@ -1458,7 +1504,7 @@ this amount of ms early so that it occurs on time.</string>
      <x>0</x>
      <y>0</y>
      <width>1524</width>
-     <height>37</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="font">
@@ -1659,8 +1705,6 @@ this amount of ms early so that it occurs on time.</string>
   <tabstop>lockButton</tabstop>
   <tabstop>playButton</tabstop>
  </tabstops>
- <resources>
-  <include location="ImageResource.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
