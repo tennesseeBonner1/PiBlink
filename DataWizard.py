@@ -38,7 +38,7 @@ def adcInitialSetUp():
     ads.reset()
 
     #Set the gain (0-5 input voltage * gain of 1 = 0-5 output voltage?)
-    ads.pga_gain = GAIN_1
+    ads.pga_gain = 1
 
     '''
     Set configuration options hidden inside status register
@@ -77,8 +77,6 @@ def onTrialStart():
 def getNextSample():
     #Wait until data is ready to be read
     #Data is ready when DRDY (data ready) pin is in "active low"
-    while ads.DRDY_PIN is not None:
-        pass
 
     #Read in the sample from PiPyADC
     '''
@@ -91,7 +89,7 @@ def getNextSample():
     rawNumber = ads.read_async()
     
     #Scale the number to be within a range
-    refinedNumber = ((-rawNumber) / 3000) - 19
+    refinedNumber = ((rawNumber) / 20000) + 41
     
     #After scaling the number, it is ready to be returned
     return refinedNumber
