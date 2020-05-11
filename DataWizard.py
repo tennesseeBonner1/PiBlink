@@ -88,8 +88,10 @@ def getNextSample():
     '''
     rawNumber = ads.read_async()
     
-    #Scale the number to be within a range
-    refinedNumber = ((rawNumber) / 20000) + 41
+    #Scale the number to be within 0-5 V range
+    #Raw number is a 24 bit binary number
+    #0V is 0 and 5V is 78388607 in raw reading
+    refinedNumber = 5 * (rawNumber / 8388607)
     
     #After scaling the number, it is ready to be returned
     return refinedNumber
