@@ -1,5 +1,5 @@
 """ MatrixManager.py
-    Last Modified: 5/6/2020
+    Last Modified: 5/22/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for managing...
@@ -83,6 +83,7 @@ def generateTrialCaptures():
     inProgress.setFixedWidth(350)
     inProgress.setWindowModality(Qt.ApplicationModal) #Blocks user control of other windows
     inProgress.setMaximum(trialCount) #Number of steps in progress bar = number of trials
+    inProgress.setFont(im.popUpFont)
 
     #Show progress bar
     inProgress.show()

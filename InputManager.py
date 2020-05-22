@@ -1,5 +1,5 @@
 """ InputManager.py
-    Last Modified: 5/6/2020
+    Last Modified: 5/22/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for handling all input from the main window. This file also controls a few high level concerns including the 
@@ -8,7 +8,7 @@
     considered to be the controller of the program.
 """
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import QMessageBox, QApplication
+from PyQt5.QtWidgets import QMessageBox, QApplication, QInputDialog
 import TheGraph as tg
 import TheSession as ts
 import DisplaySettingsManager as dsm
@@ -27,7 +27,8 @@ class PlayMode(Enum):
 #Initializes default values, references, button icons, and button handlers for the mainWindow
 def initialSetUp(theMainWindow):
 
-    global programCrashing, settingsLocked, mainWindow, playMode, playIcon, pauseIcon, unlockedIcon, lockedIcon
+    global programCrashing, settingsLocked, mainWindow, playMode, popUpFont
+    global playIcon, pauseIcon, unlockedIcon, lockedIcon
     
     #Used when intercepting a window close event to determine what to do
     programCrashing = False
@@ -49,6 +50,10 @@ def initialSetUp(theMainWindow):
     #Sets the icon for the locked button
     lockedIcon = QtGui.QIcon()
     lockedIcon.addPixmap(QtGui.QPixmap("Images/Locked Button.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
+    #Define the font used in pop up windows
+    popUpFont = QtGui.QFont()
+    popUpFont.setPointSize(14)
 
     #Default play mode is data acquisition
     setPlayMode(PlayMode.ACQUISITION)
@@ -83,6 +88,10 @@ def connectButtons():
     #Detects all "Analyze -> [X]" menu actions
     mainWindow.actionRe_Analyze_Session.triggered.connect(asm.openAnalysisSettingsWindow)
     mainWindow.actionGenerate_Matrix_View.triggered.connect(mm.generateMatrixView)
+    mainWindow.actionGoToTrial.triggered.connect(lambda: openGoToTrialDialog(None))
+
+    #Detects when user clicks on session info label
+    mainWindow.sessionInfoLabel.mousePressEvent = openGoToTrialDialog
 
     #Override close event function of QMainWindow for purpose of adding "are you sure you want to quit?" prompt
     mainWindow.centralwidget.parentWidget().closeEvent = closeEvent
@@ -102,8 +111,29 @@ def lockButtonPressed():
 
 #When the play button is pressed, toggle play status
 def playButtonPressed():
-
     setPlaying(not tg.isPlaying())
+
+
+#Called when Analyze -> Go To Trial is selected or when session info label is clicked
+#In order to be called when label is clicked on, event needs to be passed in...
+#but it's never used
+def openGoToTrialDialog(event):
+    #Only works if session is loaded in playback
+    if playMode != PlayMode.PLAYBACK or (not ts.currentSession):
+        return
+
+    #Open dialog box to prompt for trial number
+    inputDialog = QInputDialog(mainWindow.centralwidget)
+    inputDialog.setInputMode(QInputDialog.IntInput)
+    inputDialog.setWindowTitle("Go To Trial")
+    inputDialog.setLabelText("Go To Trial...")
+    inputDialog.setFont(popUpFont)
+    inputDialog.setIntValue(ts.currentSession.currentTrial)
+    ok = inputDialog.exec()
+
+    #If clicked OK, go to specified trial
+    if ok:
+        loadTrial(inputDialog.intValue())
 
 
 #When the previous button is pressed, load previous trial
@@ -192,6 +222,7 @@ def stopSessionWithConfirmation():
     confirmStop.setWindowTitle("Confirm Session Stop")
     confirmStop.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
     confirmStop.setIcon(QMessageBox.Question)
+    confirmStop.setFont(popUpFont)
     decision = confirmStop.exec()
 
     #If it is, stop the session
@@ -323,6 +354,7 @@ def verifySettingsValid():
         invalidSettingsNotice.setWindowTitle("Invalid Settings")
         invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
         invalidSettingsNotice.setIcon(QMessageBox.Warning)
+        invalidSettingsNotice.setFont(popUpFont)
         invalidSettingsNotice.exec()
 
     return not trialDurationInvalid and not sessionNameInvalid 
@@ -371,6 +403,7 @@ def capture(captureType, returnCapture):
             noGraph.setWindowTitle("Graph Capture Failed")
             noGraph.setStandardButtons(QMessageBox.Ok)
             noGraph.setIcon(QMessageBox.Information)
+            noGraph.setFont(popUpFont)
             noGraph.exec()
 
             #Do not proceed with graph capture
@@ -480,6 +513,7 @@ def openSession(fileStr=""):
             cannotReadSession.setWindowTitle("Error Opening Session")
             cannotReadSession.setStandardButtons(QMessageBox.Ok)
             cannotReadSession.setIcon(QMessageBox.Critical)
+            cannotReadSession.setFont(popUpFont)
             cannotReadSession.exec()
 
             #In case a session was created, clear it (there shouldn't be though, just being safe)
@@ -531,6 +565,7 @@ def setPlayMode(newPlayMode):
     #Enabled/disable menu actions that only work for a particular play mode
     mainWindow.actionRe_Analyze_Session.setEnabled(playMode == PlayMode.PLAYBACK)
     mainWindow.actionGenerate_Matrix_View.setEnabled(playMode == PlayMode.PLAYBACK)
+    mainWindow.actionGoToTrial.setEnabled(playMode == PlayMode.PLAYBACK)
 
     #Lock settings in playback, unlock settings in data acquisition (session cannot be ongoing)
     mainWindow.lockButton.setEnabled(playMode == PlayMode.ACQUISITION)

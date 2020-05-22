@@ -640,6 +640,11 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.actionGenerate_Matrix_View.setFont(font)
         self.actionGenerate_Matrix_View.setObjectName("actionGenerate_Matrix_View")
+        self.actionGoToTrial = QtWidgets.QAction(MainWindow)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.actionGoToTrial.setFont(font)
+        self.actionGoToTrial.setObjectName("actionGoToTrial")
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addSeparator()
@@ -650,6 +655,8 @@ class Ui_MainWindow(object):
         self.menuEdit.addAction(self.actionDisplaySettings)
         self.menuAnalyze.addAction(self.actionRe_Analyze_Session)
         self.menuAnalyze.addAction(self.actionGenerate_Matrix_View)
+        self.menuAnalyze.addSeparator()
+        self.menuAnalyze.addAction(self.actionGoToTrial)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuAnalyze.menuAction())
@@ -793,6 +800,8 @@ class Ui_MainWindow(object):
         self.actionGenerate_Matrix_View.setText(_translate("MainWindow", "Generate Matrix View"))
         self.actionGenerate_Matrix_View.setStatusTip(_translate("MainWindow", "View multiple trials at once in a matrix"))
         self.actionGenerate_Matrix_View.setShortcut(_translate("MainWindow", "Ctrl+M"))
+        self.actionGoToTrial.setText(_translate("MainWindow", "Go To Trial..."))
+        self.actionGoToTrial.setShortcut(_translate("MainWindow", "Ctrl+T"))
 from pyqtgraph import GraphicsLayoutWidget
 
 

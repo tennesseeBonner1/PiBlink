@@ -1536,6 +1536,8 @@
     </property>
     <addaction name="actionRe_Analyze_Session"/>
     <addaction name="actionGenerate_Matrix_View"/>
+    <addaction name="separator"/>
+    <addaction name="actionGoToTrial"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -1675,6 +1677,19 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionGoToTrial">
+   <property name="text">
+    <string>Go To Trial...</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
  </widget>
