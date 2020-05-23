@@ -1,5 +1,5 @@
 """ MatrixManager.py
-    Last Modified: 5/22/2020
+    Last Modified: 5/23/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for managing...
@@ -13,7 +13,7 @@
     the whole series of events.
 """
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QProgressDialog, QDialog, QLabel
+from PyQt5.QtWidgets import QApplication, QProgressDialog, QDialog, QLabel, QMessageBox
 from PyQt5.QtGui import QFileDialog
 import TheSession as ts
 import InputManager as im
@@ -21,6 +21,7 @@ import JSONConverter as jc
 import MatrixViewWindow as mvw
 import MatrixParametersWindow as mpw
 import math
+import traceback
 
 
 #Perform all needed set up the first time this file is called
@@ -88,6 +89,9 @@ def generateTrialCaptures():
     #Show progress bar
     inProgress.show()
 
+    #Keep track of whether capture process was successful
+    errorMessage = None
+
     #For every trial (in order) Display on graph, take screenshot, change size of screenshot, save screenshot in list
     for trialNumber in range(1, trialCount + 1):
 
@@ -100,11 +104,21 @@ def generateTrialCaptures():
         #Let the UI update itself (you get errors about not being able to capture a 0 by 0 graph otherwise)
         QApplication.processEvents()
 
-        #Capture graph (i.e. capture trial)
-        trialCapture = im.capture("Graph", True)
+        #Try 5 times to capture trial
+        errorMessage = None
+        trialCapture = None
+        for x in range(0, 5):
+            try:    #Attempt to capture trial
+                trialCapture = captureCurrentTrial()
+            except Exception:  #Remember error message
+                errorMessage = traceback.format_exc(10) #Limit to 10 lines
+            else:   #Capture successful, so no need to try again
+                errorMessage = None #Disregard any previous failed attempt
+                break
 
-        #Resize capture (mode specifies to do it without any smoothing to save performance)
-        trialCapture = trialCapture.scaled(trialWidth, trialHeight, transformMode = Qt.FastTransformation)
+        #If capture failed, stop capture process
+        if errorMessage:
+            break
 
         #Save capture in list
         trialCaptures.append(trialCapture)
@@ -116,11 +130,44 @@ def generateTrialCaptures():
         if inProgress.wasCanceled():
             break
 
-    #Reset graph to display trial it had before this function was called
-    im.loadTrial(originalTrialNumber)
+    #Closing actions
+    if errorMessage:
+        #Notify user
+        errorGeneratingMatrix = QMessageBox()
+        errorGeneratingMatrix.setText("Error generating matrix view:\n\nCapture of trial " + 
+                                      str(ts.currentSession.currentTrial) + " failed.\n\n" + 
+                                      "Full error message:\n" + str(errorMessage))
+        errorGeneratingMatrix.setWindowTitle("Error Generating Matrix")
+        errorGeneratingMatrix.setStandardButtons(QMessageBox.Ok)
+        errorGeneratingMatrix.setIcon(QMessageBox.Critical)
+        errorGeneratingMatrix.setFont(im.popUpFont)
+        errorGeneratingMatrix.exec()
 
-    #Return whether operation was cancelled
-    return inProgress.wasCanceled()
+        #Reset graph to display trial it had before this function was called
+        im.loadTrial(originalTrialNumber)
+
+        #Close progress bar by telling it we're done
+        inProgress.setValue(ts.currentSession.trialCount)
+
+        #Do not proceed with opening matrix view
+        return True
+    else:
+        #Reset graph to display trial it had before this function was called
+        im.loadTrial(originalTrialNumber)
+
+        #Return whether operation was cancelled
+        return inProgress.wasCanceled()
+
+
+#Used by generateTrialCaptures to get scaled image of current trial
+def captureCurrentTrial():
+    #Capture graph (i.e. capture trial)
+    trialCapture = im.capture("Graph", True)
+
+    #Resize capture (mode specifies to do it without any smoothing to save performance)
+    trialCapture = trialCapture.scaled(trialWidth, trialHeight, transformMode = Qt.FastTransformation)
+
+    return trialCapture
 
 
 #Called to open the matrix view window
@@ -224,6 +271,7 @@ def loadPageNoChecks(newPageNumber):
             #So create empty label, add image to it, then add to layout (genius)
             surroundingLabel = QLabel() #"Trial " + str(currentTrialIndex + 1)
             surroundingLabel.setPixmap(trialCaptures[currentTrialIndex])
+            surroundingLabel.setToolTip("Trial " + str(currentTrialIndex + 1))
 
             #Add trial capture (screenshot) to graph in (row, column)
             gridLayout.addWidget(surroundingLabel, row, column)

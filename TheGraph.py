@@ -1,5 +1,5 @@
 """ TheGraph.py
-    Last Modified: 5/6/2020
+    Last Modified: 5/23/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for implementing all operations related to the graph displayed on the
@@ -113,7 +113,10 @@ def createGraph():
     stimulusColor = dsm.colors[dsm.ColorAttribute.STIMULUS.value]
     stimulusColor.setAlpha(75) #Give it some transparency since it renders on top of data curve
     axisColor = pg.mkPen(color = dsm.colors[dsm.ColorAttribute.AXIS.value], width = 1)
-    graphWindow.setBackground(dsm.colors[dsm.ColorAttribute.BACKGROUND.value])
+    backgroundColor = dsm.colors[dsm.ColorAttribute.BACKGROUND.value]
+    
+    #Set background color
+    graphWindow.setBackground(backgroundColor)
 
     #Enable antialiasing for prettier plots
     pg.setConfigOptions(antialias = dsm.antiAliasing)
@@ -124,15 +127,26 @@ def createGraph():
         #Create bar graph
         barGraph = graphWindow.addPlot()
         barGraph.setMaximumWidth(100)
-        barGraph.hideAxis('bottom')
         barGraph.getAxis('left').setPen(axisColor)
         barGraph.setMouseEnabled(x = False, y = False)
         barGraph.enableAutoRange('xy', False)
         barGraph.setXRange(0, 1)
-        barGraph.setYRange(0, 7)
-        barGraph.setLimits(xMin = 0, xMax = 1, yMin = 0, yMax = 7)
-        barGraph.hideButtons()
-        barGraph.setMenuEnabled(False)
+        barGraph.setYRange(0, 5)
+        barGraph.setLimits(xMin = 0, xMax = 1, yMin = 0, yMax = 5)
+        barGraph.hideButtons() #Removes auto scale button
+        barGraph.setMenuEnabled(False) #Removes right click context menu
+
+        #Add invisible bottom label so graph's are same height
+        barGraph.hideAxis('bottom')
+        barGraph.getAxis('bottom').setPen(backgroundColor)  #Make sure it's hidden
+        barGraph.setLabel('bottom', "<span></span>") #Empty label on bottom
+
+        #Add an invisible top axis so graph's are same height
+        barGraph.getAxis('top').setTicks([[(0, "")]])
+        barGraph.getAxis('top').setTickFont(im.popUpFont)
+        barGraph.getAxis('top').setHeight(-5)
+        barGraph.showAxis('top', True)
+        barGraph.getAxis('top').setPen(backgroundColor)
 
         #Create arrays of size 1 for both x location of bars and bar heights (both with values initialized to 0)
         barXs = np.zeros(1)
@@ -144,7 +158,7 @@ def createGraph():
 
     #Create data array (this array will be displayed as the line on the graph)
     dataSize = ts.currentSession.trialLengthInSamples #Array size
-    data = np.full(shape = dataSize, fill_value = -7, dtype = np.float32) #initialized to -7 (so they're off-screen)
+    data = np.full(shape = dataSize, fill_value = -5, dtype = np.float32) #initialized to -5 (so they're off-screen)
     
     #Create empty graph
     stimulusGraph = graphWindow.addPlot()
@@ -158,14 +172,14 @@ def createGraph():
 
     #Add graph labels
     stimulusGraph.setLabel('bottom', "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Time (ms)</span>")
-    stimulusGraph.setLabel('left', "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Eyeblink Amplitude (VDC)</span>")
+    stimulusGraph.setLabel('left', "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Response Amplitude (VDC)</span>")
 
     #Axis line/tick color
     stimulusGraph.getAxis('bottom').setPen(axisColor)
     stimulusGraph.getAxis('left').setPen(axisColor)
 
     #Axis limits on graph
-    stimulusGraph.setLimits(xMin = 0, xMax = dataSize, yMin = 0, yMax = 7, minXRange = 10, minYRange = 7)
+    stimulusGraph.setLimits(xMin = 0, xMax = dataSize, yMin = 0, yMax = 5, minXRange = 10, minYRange = 5)
 
     #Scale x axis ticks to measure milliseconds instead of samples
     stimulusGraph.getAxis('bottom').setScale(ts.currentSession.sampleInterval)
@@ -184,11 +198,6 @@ def createGraph():
     csRegion.lines[1].setPen(stimulusColor)
     stimulusGraph.addItem(csRegion)
 
-    #Add CS label to middle of shaded area
-    csLabel = pg.TextItem(html = "<span style = \"font-size: 16pt; color: " + htmlColorString(textColor) + "\">CS</span>", color = textColor, anchor = (0.5, 0))
-    stimulusGraph.addItem(csLabel)
-    csLabel.setPos((csStart + csEnd) / 2, 7)
-
     #Same for US
     usStart = ts.currentSession.usStartInSamples
     usEnd = ts.currentSession.usEndInSamples
@@ -197,9 +206,13 @@ def createGraph():
     usRegion.lines[1].setPen(stimulusColor)
     stimulusGraph.addItem(usRegion)
 
-    usLabel = pg.TextItem(html = "<span style = \"font-size: 16pt; color: " + htmlColorString(textColor) + "\">US</span>", anchor = (0.5, 0))
-    stimulusGraph.addItem(usLabel)
-    usLabel.setPos((usStart + usEnd) / 2, 7)
+    #Add CS and US text labels
+    stimulusTicks = [[((csStart + csEnd) / 2, "CS"), ((usStart + usEnd) / 2, "US")]]
+    stimulusGraph.getAxis('top').setTicks(stimulusTicks)
+    stimulusGraph.getAxis('top').setTickFont(im.popUpFont)
+    stimulusGraph.getAxis('top').setHeight(-5)
+    stimulusGraph.showAxis('top', True)
+    stimulusGraph.getAxis('top').setPen(axisColor)
 
     #Launch graph based on play mode
     if im.playMode == im.PlayMode.PLAYBACK:
@@ -208,12 +221,12 @@ def createGraph():
         data = JSONConverter.openTrial()
         curve.setData(data)
 
-        #Get the onset and offset data
+        #Render onset arrows
         onsets = JSONConverter.getOnsets()
-
         for x in range(len(onsets)):
             addArrow(onsets[x] - 1)
 
+        #Render offset arrows
         if(dsm.renderOffset):
             offsets = JSONConverter.getOffsets()
             for x in range(len(offsets)):
