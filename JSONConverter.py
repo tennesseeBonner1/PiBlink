@@ -1,228 +1,165 @@
+""" JSONConverter.py
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
-#This file's responsibilities are to...
-#1. Save sessions as JSON files.
-#2. Open the JSON saved session files.
-
+    This file's responsibilities are to:
+    1. Save sessions as JSON files.
+    2. Open the JSON saved session files.
+    3. Provide a few common functionalities related to file management.
+    
+    At the top layer of the dictionary structure, there are two key-value pairs. The two keys are "header" and "trials"
+    The value mapped to the "header" key is another dictionary containing key-value pairs that relate to the session-specific settings 
+    ("name", "sex", "age", "trialDuration", etc.) The value mapped to the "trials" key is an array of dictionaries, where each dictionary 
+    holds the information for a single trial. Within these trial dictionaries are a few key-value pairs, including a pair which contains 
+    the stats of the trial (another dictionary), and a pair which maps a key to an array containing all of the sample data.
+"""
 import TheSession as ts
-import datetime as dt
+import DataAnalysis as da
 import json
-import math
-from os import path
 from datetime import datetime
+import os
 
-#Called on start of program to perform initialization (i.e. getting reference to main window)
-def initialSetUp (theMainWindow):
-    global mainWindow
+
+#Initializes the JSONconverter(getting reference to main window, and resetting the savefilename)
+def initialSetUp(theMainWindow):
+
+    global mainWindow, saveFilename
 
     mainWindow = theMainWindow
+    saveFilename = ""
 
-#-----------------------------------------------------------------------------------------------------
-#1. SAVE SESSION/DATA ACQUISITION MODE SUPPORT
 
-#Called at the beginning of the data acquisition session to save the session settings and prepare...
-#for trial saving. Also determines the save file name (performed at start of session versus end...
-#because the start date is what we're interested in, not the end date).
+#Called at the beginning of the data acquisition session to save the session settings and prepare for trial saving. Also determines the savefilename 
 def startDataAcquisition():
-    global trialsSaved, saveFileName, jsonObject, average, n
+
+    global trialsSaved, saveFilename, jsonObject
     	
-    average = 0.00
-    n = 0
     trialsSaved = 0
 
     name = str(ts.currentSession.sessionName)
     sex = str(ts.currentSession.subjectSex.name)
     age = str(ts.currentSession.subjectAge)
-
     now = datetime.now()
     date = str(now.strftime("%m-%d-%Y"))
 
-    '''
-        month = now.strftime("%m")
-        day = now.strftime("%d")
-        year = now.strftime("%Y")
-        hour = now.strftime("%H")
-        minute = now.strftime("%M") 
-        second = now.strftime("%S")
-        #"timestamp": (month, day, year, hour, minute, second),
-    '''
+    #Define location to save file in and make the directory if it doesn't exist
+    desiredLocation = getSavedSessionDirectory(createIfNonexistent = True)
 
-    #Define desired file name
-    saveFileName = (name + " (" + sex + " " + age + ") " + date + ".json")
+    #Define ideal filename
+    if name:
+        baseName = name + " (" + sex + " " + age + ") " + date
 
-    #Add an incrementing number in file name (if needed) until we find one that's not taken
-    number = 1
-    while (path.exists(saveFileName)):
-        number += 1
-        saveFileName = (name + " (" + sex + " " + age + ") " + date + " (" + str(number) + ").json")
+    else:
+        baseName = "(" + sex + " " + age + ") " + date
+
+    #Put filename, location and '.json' together
+    idealFilename = os.path.join(desiredLocation, baseName)
+    saveFilename = idealFilename + ".json"
+
+    duplicateNumber = 0
+
+    #Add an incrementing number in filename (if needed) until we find one that's not taken
+    while (os.path.exists(saveFilename)):
+        duplicateNumber += 1
+        saveFilename = idealFilename + " (" + str(duplicateNumber) + ").json"
 
     #Define the structure of the JSON object (and fill out the header with session info)
     jsonObject = {
                     "header":   
                     {
-                        "name" : name,
-                        "sex" : sex,
-                        "age" : age,
+                        "name": name,
+                        "sex": sex,
+                        "age": age,
                         "sampleInterval": ts.currentSession.sampleInterval,
                         "trialCount": ts.currentSession.trialCount,
-                        "iti" : ts.currentSession.iti,
-                        "itiVariance" : ts.currentSession.itiVariance,
-                        "trialDuration" : ts.currentSession.trialDuration,
-                        "baselineDuration" : ts.currentSession.baselineDuration,
-                        "csName" : ts.currentSession.csName,
-                        "csDuration" : ts.currentSession.csDuration,
-                        "isi" : ts.currentSession.interstimulusInterval,
-                        "usName" : ts.currentSession.usName,
-                        "usDuration" : ts.currentSession.usDuration
+                        "iti": ts.currentSession.iti,
+                        "itiVariance": ts.currentSession.itiVariance,
+                        "trialDuration": ts.currentSession.trialDuration,
+                        "baselineDuration": ts.currentSession.baselineDuration,
+                        "csName": ts.currentSession.csName,
+                        "csDuration": ts.currentSession.csDuration,
+                        "isi": ts.currentSession.interstimulusInterval,
+                        "usName": ts.currentSession.usName,
+                        "usDuration": ts.currentSession.usDuration,
+                        "usDelay": ts.currentSession.usDelay,
+                        "thresholdSD": ts.currentSession.thresholdSD,
+                        "thresholdMinDuration": ts.currentSession.thresholdMinDuration
                     },
-
                     "trials": [],
-                    "ITIs": [],
-                    "Stats": []
-
                 }
-def addToAverage(number):
-    global average, n 
-    n += 1
-    average += number
 
-def setSD(data, iteration):
-    global average, n, currentAverage, currentSD, blinking, blinkList
-
-    average = average / n
-
-    blinkList = []
-
-    number = 0.00
-    for i in range(0, iteration):
-        number += ((data[i] - average) * (data[i] - average))
-
-    number = number / n
-    number = math.sqrt(number)
-
-    currentAverage = average
-    average = 0.00
-    currentSD = number
-    blinking  = False
-
-def checkForBlink(value, sampleIndex):
-    global currentAverage, currentSD, blinking, blinkList, highLow 
-
-    if blinking == False:
-        if value <  (currentAverage - (2 * currentSD)):
-            blinking = True
-            highLow = False
-            blinkList.append(sampleIndex)
-            
-        
-        if value > ((2 * currentSD) + currentAverage):
-            blinking = True
-            highLow = True
-            blinkList.append(sampleIndex)
-    else:
-        if value >  (currentAverage - (2 * currentSD)) and value < ((2 * currentSD) + currentAverage):
-            if value <= currentAverage and highLow == True:
-                blinking = False
-                blinkList.append(sampleIndex)
-                highLow == False
-
-            if value >= currentAverage and highLow == False:
-                blinking = False
-                blinkList.append(sampleIndex)
-                highLow == True
-
-    return blinking
 
 #Called at the end of a trial to save the just-completed trial
-def saveTrial(trialDataArray, Iti):
-    global trialsSaved, statsDict
-    
-    getTrialStats()
+def saveTrial(trialDataArray, previousITI):
 
+    global trialsSaved
+    
     #If we stop the session prematurely, we need to know how many trials are in the saved session
     trialsSaved += 1
 
     #Convert trial data from numpy array to python list
     trialDataList = trialDataArray.tolist()
 
-    #Convert python list to json string
-    trialDataString = json.dumps(trialDataList)
+    #Create new trial (singular) object
+    trialObject = {
+                       "trialNumber": trialsSaved,
+                       "previousITI": previousITI,
+                       "stats": da.getTrialStats(ts.currentSession.thresholdSD, ts.currentSession.thresholdMinDuration),
+                       "samples": trialDataList
+                  }
 
-    #Create "trial object" and append it to trials object (which is a part of the larger json object)
-    jsonObject["trials"].append(trialDataList)
-
-    jsonObject["Stats"].append(statsDict)
-
-    if (trialsSaved < ts.currentSession.trialCount):
-        jsonObject["ITIs"].append(Iti)
-
-
-def getTrialStats():
-    global currentAverage, currentSD, blinkList, statsDict
-
-    cSOnset = ts.currentSession.baselineDuration + 1  
-    cSOffset = cSOnset + ts.currentSession.csDuration - 1
-    uSOnset = cSOffset + ts.currentSession.interstimulusInterval + 1
-    uSOffset = uSOnset + ts.currentSession.usDuration - 1
-    
-    statsDict = {
-        "baselineDuration" : ts.currentSession.baselineDuration,
-        "cSOnset" : cSOnset,
-        "cSOffset" : cSOffset,
-        "uSOnset" : uSOnset,
-        "uSOffset" : uSOffset,    
-        "baselineAvg" : currentAverage,
-        "baselineSD" : currentSD,
-        "blinkList" : blinkList
-    }
-    
+    #Append trial (singular) object to trials (plural) array
+    jsonObject["trials"].append(trialObject)
 
 
-
-
-
-#Finalize data acquisition by writing session (stored in JSON object) out to JSON file
-#Before this point, data has just been accumulating in the JSON object with no file saving
+#Finalizes data acquisition by writing session (stored in JSON object) to JSON file(Before this point, data has been accumulating in the JSON object)
 def endDataAcquisition():
+
     #If the data acquisition session was ended before completion, remember how many actually got saved
     jsonObject["header"]["trialCount"] = str(trialsSaved)
 
     #Only proceed with saving the session to file if it has a non-zero number of trials
     if trialsSaved > 0:
-        #Open new file in write mode (overwrites any preexisting file with same name)
-        sessionFile = open(saveFileName, "w")
 
-        #Write JSON object to file
-        jsonString = json.dumps(jsonObject) #Convert JSON object to string
-        sessionFile.write(jsonString) #Write string to file
+        #Open new file in write mode (overwrites any preexisting file with same name)
+        sessionFile = open(saveFilename, "w")
+
+        #Convert JSON object to string
+        jsonString = json.dumps(jsonObject) 
+
+        #Write string to file
+        sessionFile.write(jsonString)
 
         #Close file
         sessionFile.close()
 
-#-----------------------------------------------------------------------------------------------------
-#2. OPEN SESSION/PLAYBACK MODE SUPPORT
 
 #Opens JSON file, reads in JSON data, recreates session object with data
-#After this function is called, the user can press the play button to begin playback
 def openSession(filename):
-    global jsonObject
+
+    global jsonObject, saveFilename
 
     #Open file, extract contents into string, and close the file
     try:
         sessionFile = open(file = filename, mode = "r")
+        saveFilename = filename
         jsonString = sessionFile.read()
         sessionFile.close()
+
     except Exception:
         return "The file cannot be opened."
 
     #Convert string into python dictionary
     try:
         jsonObject = json.loads(jsonString)
+
     except Exception:
         return "The file is not in JSON format despite file extension."
 
     #Recreate session object using the settings in the header of the json file
     try:
         ts.currentSession = ts.TheSession(mainWindow, jsonObject["header"])
+
     except KeyError:
         errorMessage = "The JSON file does not have all applicable information.\n"
         errorMessage += "Was this session created in an older version of the program?"
@@ -231,6 +168,46 @@ def openSession(filename):
     #Execution is finished and error-free so return empty quotes indicating no error message
     return ""
 
-#Return the array of samples for the current trial
+
+#Returns the array of samples for the current trial
 def openTrial():
-    return jsonObject["trials"][ts.currentSession.currentTrial - 1]
+
+    return jsonObject["trials"][ts.currentSession.currentTrial - 1]["samples"]
+
+
+#Returns the array of onsets for the current trial
+def getOnsets():
+
+    return jsonObject["trials"][ts.currentSession.currentTrial - 1]["stats"]["onsetSamples"]
+
+
+#Returns the array of offsets for the current trial
+def getOffsets():
+
+    return jsonObject["trials"][ts.currentSession.currentTrial - 1]["stats"]["offsetSamples"]
+
+
+#Creates a saved session directory if one doesn't exist
+def getSavedSessionDirectory(createIfNonexistent):
+
+    #Subfolder of current working dir
+    savedSessionDirectory = os.path.join(os.getcwd(), "Saved Sessions")
+
+    #Make the directory if required to exist
+    if createIfNonexistent and (not os.path.exists(savedSessionDirectory)):
+        os.makedirs(savedSessionDirectory)
+
+    return savedSessionDirectory
+
+
+#Gets the filename of the currently open file and returns it
+def getCurrentFilename():
+
+	#Partition the lengthy pathname to get only the file name (checking for both \ and / to be safe)
+	justTheName = saveFilename.rpartition('\\')[2]
+	justTheName = justTheName.rpartition('/')[2]
+
+	#remove the file extension
+	justTheName = justTheName.rpartition('.')[0]
+	
+	return justTheName

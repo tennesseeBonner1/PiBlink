@@ -1,47 +1,57 @@
+""" DisplaySettingsManager.py
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
-#Module for all management of the display settings. This management is comprised of 3 things...
-#1. Managing the pop-up window (in DisplaySettingsWindow.py) for viewing and editing these settings.
-#2. Managing the text file (Display Settings.txt) for saving these settings.
-#3. Managing the program variables that hold the current state of these settings (ex: dsm.displayRate)
-
+    This program manages the display settings, but more specifically it does the following:
+        1. Managing the pop-up window (in DisplaySettingsWindow.py) for viewing and editing these settings.
+        2. Managing the text file (Display Settings.txt) for saving these settings.
+        3. Managing the program variables that hold the current state of these settings (ex: dsm.displayRate)
+"""
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QDialog
 from enum import Enum
 import DisplaySettingsWindow as dsw
 
+
+#This class contains the Enumerator for what color attribute is being modified
 class ColorAttribute(Enum):
     BACKGROUND = 0
     DATA = 1
     TEXT = 2
     STIMULUS = 3
     AXIS = 4
+    ONSET = 5
+    OFFSET = 6
 
-#Needs to be called at the very beginning of the program to load in settings from file
+
+#Called at the very beginning of the program to load in settings from file
 def initialSetUp ():
-    global displayRate, antiAliasing, shading, colors
 
-    #Give default values to all settings first (in case loading settings from file fails)...
-    displayRate = 10
-    
+    global displayRate, antiAliasing, shading, colors, renderOffset
+
+    #Give default values to all settings first (in case loading settings from file fails)
+    displayRate = 10    
     antiAliasing = False
     shading = False
+    renderOffset = False
 
-    #Default colors for each of the five color categories (see ColorAttribute enum for ordering)
-    colors = (QtGui.QColor(255, 255, 255),
-                QtGui.QColor(0, 0, 255),
-                QtGui.QColor(0, 0, 0),
-                QtGui.QColor(75, 75, 75),
-                QtGui.QColor(0, 0, 0))
+    #Default colors for each of the seven color categories
+    colors = (QtGui.QColor(255, 255, 255), QtGui.QColor(0, 0, 255), QtGui.QColor(0, 0, 0), QtGui.QColor(75, 75, 75), QtGui.QColor(0, 0, 0), QtGui.QColor(10, 20, 30), QtGui.QColor(120, 120, 135))
 
     #Then try to read in settings from file...
     try:
         #Open the display settings file in read mode
         displaySettingsFile = open(file = "Display Settings.txt", mode = "r")
-    except Exception as e: #Error
+    
+    #Error opening file
+    except Exception as e:
         print("Error opening display settings file...\n")
         print(e) #Detailed error message
         print() #Extra line for spacing
-    else: #Executed only if there is no error with opening the file
+    
+    #Executed only if there is no error with opening the file
+    else: 
+
         #Parse line by line for settings
         for line in displaySettingsFile:
             parseDisplaySettingsFileLine(line)
@@ -49,13 +59,16 @@ def initialSetUp ():
         #Close the file when done to avoid file descriptor memory leaks
         displaySettingsFile.close()
 
+
+#This function is used to parse a line of the display settings file and load the data into the program
 def parseDisplaySettingsFileLine (line):
-    global displayRate, antiAliasing, shading, colors
+
+    global displayRate, antiAliasing, shading, colors, renderOffset
 
     #Split the line into key/value pair
     keyValuePair = line.split(sep = "=", maxsplit = 2)
 
-    #Not a key/value pair so skip line (probably whitespace or a comment or something)
+    #Not a key/value pair so skip line (probably whitespace or a comment)
     if len(keyValuePair) != 2:
         return
 
@@ -82,9 +95,17 @@ def parseDisplaySettingsFileLine (line):
         colors[ColorAttribute.STIMULUS.value].setNamedColor(value)
     elif key == "axis color":
         colors[ColorAttribute.AXIS.value].setNamedColor(value)
+    elif key == "render offset arrows":
+        renderOffset = value == "true"
+    elif key == "onset color":
+        colors[ColorAttribute.ONSET.value].setNamedColor(value)
+    elif key == "offset color":
+        colors[ColorAttribute.OFFSET.value].setNamedColor(value)
+
 
 #Called when "Edit -> Display Settings..." is pressed to pop up the display settings menu
 def openDisplaySettingsMenu():
+
     global displaySettingsWrapper, colorButtons
 
     #Create the display settings menu (using the Qt Designer-generated Ui_displaySettings)
@@ -92,20 +113,12 @@ def openDisplaySettingsMenu():
     displaySettingsWrapper = dsw.Ui_displaySettingsWindow()
     displaySettingsWrapper.setupUi(displaySettingsWindow)
 
-    #Now perform the rest of the set up in code below...
-
-    #Detects when the "Restore Defaults" or "OK" buttons are pressed respectively
-    #"Cancel" doesn't need one because no additional actions are needed (window closes automatically)
-    #Used 0x08000000 instead of QtGui.QDialogButtonBox.Reset due to import issues (they're interchangeable)
+    #Detects when the "Restore Defaults" or "OK" buttons are pressed respectively (0x08000000 used instead of QtGui.QDialogButtonBox.Reset due to import issues[They are interchangable])
     displaySettingsWrapper.buttonBox.button(0x08000000).clicked.connect(restoreDisplayDefaults)
     displaySettingsWrapper.buttonBox.accepted.connect(saveDisplaySettings)
 
     #Keep track of the color buttons in tuple format for easier access
-    colorButtons = (displaySettingsWrapper.backgroundColorButton,
-                    displaySettingsWrapper.dataColorButton,
-                    displaySettingsWrapper.textColorButton,
-                    displaySettingsWrapper.stimulusColorButton,
-                    displaySettingsWrapper.axisColorButton)
+    colorButtons = (displaySettingsWrapper.backgroundColorButton, displaySettingsWrapper.dataColorButton, displaySettingsWrapper.textColorButton, displaySettingsWrapper.stimulusColorButton, displaySettingsWrapper.axisColorButton, displaySettingsWrapper.onsetArrowColorButton, displaySettingsWrapper.offsetArrowColorButton)
 
     #Detects when the color buttons are pressed
     colorButtons[0].clicked.connect(lambda: colorButtonPressed(ColorAttribute.BACKGROUND))
@@ -113,6 +126,8 @@ def openDisplaySettingsMenu():
     colorButtons[2].clicked.connect(lambda: colorButtonPressed(ColorAttribute.TEXT))
     colorButtons[3].clicked.connect(lambda: colorButtonPressed(ColorAttribute.STIMULUS))
     colorButtons[4].clicked.connect(lambda: colorButtonPressed(ColorAttribute.AXIS))
+    colorButtons[5].clicked.connect(lambda: colorButtonPressed(ColorAttribute.ONSET))
+    colorButtons[6].clicked.connect(lambda: colorButtonPressed(ColorAttribute.OFFSET))
 
     #Make the menu not resizable
     displaySettingsWindow.setFixedSize(displaySettingsWindow.size())
@@ -129,9 +144,10 @@ def openDisplaySettingsMenu():
     #Display the menu
     displaySettingsWindow.exec()
 
-#Called when "Restore defaults" buttons is pressed on graph display settings menu
-#Just resets the values on the GUI items, doesn't save anything
+
+#Called when "Restore defaults" buttons is pressed on graph display settings menu (restores the display setting defaults)
 def restoreDisplayDefaults():
+
     #display rate box
     displaySettingsWrapper.displayRateSpinBox.setValue(10)
 
@@ -139,68 +155,84 @@ def restoreDisplayDefaults():
     displaySettingsWrapper.antiAliasingComboBox.setCurrentIndex(0)
     displaySettingsWrapper.shadingComboBox.setCurrentIndex(0)
 
+    #offset arrow rendering
+    displaySettingsWrapper.renderOffsetCheckBox.setChecked(False)
+
     #color buttons
     setButtonColor(displaySettingsWrapper.backgroundColorButton, QtGui.QColor(255, 255, 255)) #background = white
     setButtonColor(displaySettingsWrapper.dataColorButton, QtGui.QColor(0, 0, 255)) #data = blue
     setButtonColor(displaySettingsWrapper.textColorButton, QtGui.QColor(0, 0, 0)) #text = black
     setButtonColor(displaySettingsWrapper.stimulusColorButton, QtGui.QColor(75, 75, 75)) #stimulus = gray
     setButtonColor(displaySettingsWrapper.axisColorButton, QtGui.QColor(0, 0, 0)) #axis = black
+    setButtonColor(displaySettingsWrapper.onsetArrowColorButton, QtGui.QColor(10, 20, 30)) #onset arrow = very dark gray
+    setButtonColor(displaySettingsWrapper.offsetArrowColorButton, QtGui.QColor(120, 120, 135)) #offset arrow = slate gray
 
-#Called when "OK" button is pressed on graph display settings menu
+
+#Saves the display settings
 def saveDisplaySettings():
-    global displayRate, antiAliasing, shading, colors
 
-    #First, extract display settings from menu...
+    global displayRate, antiAliasing, shading, colors, renderOffset
+
+    #First, extract display settings from the menu
     displayRate = displaySettingsWrapper.displayRateSpinBox.value()
-    
     antiAliasing = displaySettingsWrapper.antiAliasingComboBox.currentIndex() == 1
     shading = displaySettingsWrapper.shadingComboBox.currentIndex() == 1
-
+    renderOffset = displaySettingsWrapper.renderOffsetCheckBox.isChecked()
     colors = (colorButtons[0].palette().button().color(),
               colorButtons[1].palette().button().color(),
               colorButtons[2].palette().button().color(),
               colorButtons[3].palette().button().color(),
-              colorButtons[4].palette().button().color())
+              colorButtons[4].palette().button().color(),
+              colorButtons[5].palette().button().color(),
+              colorButtons[6].palette().button().color())
 
     #Then, save settings to file...
     try:
+    
         #Open the display settings file in write mode (overwrites anything already in it, no appending)
         displaySettingsFile = open(file = "Display Settings.txt", mode = "w")
-    except Exception as e: #Error
+
+    #Error opening the file
+    except Exception as e:
         print("Error opening display settings file...\n")
         print(e) #Detailed error message
         print() #Extra empty line for spacing
-    else: #Executed only if there is no error with opening the file
+    
+    #Occurs if there are no problems opening the file
+    else:
         displaySettingsFile.write("Note: Don't comment this file because it is regenerated on save.")
-
         displaySettingsFile.write("\n\nrefresh rate = " + str(displayRate))
-
         displaySettingsFile.write("\n\nanti-aliasing = " + ("true" if antiAliasing else "false"))
         displaySettingsFile.write("\nshading = " + ("true" if shading else "false"))
-
         displaySettingsFile.write("\n\nbackground color = " + colors[ColorAttribute.BACKGROUND.value].name())
         displaySettingsFile.write("\ndata color = " + colors[ColorAttribute.DATA.value].name())
         displaySettingsFile.write("\ntext color = " + colors[ColorAttribute.TEXT.value].name())
         displaySettingsFile.write("\nstimulus color = " + colors[ColorAttribute.STIMULUS.value].name())
         displaySettingsFile.write("\naxis color = " + colors[ColorAttribute.AXIS.value].name())
+        displaySettingsFile.write("\nrender offset arrows = " + str(renderOffset))
+        displaySettingsFile.write("\nonset color = " + colors[ColorAttribute.ONSET.value].name())
+        displaySettingsFile.write("\noffset color = " + colors[ColorAttribute.OFFSET.value].name())
 
         #Close the file when done to avoid file descriptor memory leaks
         displaySettingsFile.close()
 
-#Called when display menu is created to fill in the options with the current settings
-def showDisplaySettings():
-    displaySettingsWrapper.displayRateSpinBox.setValue(displayRate)
 
+#This function fills in the options with the current settings
+def showDisplaySettings():
+
+    displaySettingsWrapper.displayRateSpinBox.setValue(displayRate)
     displaySettingsWrapper.antiAliasingComboBox.setCurrentIndex(int(antiAliasing))
     displaySettingsWrapper.shadingComboBox.setCurrentIndex(int(shading))
+    displaySettingsWrapper.renderOffsetCheckBox.setChecked(renderOffset)
 
     #Set color to button in background
-    for x in range(0, 5):
+    for x in range(0, len(colorButtons)):
         setButtonColor(colorButtons[x], colors[x])
 
-#Pulls up color picker for changing the color of the button
-#This function is used by all color buttons, differentiating between buttons via parameter
+
+#Pulls up color picker for changing the color of the button This function is used by all color buttons, differentiating buttons via parameter
 def colorButtonPressed(colorAttribute):
+
     #Retrieve current color (of type QColor)
     color = colorButtons[colorAttribute.value].palette().button().color()
 
@@ -212,32 +244,15 @@ def colorButtonPressed(colorAttribute):
     if color.isValid():
         setButtonColor(colorButtons[colorAttribute.value], color)
 
+
 #Changes the background color of the button passed in (QPushButton) to the color passed in (QColor)
 def setButtonColor(button, color):
+
     #Change the button color by accessing it's QPalette and changing it's color for the Button role
     palette = button.palette()
     palette.setColor(QtGui.QPalette.Button, color)
     button.setPalette(palette)
 
-    '''
-        Changes won't take effect without the following two lines of code.
-        I don't fully understand why this is required and what this does but I believe it changes...
-        something about the border of the buttons which causes the background colors to work properly.
-        The documentation (https://doc.qt.io/qt-5/qpushbutton.html) for the flat property says...
-
-        "This property holds whether the button border is raised
-
-        This property's default is false. If this property is set, most styles will not paint the...
-        button background unless the button is being pressed. setAutoFillBackground() can be used to...
-        ensure that the background is filled using the QPalette::Button brush."
-    
-        ...Although just using auto fill background on it's own didn't work for me.
-    '''
+    #Set the buttons up
     button.setAutoFillBackground(True)
     button.setFlat(True)
-
-    #Alternatively, this also works but looks uglier:
-    #button.setStyleSheet("QPushButton {background-color: " + color.name() + "; border: none}")
-
-    #As a final alternative: This works on PC, but not on the Raspberry Pi:
-    #button.setStyleSheet("background-color: " + color.name())

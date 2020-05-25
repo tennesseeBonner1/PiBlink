@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
-"""DAC8552 - Python module for interfacing Texas Instruments DAC8552
+""" dac8552.py
+    Last Modified: 5/6/2020
+    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
+    
+    This file is used for Digital to Audio conversion in the dac8552 chip. This uses settings in the DAC8552_default_config.py file. 
+    The following comments are by the person that originally wrote this program. 
+    
+DAC8552 - Python module for interfacing Texas Instruments DAC8552
 digital to analog converter with the Raspberry Pi via SPI bus.
 
 Download: https://github.com/adn05/dac8552
