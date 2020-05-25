@@ -1,6 +1,6 @@
 
 """ DataWizard.py
-    Last Modified: 5/6/2020
+    Last Modified: 5/25/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
     
     This file provides the code for interfacing with the analog I/O libraries.
@@ -30,6 +30,10 @@ if not os.path.exists("/dev/spidev0.1"):
 
 #Initial set up for analog input...
 def adcInitialSetUp():
+    #Precompute scaling constant to speed up refinedNumber calculation
+    global scaling
+    scaling = 5 / 8388607
+
     #Create ADS module (instance of class used to interface with analog input library)
     global ads
     ads = ADS1256()
@@ -88,10 +92,8 @@ def getNextSample():
     '''
     rawNumber = ads.read_async()
     
-    #Scale the number to be within 0-5 V range
-    #Raw number is a 24 bit binary number
-    #0V is 0 and 5V is 78388607 in raw reading
-    refinedNumber = 5 * (rawNumber / 8388607)
+    #Scale the number to be within a range
+    refinedNumber = rawNumber * scaling
     
     #After scaling the number, it is ready to be returned
     return refinedNumber

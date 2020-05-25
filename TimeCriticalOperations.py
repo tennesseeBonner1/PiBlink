@@ -1,5 +1,5 @@
 """ TheSession.py
-    Last Modified: 5/6/2020
+    Last Modified: 5/25/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for spawning and managing the time-critical/sampling process.
@@ -363,50 +363,22 @@ def processCommand(currentlyIn):
 
 
 #Called every sample interval to manage analog (both CS and US) outputs. This function was designed with optimization in mind
+#samplingIteration is unconditionally incremented before manageAnalogOutputs(samplingIteration) is called
 def manageAnalogOutputs (samplingIteration):
     
     global startedCS, csInProgress, startedUS, usInProgress
 
     #Manage CS output
-    if startedCS:
-
-        if csInProgress:
-
-            if samplingIteration < csEnd:
-
-                dw.setCSAmplitude(True)
-
-            else:
-
-                csInProgress = False
-                dw.setCSAmplitude(False)
-
-    elif samplingIteration >= csStart:
-
-        startedCS = True
-        csInProgress = True
+    if samplingIteration == csStart:
         dw.setCSAmplitude(True)
+    elif samplingIteration == csEnd:
+        dw.setCSAmplitude(False)
 
     #Manage US output (exact same thing but for US)
-    if startedUS:
-
-        if usInProgress:
-
-            if samplingIteration < usEnd:
-
-                dw.setUSAmplitude(True)
-
-            else:
-
-                usInProgress = False
-                dw.setUSAmplitude(False)
-
-    elif samplingIteration >= usStart:
-
-        startedUS = True
-        usInProgress = True
+    if samplingIteration == usStart:
         dw.setUSAmplitude(True)
-
+    elif samplingIteration == usEnd:
+        dw.setUSAmplitude(False)
 
 #Fast version of wait used during ITI (more CPU-intensive)
 def busyWait():
