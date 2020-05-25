@@ -1,5 +1,5 @@
 """ TheSession.py
-    Last Modified: 5/6/2020
+    Last Modified: 5/25/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for spawning and managing the time-critical/sampling process.
@@ -171,6 +171,7 @@ def runTrial():
     #Used to implement sample interval parameter (see loop below for usage)
     msLeftInCurrentInterval = sampleIntervalInMS
 
+    global samplingIteration
     samplingIteration = 0
 
     #Sampling loop
@@ -199,7 +200,7 @@ def runTrial():
             msLeftInCurrentInterval = sampleIntervalInMS
 
             #Update analog outputs every sample interval
-            manageAnalogOutputs(samplingIteration)
+            manageAnalogOutputs()
 
             #Record benchmarking information
             recordTrialStart()
@@ -261,6 +262,9 @@ def pauseLoop():
         if breakOnReturn:
             break
 
+    #Outputs were turned off during pause, so turn them back on if applicable
+    restoreAnalogOutputs()
+
     recordPauseEnd()
 
 #Initialize a session
@@ -309,16 +313,8 @@ def initializeSession(sessionObject):
 #Initializes a trial
 def initializeTrial():
 
-    global startedCS, csInProgress, startedUS, usInProgress
-    
     #Prepare ADC library for sampling
     dw.onTrialStart()
-
-    #Give default values to trial status variables
-    startedCS = False
-    csInProgress = False
-    startedUS = False
-    usInProgress = False
 
 
 #Process a single command from main process like resume or end process
@@ -363,48 +359,31 @@ def processCommand(currentlyIn):
 
 
 #Called every sample interval to manage analog (both CS and US) outputs. This function was designed with optimization in mind
-def manageAnalogOutputs (samplingIteration):
-    
-    global startedCS, csInProgress, startedUS, usInProgress
+#samplingIteration is unconditionally incremented before manageAnalogOutputs() is called
+def manageAnalogOutputs ():
 
     #Manage CS output
-    if startedCS:
-
-        if csInProgress:
-
-            if samplingIteration < csEnd:
-
-                dw.setCSAmplitude(True)
-
-            else:
-
-                csInProgress = False
-                dw.setCSAmplitude(False)
-
-    elif samplingIteration >= csStart:
-
-        startedCS = True
-        csInProgress = True
+    if samplingIteration == csStart:
         dw.setCSAmplitude(True)
+    elif samplingIteration == csEnd:
+        dw.setCSAmplitude(False)
 
     #Manage US output (exact same thing but for US)
-    if startedUS:
+    if samplingIteration == usStart:
+        dw.setUSAmplitude(True)
+    elif samplingIteration == usEnd:
+        dw.setUSAmplitude(False)
 
-        if usInProgress:
 
-            if samplingIteration < usEnd:
+#Outputs were turned off during pause, so turn them back on if applicable
+def restoreAnalogOutputs():
 
-                dw.setUSAmplitude(True)
+    #Restore CS
+    if samplingIteration >= csStart and samplingIteration < csEnd:
+        dw.setCSAmplitude(True)
 
-            else:
-
-                usInProgress = False
-                dw.setUSAmplitude(False)
-
-    elif samplingIteration >= usStart:
-
-        startedUS = True
-        usInProgress = True
+    #Restore US
+    if samplingIteration >= usStart and samplingIteration < usEnd:
         dw.setUSAmplitude(True)
 
 
