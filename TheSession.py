@@ -1,5 +1,5 @@
 """ TheSession.py
-    Last Modified: 5/6/2020
+    Last Modified: 5/25/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for encapsulating the basic information and operations
@@ -45,6 +45,7 @@ class TheSession(object):
 
     #General variables
     currentTrial = 1
+    sessionStarted = False  #Used by TheGraph to determine whether to create trial on play
 
     #Precomputed values used by graph (for optimization and convenience)
     trialLengthInSamples = 0

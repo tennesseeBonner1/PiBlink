@@ -1,5 +1,5 @@
 """ InputManager.py
-    Last Modified: 5/22/2020
+    Last Modified: 5/25/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for handling all input from the main window. This file also controls a few high level concerns including the 
@@ -241,6 +241,9 @@ def stopSessionWithoutConfirmation():
         #Save session to file
         JSONConverter.endDataAcquisition()
 
+        #Hide trial info label
+        mainWindow.trialInfoLabel.hide()
+
     #Clears the session
     ts.currentSession = None
 
@@ -261,29 +264,47 @@ def stopSessionWithoutConfirmation():
 #Defines whether or not the trial is playing (only applies to data acquisition mode)
 def setPlaying(play):
 
+    #No pause/play in playback
     if playMode == PlayMode.PLAYBACK:
         return
 
-    #Creates a session if one is not already running (there must be a current session to control)
+    #Creates a session if there's not one already (there must be a current session)
     if not ts.currentSession:
+
+        #Create session
         ts.currentSession = ts.TheSession(mainWindow)
+        
+        #Perform set up specific to data acquisition...
+
+        #Prepare session saving module
         JSONConverter.startDataAcquisition()
+
+        #Display trial info label
+        mainWindow.trialInfoLabel.setText("RUNNING TRIAL...")
+        mainWindow.trialInfoLabel.show()
 
     #Sets whether or not the graph is playing based off of the value of play
     tg.setPlaying(play)
 
-    #If play is true change the icon to the pause Icon
+    #Update play button icon
     if play:
         mainWindow.playButton.setIcon(pauseIcon)
-
-    #Otherwise set the icon to the play icon
     else:
         mainWindow.playButton.setIcon(playIcon)
 
+    #Update trial info label
+    if not tg.duringITI:
+        if play:
+            mainWindow.trialInfoLabel.setText("RUNNING TRIAL...")
+        else:
+            mainWindow.trialInfoLabel.setText("TRIAL PAUSED")
+
     #Any interaction with play button means you cannot unlock the settings
+    #...because a session must already be running
     mainWindow.lockButton.setEnabled(False)
 
     #The session can be stopped if the play button is interacted with
+    #...because a session must already be running
     mainWindow.stopButton.setEnabled(True)
 
 
@@ -395,7 +416,7 @@ def capture(captureType, returnCapture):
     if captureType == "Graph":
 
         #Cases where graph capture fails
-        if (not tg.graphInitialized) or tg.duringITI:
+        if not tg.graphInitialized:
 
             #Notify user there is no graph to capture
             noGraph = QMessageBox()

@@ -1,5 +1,5 @@
 """ TheGraph.py
-    Last Modified: 5/23/2020
+    Last Modified: 5/25/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for implementing all operations related to the graph displayed on the
@@ -61,19 +61,19 @@ def isPlaying():
 #Sets the graph's play status to parameter (i.e. true = playing, false = paused)
 def setPlaying(play):
 
-    global playing, duringITI, graphInitialized
+    global playing
     
     playing = play
 
-    #During data acquisition, synch time critical process to be in same play state
+    #During data acquisition...
     if im.playMode == im.PlayMode.ACQUISITION:
+        #Synch time critical process to be in same play state
         tco.orderToSetPlaying(play)
 
-    #When we press play and there is no graph, create one
-    #Need to check duringITI b/c graph is not initialized during ITI but ITI
-    #shouldn't be interrupted
-    if play and (not graphInitialized) and (not duringITI):
-        createGraph()
+        #When we press play and the session has not yet started, start it
+        if play and ts.currentSession and (not ts.currentSession.sessionStarted):
+            ts.currentSession.sessionStarted = True
+            createGraph()
 
 
 #Resets the graph (removes graph window and is ready for new call to createGraph)
@@ -289,11 +289,11 @@ def endTrialStartITI():
 
     global previousITI, duringITI, itiCountdown, countdownLabel, done
 
+    #End trial
+    displayTimer.stop()
+
     #Save trial
     JSONConverter.saveTrial(data, int(previousITI))
-
-    #Stop current trial
-    resetGraph()
 
     #Don't start ITI because that was the last trial we just finished
     if ts.currentSession.currentTrial >= ts.currentSession.trialCount:
@@ -303,10 +303,11 @@ def endTrialStartITI():
         im.setPlaying(False)
 
         #Completion message...
-        doneText = "Data acquisition complete! Press Stop to save the session."
+        mainWindow.trialInfoLabel.setText("SESSION COMPLETE!\n\nPRESS STOP TO SAVE")
+        #doneText = "Data acquisition complete! Press Stop to save the session."
 
         #Display completion message in place of graph
-        graphWindow.addLabel(text = doneText, size = "18pt", color = "#000000", row = 0, col = 0)
+        #graphWindow.addLabel(text = doneText, size = "18pt", color = "#000000", row = 0, col = 0)
 
         #Also, don't allow restart of data acquisition (functionality not supported)
         mainWindow.playButton.setEnabled(False)
@@ -315,15 +316,14 @@ def endTrialStartITI():
         return
 
     #Create countdown label "Next trial in..."
-    graphWindow.addLabel(text = "Next trial in...", size = "20pt", color = "#000000", row = 0, col = 0)
+    mainWindow.trialInfoLabel.setText("NEXT TRIAL IN...\n\n")
 
     #Wait for start of ITI updates (if it takes TCO more than 3 seconds then raise hell!)
     itiCountdown = tco.itiQueue.get(timeout = 3)
     previousITI = itiCountdown
 
-    #Create countdown label "X.X"
-    countdownLabel = graphWindow.addLabel(text = "{:5.1f}".format(itiCountdown),
-                                          size = "69pt", color = "#000000", row = 1, col = 0)
+    #Create countdown label "Next trial in... X.X"
+    mainWindow.trialInfoLabel.setText("NEXT TRIAL IN...\n\n{:5.1f}".format(itiCountdown))
 
     #Begin ITI
     duringITI = True
@@ -347,7 +347,7 @@ def itiUpdate():
         itiCountdown = tco.itiQueue.get(block = False)
 
     #Display updated countdown (format countdown from int to string with 1 decimal point precision)
-    countdownLabel.setText(text = "{:5.1f}".format(itiCountdown))
+    mainWindow.trialInfoLabel.setText("NEXT TRIAL IN...\n\n{:5.1f}".format(itiCountdown))
 
     #Determine if ITI is over
     if itiCountdown <= 0:
@@ -362,14 +362,18 @@ itiTimer.setTimerType(QtCore.Qt.PreciseTimer)
 
 #Stop the ITI and begin the next trial
 def endITIStartTrial():
-    #Stop ITI (does the following: clear countdown from graph, duringITI = False, itiTimer.stop())
+    #Stop ITI (does the following: clears previous trial graph, duringITI = False, itiTimer.stop())
     resetGraph()
+
+    #Update trial info label
+    mainWindow.trialInfoLabel.setText("RUNNING TRIAL...")
 
     #Increment trial count
     ts.currentSession.currentTrial += 1
 
-    #Begin new trial (calls createGraph for us since no graph currently exists)
+    #Begin new trial
     setPlaying(True)
+    createGraph()
 
 
 #Adds arrow on top of data at xPosition (in samples) on graph
