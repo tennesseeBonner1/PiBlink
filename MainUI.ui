@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1524</width>
+    <width>1545</width>
     <height>770</height>
    </rect>
   </property>
@@ -1499,17 +1499,43 @@
        </widget>
       </item>
       <item>
-       <widget class="GraphicsLayoutWidget" name="graphWidget" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="cursor">
-         <cursorShape>ArrowCursor</cursorShape>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="graphViewLayout">
+        <item>
+         <widget class="GraphicsLayoutWidget" name="trialGraphWidget" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="cursor">
+           <cursorShape>ArrowCursor</cursorShape>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="GraphicsLayoutWidget" name="barGraphWidget" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>125</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>125</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -1520,7 +1546,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1524</width>
+     <width>1545</width>
      <height>37</height>
     </rect>
    </property>

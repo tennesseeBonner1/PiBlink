@@ -1,5 +1,5 @@
 """ __main__.py
-    Last Modified: 5/6/2020
+    Last Modified: 5/25/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     Run this file to start the program.
@@ -60,9 +60,9 @@ if __name__ == "__main__":
     sys.excepthook = mainProcessErrorHandler
 
     #Perform all necessary set up including launching the time critical (sampling) process
-    im.initialSetUp(ui)
-    tg.initialSetUp(ui)
     dsm.initialSetUp()
+    im.initialSetUp(ui)
+    tg.initialSetUp(ui) #Uses DSM and IM so needs to come after those two
     jc.initialSetUp(ui)
     tco.initialSetUp()
 

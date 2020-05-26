@@ -335,7 +335,7 @@ def getMatrixParameters(regenerating):
 
     #Initially, Set the trial width and height defaults to current size of trial on graph
     else:   
-        matrixParametersWrapper.trialWidthSpinBox.setValue(im.mainWindow.graphWidget.width())
+        matrixParametersWrapper.trialWidthSpinBox.setValue(im.mainWindow.trialGraphWidget.width())
 
     #Initialize parameters to default ones displayed on the window
     readInParametersFromWindow()
@@ -404,7 +404,7 @@ def parametersAccepted(matrixParametersWindow):
 def trialWidthChanged(newWidth):
 
     #Change height to maintain aspect ratio
-    aspectRatio = im.mainWindow.graphWidget.width() / im.mainWindow.graphWidget.height()
+    aspectRatio = im.mainWindow.trialGraphWidget.width() / im.mainWindow.trialGraphWidget.height()
     matrixParametersWrapper.trialHeightSpinBox.setValue(int(newWidth / aspectRatio))
 
 

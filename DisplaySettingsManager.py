@@ -1,5 +1,5 @@
 """ DisplaySettingsManager.py
-    Last Modified: 5/6/2020
+    Last Modified: 5/25/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This program manages the display settings, but more specifically it does the following:
@@ -11,7 +11,9 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import QDialog
 from enum import Enum
 import DisplaySettingsWindow as dsw
-
+import TheGraph as tg
+import InputManager as im
+import TheSession as ts
 
 #This class contains the Enumerator for what color attribute is being modified
 class ColorAttribute(Enum):
@@ -107,6 +109,10 @@ def parseDisplaySettingsFileLine (line):
 def openDisplaySettingsMenu():
 
     global displaySettingsWrapper, colorButtons
+
+    #First, pause session so applying any changes don't have a chance of affecting performance
+    if im.playMode == im.PlayMode.ACQUISITION and ts.currentSession:
+        im.setPlaying(False)
 
     #Create the display settings menu (using the Qt Designer-generated Ui_displaySettings)
     displaySettingsWindow = QDialog()
@@ -216,6 +222,8 @@ def saveDisplaySettings():
         #Close the file when done to avoid file descriptor memory leaks
         displaySettingsFile.close()
 
+    #Finally, apply the settings to the graph
+    tg.updateGraphSettings()
 
 #This function fills in the options with the current settings
 def showDisplaySettings():

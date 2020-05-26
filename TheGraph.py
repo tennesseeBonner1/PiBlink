@@ -1,14 +1,14 @@
 """ TheGraph.py
-    Last Modified: 5/25/2020
+    Last Modified: 5/26/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
-    This file is responsible for implementing all operations related to the graph displayed on the
-    main window.
+    This file is responsible for implementing all operations related to graphing.
+    This includes both the trial graph and the real-time voltage "bar graph".
 
-    More specifically, it implements the operations for creating, updating, clearing, pausing/resuming,
-    and annotating (adding arrows to) the graph. The emphasis here is on implementing the code to
-    make them work, not the code for managing the logic of when they should happen. Other files,
-    particularly input manager, act as the driver/controller for when they should be called.
+    Graphing operations include creating and updating the bar graph and creating, updating,
+    clearing, pausing/resuming, and annotating (adding arrows to) the trial graph.
+
+    This file is also where samples are received from the sampling process.
 """
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
@@ -44,18 +44,19 @@ def initialSetUp(theMainWindow):
     duringITI = False
     done = False
 
-    #Graph settings on main window
+    #Save basic references
     mainWindow = theMainWindow
-    graphWindow = theMainWindow.graphWidget
+    graphWindow = theMainWindow.trialGraphWidget
 
-    #Also set the "color" of the blank graph screen
-    graphWindow.setBackground(None)
+    #Add bar graph
+    createBarGraph()
 
+    #Apply settings from DSM and finish bar graph creation
+    updateGraphSettings()
 
-#Whether or not the graph is playing
-def isPlaying():
-
-    return playing
+    #Start updating voltage bar according to display rate
+    #Samples arrive 10 times/sec outside of trials so anything > 10 Hz doesn't matter
+    voltageBarTimer.start(1000 / dsm.displayRate)
 
 
 #Sets the graph's play status to parameter (i.e. true = playing, false = paused)
@@ -73,11 +74,86 @@ def setPlaying(play):
         #When we press play and the session has not yet started, start it
         if play and ts.currentSession and (not ts.currentSession.sessionStarted):
             ts.currentSession.sessionStarted = True
-            createGraph()
+            createTrialGraph()
 
 
-#Resets the graph (removes graph window and is ready for new call to createGraph)
-def resetGraph():
+#Update global variables and refresh display based on DSM
+def updateGraphSettings():
+
+    global dataColor, textColor, stimulusColor, axisColor, backgroundColor
+    global bars
+
+    #Define settings
+    backgroundColor = dsm.colors[dsm.ColorAttribute.BACKGROUND.value]
+    dataColor = dsm.colors[dsm.ColorAttribute.DATA.value]
+    textColor = dsm.colors[dsm.ColorAttribute.TEXT.value]
+    stimulusColor = dsm.colors[dsm.ColorAttribute.STIMULUS.value]
+    stimulusColor.setAlpha(75) #Give it some transparency since it renders on top of data curve
+    axisColor = pg.mkPen(color = dsm.colors[dsm.ColorAttribute.AXIS.value], width = 1)
+
+    #Apply anti-aliasing setting
+    pg.setConfigOptions(antialias = dsm.antiAliasing)
+
+    #Update bar graph data color
+    barGraph.clear()
+    bars = pg.BarGraphItem(x = barXs, height = barHeights, width = 1.0, brush = dataColor)
+    barGraph.addItem(bars)
+
+    #Update other bar graph settings
+    barGraph.getAxis('left').setPen(axisColor)
+    barGraph.getAxis('bottom').setPen(backgroundColor)  #Hide axis
+    barGraph.getAxis('top').setPen(backgroundColor) #Hide axis
+    barGraphWindow.setBackground(backgroundColor)
+    voltageBarTimer.setInterval(1000 / dsm.displayRate)
+
+    #Update trial graph
+    if graphInitialized:
+        createTrialGraph(editStatus = False)
+
+    #Update no session loaded label
+    elif not ts.currentSession:
+        graphWindow.clear()
+        graphWindow.setBackground(backgroundColor)
+        graphWindow.addLabel(text = "No Session Loaded",
+                         size = "18pt", color = textColor)
+
+
+#Called during initialSetUp to create the bar graph once and for all
+def createBarGraph():
+
+    global barGraphWindow, barGraph, barXs, barHeights
+
+    #Create bar graph
+    barGraphWindow = mainWindow.barGraphWidget
+    barGraph = barGraphWindow.addPlot()
+    barGraph.setMaximumWidth(100)
+    barGraph.setMouseEnabled(x = False, y = False)
+    barGraph.enableAutoRange('xy', False)
+    barGraph.setXRange(0, 1)
+    barGraph.setYRange(0, 5)
+    barGraph.setLimits(xMin = 0, xMax = 1, yMin = 0, yMax = 5)
+    barGraph.hideButtons() #Removes auto scale button
+    barGraph.setMenuEnabled(False) #Removes right click context menu
+
+    #Add invisible bottom label so graph's are same height
+    barGraph.hideAxis('bottom')
+    barGraph.setLabel('bottom', "<span></span>") #Empty label on bottom
+
+    #Add an invisible top axis so graph's are same height
+    barGraph.getAxis('top').setTicks([[(0, "")]])
+    barGraph.getAxis('top').setTickFont(im.popUpFont)
+    barGraph.getAxis('top').setHeight(-5)
+    barGraph.showAxis('top', True)
+
+    #Create arrays of size 1 for both bar x positions and bar heights (both with values initialized to 0)
+    #These will be added to the bar graph in the correct color in updateGraphSettings
+    #We can't do it now because we don't know the correct color yet
+    barXs = np.zeros(1)
+    barHeights = np.zeros(1)
+
+
+#Resets the graph (clears display and status; afterwards is ready for new call to createTrialGraph)
+def resetTrialGraph():
 
     global playing, graphInitialized, duringITI, done
 
@@ -95,100 +171,61 @@ def resetGraph():
 
     #Clear the graph
     graphWindow.clear()
-    graphWindow.setBackground(None)
+
+    graphWindow.addLabel(text = "No Session Loaded",
+                         size = "18pt", color = textColor)
 
 
-#Creates the graph
-def createGraph():
+#Creates the trial graph (bar graph creation in separate function)
+#Optional parameter used for regenerating graph after editing display settings
+#without editing the status of the graph
+def createTrialGraph(editStatus = True):
 
     #Variables that persist outside this function call
-    global iteration, curve, stimulusGraph, dataSize, data, bars, barHeights, graphInitialized, playing, done, previousITI
+    global iteration, curve, trialGraph, dataSize, data, graphInitialized, done, previousITI
 
-    #Update the session info label in the main window to reflect trial number
-    im.updateSessionInfoLabel()
+    #Start with clean slate before we do anything
+    graphWindow.clear()
 
-    #Define settings
-    dataColor = dsm.colors[dsm.ColorAttribute.DATA.value]
-    textColor = dsm.colors[dsm.ColorAttribute.TEXT.value]
-    stimulusColor = dsm.colors[dsm.ColorAttribute.STIMULUS.value]
-    stimulusColor.setAlpha(75) #Give it some transparency since it renders on top of data curve
-    axisColor = pg.mkPen(color = dsm.colors[dsm.ColorAttribute.AXIS.value], width = 1)
-    backgroundColor = dsm.colors[dsm.ColorAttribute.BACKGROUND.value]
-    
     #Set background color
     graphWindow.setBackground(backgroundColor)
 
-    #Enable antialiasing for prettier plots
-    pg.setConfigOptions(antialias = dsm.antiAliasing)
+    if editStatus:
+        #Update the session info label in the main window to reflect trial number
+        im.updateSessionInfoLabel()
 
-    #Add bar graph only when in data acquisition mode (no use for it in playback)
-    if im.playMode == im.PlayMode.ACQUISITION:
-
-        #Create bar graph
-        barGraph = graphWindow.addPlot()
-        barGraph.setMaximumWidth(100)
-        barGraph.getAxis('left').setPen(axisColor)
-        barGraph.setMouseEnabled(x = False, y = False)
-        barGraph.enableAutoRange('xy', False)
-        barGraph.setXRange(0, 1)
-        barGraph.setYRange(0, 5)
-        barGraph.setLimits(xMin = 0, xMax = 1, yMin = 0, yMax = 5)
-        barGraph.hideButtons() #Removes auto scale button
-        barGraph.setMenuEnabled(False) #Removes right click context menu
-
-        #Add invisible bottom label so graph's are same height
-        barGraph.hideAxis('bottom')
-        barGraph.getAxis('bottom').setPen(backgroundColor)  #Make sure it's hidden
-        barGraph.setLabel('bottom', "<span></span>") #Empty label on bottom
-
-        #Add an invisible top axis so graph's are same height
-        barGraph.getAxis('top').setTicks([[(0, "")]])
-        barGraph.getAxis('top').setTickFont(im.popUpFont)
-        barGraph.getAxis('top').setHeight(-5)
-        barGraph.showAxis('top', True)
-        barGraph.getAxis('top').setPen(backgroundColor)
-
-        #Create arrays of size 1 for both x location of bars and bar heights (both with values initialized to 0)
-        barXs = np.zeros(1)
-        barHeights = np.zeros(1)
-
-        #Add that bar data to the graph along with other settings like width and color
-        bars = pg.BarGraphItem(x = barXs, height = barHeights, width = 1.0, brush = dataColor)
-        barGraph.addItem(bars)
-
-    #Create data array (this array will be displayed as the line on the graph)
-    dataSize = ts.currentSession.trialLengthInSamples #Array size
-    data = np.full(shape = dataSize, fill_value = -5, dtype = np.float32) #initialized to -5 (so they're off-screen)
+        #Create data array (this array will be displayed as the line on the graph)
+        dataSize = ts.currentSession.trialLengthInSamples #Array size
+        data = np.full(shape = dataSize, fill_value = -5, dtype = np.float32) #initialized to -5 (so they're off-screen)
     
     #Create empty graph
-    stimulusGraph = graphWindow.addPlot()
+    trialGraph = graphWindow.addPlot()
 
     #Plot line in graph
     if dsm.shading:
-        curve = stimulusGraph.plot(y = data, fillLevel = -0.3, brush = dataColor)
-
+        curve = trialGraph.plot(y = data, fillLevel = -0.3, brush = dataColor)
     else:
-        curve = stimulusGraph.plot(y = data, fillLevel = -0.3, pen = dataColor)
+        curve = trialGraph.plot(y = data, fillLevel = -0.3, pen = dataColor)
 
     #Add graph labels
-    stimulusGraph.setLabel('bottom', "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Time (ms)</span>")
-    stimulusGraph.setLabel('left', "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Response Amplitude (VDC)</span>")
+    trialGraph.setLabel('bottom', "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Time (ms)</span>")
+    trialGraph.setLabel('left', "<span style = \"color: " + htmlColorString(textColor) + "; font-size:18px\">Response Amplitude (VDC)</span>")
 
     #Axis line/tick color
-    stimulusGraph.getAxis('bottom').setPen(axisColor)
-    stimulusGraph.getAxis('left').setPen(axisColor)
+    trialGraph.getAxis('bottom').setPen(axisColor)
+    trialGraph.getAxis('left').setPen(axisColor)
 
     #Axis limits on graph
-    stimulusGraph.setLimits(xMin = 0, xMax = dataSize, yMin = 0, yMax = 5, minXRange = 10, minYRange = 5)
+    trialGraph.setLimits(xMin = 0, xMax = dataSize, yMin = 0, yMax = 5, minXRange = 10, minYRange = 5)
 
     #Scale x axis ticks to measure milliseconds instead of samples
-    stimulusGraph.getAxis('bottom').setScale(ts.currentSession.sampleInterval)
+    trialGraph.getAxis('bottom').setScale(ts.currentSession.sampleInterval)
 
     #Removes default "A" button on bottom left corner used for resetting the zoom on the graph
-    stimulusGraph.hideButtons()
+    trialGraph.hideButtons()
 
     #Disables the context menu you see when right-clicking on the graph
-    stimulusGraph.setMenuEnabled(False)
+    trialGraph.setMenuEnabled(False)
 
     #Create CS lines and shaded area between lines
     csStart = ts.currentSession.csStartInSamples
@@ -196,7 +233,7 @@ def createGraph():
     csRegion = pg.LinearRegionItem(values = [csStart, csEnd], brush = stimulusColor, movable = False)
     csRegion.lines[0].setPen(stimulusColor)
     csRegion.lines[1].setPen(stimulusColor)
-    stimulusGraph.addItem(csRegion)
+    trialGraph.addItem(csRegion)
 
     #Same for US
     usStart = ts.currentSession.usStartInSamples
@@ -204,15 +241,15 @@ def createGraph():
     usRegion = pg.LinearRegionItem(values = [usStart, usEnd], brush = stimulusColor, movable = False)
     usRegion.lines[0].setPen(stimulusColor)
     usRegion.lines[1].setPen(stimulusColor)
-    stimulusGraph.addItem(usRegion)
+    trialGraph.addItem(usRegion)
 
     #Add CS and US text labels
     stimulusTicks = [[((csStart + csEnd) / 2, "CS"), ((usStart + usEnd) / 2, "US")]]
-    stimulusGraph.getAxis('top').setTicks(stimulusTicks)
-    stimulusGraph.getAxis('top').setTickFont(im.popUpFont)
-    stimulusGraph.getAxis('top').setHeight(-5)
-    stimulusGraph.showAxis('top', True)
-    stimulusGraph.getAxis('top').setPen(axisColor)
+    trialGraph.getAxis('top').setTicks(stimulusTicks)
+    trialGraph.getAxis('top').setTickFont(im.popUpFont)
+    trialGraph.getAxis('top').setHeight(-5)
+    trialGraph.showAxis('top', True)
+    trialGraph.getAxis('top').setPen(axisColor)
 
     #Launch graph based on play mode
     if im.playMode == im.PlayMode.PLAYBACK:
@@ -235,25 +272,33 @@ def createGraph():
     #Data Acquisition    
     else:
 
-        #Regularly sample data (according to sample rate defined in session settings)
-        iteration = 0
-        if ts.currentSession.currentTrial == 1:
-            tco.orderToStartSession()
-            previousITI = 0 #First trial's previous ITI is 0
+        if editStatus:
+            #Regularly sample data (according to sample rate defined in session settings)
+            iteration = 0
+            if ts.currentSession.currentTrial == 1:
+                tco.orderToStartSession()
+                previousITI = 0 #First trial's previous ITI is 0
 
-        #Regularly update display (according to display rate defined in display settings)
-        displayTimer.start(1000 / dsm.displayRate)
+            #Regularly update display (according to display rate defined in display settings)
+            displayTimer.start(1000 / dsm.displayRate)
+        else:
+            displayTimer.setInterval(1000 / dsm.displayRate)
 
     #Done initializing/creating/launching the graph
-    done = False #As in done with session, which we are not (we are just starting the session!!!)
-    graphInitialized = True
+    if editStatus:
+        done = False #As in done with session, which we are not (we are just starting the session!!!)
+        graphInitialized = True
 
 
 #Updates the display
 def displayUpdate():
 
     #Variables that need to be survive across multiple calls to update function
-    global iteration, dataSize, curve, data, bars, barHeights, playing
+    global iteration, dataSize, curve, data, playing
+
+    #Trial can be paused
+    if not playing:
+        return
 
     #Read in new samples
     #If ITI = 0, then there might be samples in the queue for the next trial already...
@@ -264,25 +309,51 @@ def displayUpdate():
 
         iteration += 1
     
-    #Update stimulus graph
+    #Update trial graph
     curve.setData(data)
-
-    lastSample = iteration - 1
-
-    #Update bar graph
-    if lastSample != -1 and lastSample < dataSize:
-
-        barHeights[0] = data[lastSample]
-        bars.setOpts(height = barHeights)
 
     #End of trial?
     if iteration >= dataSize:
         endTrialStartITI()
 
 
-#Create timer to run sample update function (start is called on the timer in createGraph function above)
+#Create timer to regularly call displayUpdate (timer started in createTrialGraph function)
 displayTimer = QtCore.QTimer()
 displayTimer.timeout.connect(displayUpdate)
+
+
+#Updates the reading on the real-time voltage bar
+def voltageBarUpdate():
+    
+    #Main question: Where to get reading from?
+
+    #During running data acquisition trial: USE DATA[ITERATION - 1]
+    if im.playMode == im.PlayMode.ACQUISITION and graphInitialized and (not duringITI) and playing:
+
+        lastSample = iteration - 1
+
+        #Update bar graph
+        if lastSample != -1 and lastSample < dataSize:
+            barHeights[0] = data[lastSample]
+            bars.setOpts(height = barHeights)
+
+    #All other times: USE AUX SAMPLE QUEUE
+    else:
+
+        #Get latest sample
+        newSampleValue = -1
+        while not tco.auxSampleQueue.empty():
+            newSampleValue = tco.auxSampleQueue.get(block = False)
+
+        #Update bar graph
+        if newSampleValue != -1:
+            barHeights[0] = newSampleValue
+            bars.setOpts(height = barHeights)
+
+
+#Create timer to regularly call voltageBarUpdate
+voltageBarTimer = QtCore.QTimer()
+voltageBarTimer.timeout.connect(voltageBarUpdate)
 
 
 def endTrialStartITI():
@@ -304,10 +375,6 @@ def endTrialStartITI():
 
         #Completion message...
         mainWindow.trialInfoLabel.setText("SESSION COMPLETE!\n\nPRESS STOP TO SAVE")
-        #doneText = "Data acquisition complete! Press Stop to save the session."
-
-        #Display completion message in place of graph
-        #graphWindow.addLabel(text = doneText, size = "18pt", color = "#000000", row = 0, col = 0)
 
         #Also, don't allow restart of data acquisition (functionality not supported)
         mainWindow.playButton.setEnabled(False)
@@ -363,17 +430,17 @@ itiTimer.setTimerType(QtCore.Qt.PreciseTimer)
 #Stop the ITI and begin the next trial
 def endITIStartTrial():
     #Stop ITI (does the following: clears previous trial graph, duringITI = False, itiTimer.stop())
-    resetGraph()
+    resetTrialGraph()
 
     #Update trial info label
-    mainWindow.trialInfoLabel.setText("RUNNING TRIAL...")
+    mainWindow.trialInfoLabel.setText("RUNNING TRIAL")
 
     #Increment trial count
     ts.currentSession.currentTrial += 1
 
     #Begin new trial
     setPlaying(True)
-    createGraph()
+    createTrialGraph()
 
 
 #Adds arrow on top of data at xPosition (in samples) on graph
@@ -384,7 +451,8 @@ def addArrow(xPositionInSamples, onset=True):
     else:
         arrowColor = dsm.colors[dsm.ColorAttribute.OFFSET.value]
 
-    #Create arrow with style options Make sure to specify rotation in constructor, b/c there's a bug in PyQtGraph (or PyQt) where you can't update the rotation of the arrow after creation
+    #Create arrow with style options
+    #Make sure to specify rotation in constructor, b/c there's a bug in PyQtGraph (or PyQt) where you can't update the rotation of the arrow after creation
     #See (http://www.pyqtgraph.org/documentation/graphicsItems/arrowitem.html) for options
     arrow = pg.ArrowItem(angle = -90, headLen = 25, headWidth = 25, brush = arrowColor)
 
@@ -392,4 +460,4 @@ def addArrow(xPositionInSamples, onset=True):
     arrow.setPos(xPositionInSamples, data[xPositionInSamples])
 
     #Finally, add arrow to graph
-    stimulusGraph.addItem(arrow)
+    trialGraph.addItem(arrow)

@@ -1,5 +1,5 @@
 """ InputManager.py
-    Last Modified: 5/25/2020
+    Last Modified: 5/26/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for handling all input from the main window. This file also controls a few high level concerns including the 
@@ -111,7 +111,7 @@ def lockButtonPressed():
 
 #When the play button is pressed, toggle play status
 def playButtonPressed():
-    setPlaying(not tg.isPlaying())
+    setPlaying(not tg.playing)
 
 
 #Called when Analyze -> Go To Trial is selected or when session info label is clicked
@@ -152,7 +152,7 @@ def nextTrial():
 def loadTrial(trialNumber):
 
     #Clear current trial
-    tg.resetGraph()
+    tg.resetTrialGraph()
     
     #Set trial number, wrapping around if trial number is out bounds
     if trialNumber > ts.currentSession.trialCount:
@@ -165,7 +165,7 @@ def loadTrial(trialNumber):
         ts.currentSession.currentTrial = trialNumber
 
     #Display new trial
-    tg.createGraph()
+    tg.createTrialGraph()
 
 
 #Whenever the window is supposed to close, this event intercepts/overrides the default close event
@@ -202,7 +202,7 @@ def stopSessionConditionalConfirmation():
 def stopSessionWithConfirmation():
 
     #Pause during "Are you sure?" dialog pop-up
-    if tg.isPlaying():    
+    if tg.playing:    
         setPlaying(False)
 
     #Craft confirmation message
@@ -248,7 +248,7 @@ def stopSessionWithoutConfirmation():
     ts.currentSession = None
 
     #Resets the graph
-    tg.resetGraph()
+    tg.resetTrialGraph()
 
     #Resets the play, stop, and lock buttons
     mainWindow.playButton.setIcon(playIcon)
@@ -280,7 +280,7 @@ def setPlaying(play):
         JSONConverter.startDataAcquisition()
 
         #Display trial info label
-        mainWindow.trialInfoLabel.setText("RUNNING TRIAL...")
+        mainWindow.trialInfoLabel.setText("RUNNING TRIAL")
         mainWindow.trialInfoLabel.show()
 
     #Sets whether or not the graph is playing based off of the value of play
@@ -295,7 +295,7 @@ def setPlaying(play):
     #Update trial info label
     if not tg.duringITI:
         if play:
-            mainWindow.trialInfoLabel.setText("RUNNING TRIAL...")
+            mainWindow.trialInfoLabel.setText("RUNNING TRIAL")
         else:
             mainWindow.trialInfoLabel.setText("TRIAL PAUSED")
 
@@ -431,7 +431,7 @@ def capture(captureType, returnCapture):
             return
         
         #This only takes a shot of the stimulus graph (excludes bar graph on side)
-        screenshot = GraphExporter.captureItem(tg.stimulusGraph)
+        screenshot = GraphExporter.captureItem(tg.trialGraph)
         
     #Take shot of main window
     elif captureType == "Window":
@@ -547,7 +547,7 @@ def openSession(fileStr=""):
         else:
 
             #Display the first trial of the session on the graph
-            tg.createGraph()
+            tg.createTrialGraph()
 
     else:
 

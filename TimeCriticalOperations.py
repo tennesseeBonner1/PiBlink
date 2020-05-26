@@ -1,12 +1,13 @@
-""" TheSession.py
-    Last Modified: 5/25/2020
+""" TimeCriticalOperations.py
+    Last Modified: 5/26/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for spawning and managing the time-critical/sampling process.
     Everything that is time-critical is run on this separate process, (sampling and ITIs).
 
     The main process issues commands to the sampling process via the command queue.
-    The sampling process sends samples to the main process via the sample queue.
+    The sampling process sends samples to the main process via the sample and auxSample queues.
+    It uses the sample queue during a running data acquisition trial, and auxSample otherwise.
     The sampling process sends ITI time updates to the main process via the ITI queue.
 
     The sampling process is spawned on program start and waits idle until data acquisition begins.
@@ -49,17 +50,18 @@ def initialSetUp():
 
     #Queues used for inter-process communication
     sampleQueue = mp.Queue(2000) #Direction: Output of sampling process, input of main process
+    auxSampleQueue = mp.Queue(200) #Same direction
     itiQueue = mp.Queue(200) #Same direction
     commandQueue = mp.Queue(200) #Opposite direction
 
     #Create and start time critical process (target is function called on time critical process to start it)
     timeCriticalProcess = mp.Process(target = startTimeCriticalProcess,
-                                     args = (sampleQueue, itiQueue, commandQueue))
+                                     args = (sampleQueue, auxSampleQueue, itiQueue, commandQueue))
 
     timeCriticalProcess.start()
 
     #Save as global variables after starting time critical process so that process has no chance of gettings its global variables mixed up with ours
-    saveQueuesAsGlobalVars(sampleQueue, itiQueue, commandQueue)
+    saveQueuesAsGlobalVars(sampleQueue, auxSampleQueue, itiQueue, commandQueue)
 
 
 #This tells the time critical process to begin sampling with all the parameters it needs
@@ -94,20 +96,21 @@ def orderToStopProcess():
     commandQueue.put((Command.END_PROCESS, None))
 
 #The below function is called separately by both processes as part of set up
-def saveQueuesAsGlobalVars (theSampleQueue, theITIQueue, theCommandQueue):
+def saveQueuesAsGlobalVars (theSampleQueue, theAuxSampleQueue, theITIQueue, theCommandQueue):
 
-    global sampleQueue, itiQueue, commandQueue
+    global sampleQueue, auxSampleQueue, itiQueue, commandQueue
 
     sampleQueue = theSampleQueue
+    auxSampleQueue = theAuxSampleQueue
     itiQueue = theITIQueue
     commandQueue = theCommandQueue
 
 
 #Function called when time critical process is launched
-def startTimeCriticalProcess(theSampleQueue, theITIQueue, theCommandQueue):
+def startTimeCriticalProcess(theSampleQueue, theAuxSampleQueue, theITIQueue, theCommandQueue):
 
     #Establish communication medium with main process
-    saveQueuesAsGlobalVars(theSampleQueue, theITIQueue, theCommandQueue)
+    saveQueuesAsGlobalVars(theSampleQueue, theAuxSampleQueue, theITIQueue, theCommandQueue)
 
     #testPerformance()
 
@@ -125,16 +128,19 @@ def mainLoop():
 
     while (not stopProcess):
 
-        #Wait to be commanded to do something
-        while commandQueue.empty():
+        #Wait for a fraction of a second
+        blockWait(0.1)
 
-            blockWait() #Don't need to busy wait when no data acquisition is running
+        #Update real-time voltage bar
+        auxSampleQueue.put_nowait(dw.getNextSample())
 
         #Process single command
-        breakOnReturn = processCommand(CurrentlyIn.MAIN_LOOP)
+        if not commandQueue.empty():
 
-        if breakOnReturn:
-            break
+            breakOnReturn = processCommand(CurrentlyIn.MAIN_LOOP)
+
+            if breakOnReturn:
+                break
 
 
 #Begins running data acquisition session according to session settings passed in
@@ -231,6 +237,9 @@ def runITI():
         #Update ITI
         itiCountdown -= 0.1
 
+        #Update real-time voltage bar
+        auxSampleQueue.put_nowait(dw.getNextSample())
+
         #Process single command
         if not commandQueue.empty():
             breakOnReturn = processCommand(CurrentlyIn.RUNNING_SESSION)
@@ -252,15 +261,19 @@ def pauseLoop():
     #Keep looping until we should leave pause state
     while (not stopProcess):
 
-        #Waiting for command
-        while commandQueue.empty():
-            blockWait() #Can afford innacuracy in reaction to resuming trial
+        #Wait for a fraction of a second
+        blockWait(0.1)
+
+        #Update real-time voltage bar
+        auxSampleQueue.put_nowait(dw.getNextSample())
 
         #Process single command
-        breakOnReturn = processCommand(CurrentlyIn.PAUSED_SESSION)
+        if not commandQueue.empty():
 
-        if breakOnReturn:
-            break
+            breakOnReturn = processCommand(CurrentlyIn.PAUSED_SESSION)
+
+            if breakOnReturn:
+                break
 
     #Outputs were turned off during pause, so turn them back on if applicable
     restoreAnalogOutputs()
@@ -397,8 +410,8 @@ def busyWait():
 
 
 #Slow version of wait used when time is NOT critical (less CPU-intensive)
-def blockWait():
-    time.sleep(0.05)
+def blockWait(durationInSeconds):
+    time.sleep(durationInSeconds)
 
 
 #Perform clean up (turn off analog outputs)
