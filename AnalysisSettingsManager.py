@@ -13,6 +13,7 @@ import json
 import JSONConverter as jsCon
 import DataAnalysis as da
 import InputManager as im
+import TheSession as ts
 
 
 #Set up and open the window for re-analyzing the currently open session
@@ -50,14 +51,17 @@ def reAnalyze():
     #Check to see if the user is saving with a valid file name
     if not overwrite or newFile:
         if ("\\" in customName or "/" in customName or ":" in customName or "<" in customName or ">" in customName or "*" in customName or "?" in customName or "\"" in customName or "|" in customName):
+            nameError = True
             invalidSettingsNotice = QMessageBox()
             invalidSettingsNotice.setText("Filename may not contain any of the following characters: \\ / : * ? \" < > |\n")
             invalidSettingsNotice.setWindowTitle("Invalid Filename")
             invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
             invalidSettingsNotice.setIcon(QMessageBox.Warning)
-            nameError = True
             invalidSettingsNotice.exec()
             return
+
+    #Remember current trial that is open
+    currentTrial = ts.currentSession.currentTrial
 
     #Remove '.json' if the user put it in the custom name
     if ".json" in customName:
@@ -91,6 +95,7 @@ def reAnalyze():
 
     #Open the newly created session
     im.openSession(newFilename)
+    im.loadTrial(currentTrial)
     if not nameError:
         closeWindow()
 
