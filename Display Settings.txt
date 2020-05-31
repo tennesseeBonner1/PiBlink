@@ -2,14 +2,14 @@ Note: Don't comment this file because it is regenerated on save.
 
 refresh rate = 10
 
-anti-aliasing = false
-shading = false
+anti-aliasing = False
+shading = False
 
 background color = #ffffff
 data color = #0000ff
 text color = #000000
 stimulus color = #4b4b4b
 axis color = #000000
-render offset arrows = True
+render offset arrows = False
 onset color = #0a141e
 offset color = #787887

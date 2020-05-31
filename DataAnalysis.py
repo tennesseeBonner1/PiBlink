@@ -87,11 +87,16 @@ def analyzeTrial(minSD=4, minDuration=1, data=[]):
             #Check to see if a new onset should be registered
             if not blinking and (count >= minDuration):
                 blinking = True
+
+                #+1 for index to count conversion
+                #-minDuration to go back to start of onset
                 onsetSamples.append(sampleIndex - minDuration + 2)
 
             #Check to see if a new offset should be registered
             elif blinking and not overThreshold:
                 blinking = False
+
+                #+1 for index to count conversion
                 offsetSamples.append(sampleIndex + 1)
 
 

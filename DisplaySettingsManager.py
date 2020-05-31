@@ -138,12 +138,6 @@ def openDisplaySettingsMenu():
     #Make the menu not resizable
     displaySettingsWindow.setFixedSize(displaySettingsWindow.size())
 
-    #Fill in the options for the combo boxes
-    displaySettingsWrapper.antiAliasingComboBox.addItem("DISABLED (Faster)")
-    displaySettingsWrapper.antiAliasingComboBox.addItem("ENABLED (Slower)")
-    displaySettingsWrapper.shadingComboBox.addItem("DISABLED (Faster)")
-    displaySettingsWrapper.shadingComboBox.addItem("ENABLED (Slower)")
-
     #Set the values of these settings to the currently selected values
     showDisplaySettings()
 
@@ -157,9 +151,9 @@ def restoreDisplayDefaults():
     #display rate box
     displaySettingsWrapper.displayRateSpinBox.setValue(10)
 
-    #extra feature dropdowns
-    displaySettingsWrapper.antiAliasingComboBox.setCurrentIndex(0)
-    displaySettingsWrapper.shadingComboBox.setCurrentIndex(0)
+    #extra features
+    displaySettingsWrapper.antiAliasingCheckBox.setChecked(False)
+    displaySettingsWrapper.shadingCheckBox.setChecked(False)
 
     #offset arrow rendering
     displaySettingsWrapper.renderOffsetCheckBox.setChecked(False)
@@ -181,8 +175,8 @@ def saveDisplaySettings():
 
     #First, extract display settings from the menu
     displayRate = displaySettingsWrapper.displayRateSpinBox.value()
-    antiAliasing = displaySettingsWrapper.antiAliasingComboBox.currentIndex() == 1
-    shading = displaySettingsWrapper.shadingComboBox.currentIndex() == 1
+    antiAliasing = displaySettingsWrapper.antiAliasingCheckBox.isChecked()
+    shading = displaySettingsWrapper.shadingCheckBox.isChecked()
     renderOffset = displaySettingsWrapper.renderOffsetCheckBox.isChecked()
     colors = (colorButtons[0].palette().button().color(),
               colorButtons[1].palette().button().color(),
@@ -208,8 +202,8 @@ def saveDisplaySettings():
     else:
         displaySettingsFile.write("Note: Don't comment this file because it is regenerated on save.")
         displaySettingsFile.write("\n\nrefresh rate = " + str(displayRate))
-        displaySettingsFile.write("\n\nanti-aliasing = " + ("true" if antiAliasing else "false"))
-        displaySettingsFile.write("\nshading = " + ("true" if shading else "false"))
+        displaySettingsFile.write("\n\nanti-aliasing = " + str(antiAliasing))
+        displaySettingsFile.write("\nshading = " + str(shading))
         displaySettingsFile.write("\n\nbackground color = " + colors[ColorAttribute.BACKGROUND.value].name())
         displaySettingsFile.write("\ndata color = " + colors[ColorAttribute.DATA.value].name())
         displaySettingsFile.write("\ntext color = " + colors[ColorAttribute.TEXT.value].name())
@@ -229,8 +223,8 @@ def saveDisplaySettings():
 def showDisplaySettings():
 
     displaySettingsWrapper.displayRateSpinBox.setValue(displayRate)
-    displaySettingsWrapper.antiAliasingComboBox.setCurrentIndex(int(antiAliasing))
-    displaySettingsWrapper.shadingComboBox.setCurrentIndex(int(shading))
+    displaySettingsWrapper.antiAliasingCheckBox.setChecked(antiAliasing)
+    displaySettingsWrapper.shadingCheckBox.setChecked(shading)
     displaySettingsWrapper.renderOffsetCheckBox.setChecked(renderOffset)
 
     #Set color to button in background
@@ -261,6 +255,6 @@ def setButtonColor(button, color):
     palette.setColor(QtGui.QPalette.Button, color)
     button.setPalette(palette)
 
-    #Set the buttons up
+    #Required for it to display properly due to weird quirks within PyQt
     button.setAutoFillBackground(True)
     button.setFlat(True)

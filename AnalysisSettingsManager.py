@@ -28,10 +28,14 @@ def openAnalysisSettingsWindow():
     #Set connections for the buttons
     windowWrapper.pushButton_ReAnalyze.released.connect(reAnalyze)
     windowWrapper.radioButton_GenerateNew.toggled.connect(setFilenameEditorEnabled)
-	
+
+    #Set default settings to current session values
+    windowWrapper.spinBox_StdDev.setValue(ts.currentSession.thresholdSD)
+    windowWrapper.spinBox_MinDuration.setValue(ts.currentSession.thresholdMinDuration)
+
     #Properly set the text in the line editor
     windowWrapper.lineEdit_customSaveName.setText(jsCon.getCurrentFilename())
-	
+
     #Shows the window
     dialogWindow.exec()
 
@@ -57,6 +61,7 @@ def reAnalyze():
             invalidSettingsNotice.setWindowTitle("Invalid Filename")
             invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
             invalidSettingsNotice.setIcon(QMessageBox.Warning)
+            invalidSettingsNotice.setFont(im.popUpFont)
             invalidSettingsNotice.exec()
             return
 
@@ -69,16 +74,16 @@ def reAnalyze():
 
     #Create JSON object
     fileCopy = jsCon.jsonObject
-	
+
     #Update the threshold parameters
     fileCopy["header"]["thresholdSD"] = stdDevNumber
     fileCopy["header"]["thresholdMinDuration"] = minDuration
-	
+
     #Go through all of the trials, calculate the new stats, and store the newly generated data 
     numTrials = int(fileCopy["header"]["trialCount"])
     for x in range(numTrials):
         fileCopy["trials"][x]["stats"] = da.getTrialStats(stdDevNumber, minDuration, fileCopy["trials"][x]["samples"])
-	
+
     #Convert the saved data to a JSON readable format
     fileString = json.dumps(fileCopy)
 

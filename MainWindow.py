@@ -805,7 +805,7 @@ class Ui_MainWindow(object):
         self.actionCaptureWindow.setText(_translate("MainWindow", "Capture Window..."))
         self.actionCaptureWindow.setStatusTip(_translate("MainWindow", "Save a screenshot of the window"))
         self.actionCaptureWindow.setShortcut(_translate("MainWindow", "Ctrl+W"))
-        self.actionDisplaySettings.setText(_translate("MainWindow", "Graph Display Settings"))
+        self.actionDisplaySettings.setText(_translate("MainWindow", "Graph Settings"))
         self.actionDisplaySettings.setStatusTip(_translate("MainWindow", "Configure how the graph will appear"))
         self.actionDisplaySettings.setShortcut(_translate("MainWindow", "Ctrl+D"))
         self.actionCaptureGraph.setText(_translate("MainWindow", "Capture Graph..."))

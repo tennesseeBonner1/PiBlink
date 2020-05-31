@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'AnalysisSettingsUI.ui'
+# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\CsCrMachineCode\AnalysisSettingsUI.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.1
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -13,14 +13,14 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_AnalysisSettingsWindow(object):
     def setupUi(self, AnalysisSettingsWindow):
         AnalysisSettingsWindow.setObjectName("AnalysisSettingsWindow")
-        AnalysisSettingsWindow.resize(297, 370)
+        AnalysisSettingsWindow.resize(355, 445)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(AnalysisSettingsWindow.sizePolicy().hasHeightForWidth())
         AnalysisSettingsWindow.setSizePolicy(sizePolicy)
-        AnalysisSettingsWindow.setMinimumSize(QtCore.QSize(297, 370))
-        AnalysisSettingsWindow.setMaximumSize(QtCore.QSize(297, 370))
+        AnalysisSettingsWindow.setMinimumSize(QtCore.QSize(355, 370))
+        AnalysisSettingsWindow.setMaximumSize(QtCore.QSize(355, 445))
         AnalysisSettingsWindow.setModal(False)
         self.verticalLayout = QtWidgets.QVBoxLayout(AnalysisSettingsWindow)
         self.verticalLayout.setContentsMargins(20, 15, 20, 10)
@@ -227,3 +227,13 @@ class Ui_AnalysisSettingsWindow(object):
         self.lineEdit_customSaveName.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">Holds the custom filename that the generated file will be saved under (if &quot;Save as Custom Name&quot; is enabled). The &quot;.json&quot; does not need to be included.</span></p><p><span style=\" font-size:12pt;\">Please note that the filename is </span><span style=\" font-size:12pt; font-weight:600;\">not</span><span style=\" font-size:12pt;\"> the same as the session name.</span></p><p><span style=\" font-size:12pt;\">May not contain any of the following characters: \\ / : * ? &quot; &lt; &gt; |</span></p></body></html>"))
         self.pushButton_ReAnalyze.setText(_translate("AnalysisSettingsWindow", "Re-Analyze"))
         self.pushButton_Cancel.setText(_translate("AnalysisSettingsWindow", "Cancel"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    AnalysisSettingsWindow = QtWidgets.QDialog()
+    ui = Ui_AnalysisSettingsWindow()
+    ui.setupUi(AnalysisSettingsWindow)
+    AnalysisSettingsWindow.show()
+    sys.exit(app.exec_())

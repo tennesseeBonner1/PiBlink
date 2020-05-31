@@ -1625,7 +1625,7 @@
   </action>
   <action name="actionDisplaySettings">
    <property name="text">
-    <string>Graph Display Settings</string>
+    <string>Graph Settings</string>
    </property>
    <property name="statusTip">
     <string>Configure how the graph will appear</string>
