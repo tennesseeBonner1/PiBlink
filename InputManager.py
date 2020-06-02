@@ -1,5 +1,5 @@
 """ InputManager.py
-    Last Modified: 5/26/2020
+    Last Modified: 6/2/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for handling all input from the main window. This file also controls a few high level concerns including the 
@@ -56,6 +56,7 @@ def initialSetUp(theMainWindow):
     popUpFont.setPointSize(14)
 
     #Default play mode is data acquisition
+    playMode = None
     setPlayMode(PlayMode.ACQUISITION)
 
     connectButtons()
@@ -78,6 +79,8 @@ def connectButtons():
     #Detects all "File -> [X]" menu actions
     mainWindow.actionNew.triggered.connect(newSession)
     mainWindow.actionOpen.triggered.connect(lambda: openSession())
+    mainWindow.actionSaveParametersAs.triggered.connect(JSONConverter.saveAsParameterFile)
+    mainWindow.actionLoadParameters.triggered.connect(JSONConverter.LoadParameterFile)
     mainWindow.actionCaptureGraph.triggered.connect(lambda: capture("Graph", False))
     mainWindow.actionCaptureWindow.triggered.connect(lambda: capture("Window", False))
     mainWindow.actionCaptureScreen.triggered.connect(lambda: capture("Screen", False))
@@ -260,7 +263,6 @@ def stopSessionWithoutConfirmation():
     setPlayMode(PlayMode.ACQUISITION)
 
 
-
 #Defines whether or not the trial is playing (only applies to data acquisition mode)
 def setPlaying(play):
 
@@ -322,7 +324,6 @@ def setLockModeForSettings(lock):
     #If locked, set the icon accordingly 
     if lock:
         mainWindow.lockButton.setIcon(lockedIcon)
-
     else:
         mainWindow.lockButton.setIcon(unlockedIcon)
 
@@ -354,6 +355,9 @@ def setAccessibilityOfSettings(accessible):
     mainWindow.usNameLineEdit.setEnabled(accessible)
     mainWindow.usDurationSpinBox.setEnabled(accessible)
     mainWindow.usDelaySpinBox.setEnabled(accessible)
+
+    #Also set accessibility of loading settings
+    mainWindow.actionLoadParameters.setEnabled(accessible)
 
 
 #Checks the current settings and brings up a message box if anything is invalid as well as return a boolean based on the validity
@@ -491,7 +495,7 @@ def newSession():
     setPlayMode(PlayMode.ACQUISITION)
 
     #Start with default settings again
-    resetSettingsToDefaults()
+    #resetSettingsToDefaults()
 
 
 #Open the session
@@ -520,7 +524,7 @@ def openSession(fileStr=""):
         setPlayMode(PlayMode.PLAYBACK)
 
         #Load in the session from the JSON file
-        errorMessage = JSONConverter.openSession(fileNameAndLocation)
+        errorMessage = JSONConverter.openJSONFile(fileNameAndLocation, True)
         
         #Check if there was an error before proceeding
         if errorMessage:
@@ -564,6 +568,17 @@ def setPlayMode(newPlayMode):
     if ts.currentSession:
         return
 
+    #On program start, this is called to set the initial play mode...
+    #which also initializes singleton instance of acquisition parameters
+    if not playMode:
+        ts.acquisitionParameters = ts.TheSession(mainWindow)
+
+    #Before switching, perform necessary clean up for previous play mode
+    #i.e. remember latest data acquisition mode parameters
+    #ts.currentSession is wiped when done running session, but this remains
+    elif playMode == PlayMode.ACQUISITION:
+        ts.acquisitionParameters.readInSettingsFromGUI(mainWindow)
+
     #Remember new play mode
     playMode = newPlayMode
 
@@ -595,6 +610,10 @@ def setPlayMode(newPlayMode):
     #Playback immediately opens session (so stop should be accessible), but opposite for acquisition
     mainWindow.stopButton.setEnabled(playMode == PlayMode.PLAYBACK)
 
+    #When entering data acquisition, restore data acquisition parameters
+    if playMode == PlayMode.ACQUISITION:
+        ts.acquisitionParameters.outputSettingsToGUI(mainWindow)
+
 
 #Updates the text near the top right of the main window that specifies mode and trial progress
 def updateSessionInfoLabel():
@@ -614,6 +633,8 @@ def updateSessionInfoLabel():
     mainWindow.sessionInfoLabel.setText(newText)
 
 
+#No longer needed with advent of parameter files
+'''
 #Resets all setting fields on the UI to have their default values
 def resetSettingsToDefaults():
     #Session settings
@@ -636,6 +657,7 @@ def resetSettingsToDefaults():
     mainWindow.usNameLineEdit.setText("Air Puff")
     mainWindow.usDurationSpinBox.setValue(100)
     mainWindow.usDelaySpinBox.setValue(0)
+'''
 
 #Closes all windows upon crash
 def closeWindowsOnCrash():

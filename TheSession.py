@@ -1,16 +1,23 @@
 """ TheSession.py
-    Last Modified: 5/25/2020
+    Last Modified: 6/2/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for encapsulating the basic information and operations
     related to a single session. It contains a class called TheSession which performs this encapsulation and a
     single, global instance of this class called currentSession which represents the session currently opened in the program.
+
+    There is also a singleton instance used for remembering the most recent parameters used for data acquisition.
 """
 from enum import Enum
 
 
 #Singleton instance of session
 currentSession = None
+
+
+#Singleton instance of acquisition parameters
+#Initialized on program start (in InputManager.py) and persists for duration of program
+acquisitionParameters = None
 
 
 #Sex options enum
@@ -149,6 +156,34 @@ class TheSession(object):
         mainWindow.usNameLineEdit.setText(self.usName)
         mainWindow.usDurationSpinBox.setValue(self.usDuration)
         mainWindow.usDelaySpinBox.setValue(self.usDelay)
+
+    #Outputs the values from this session object as a new JSON object
+    def outputSettingsToJSON(self):
+
+        return {
+                    "header":   
+                    {
+                        "name": self.sessionName,
+                        "age": self.subjectAge,
+                        "sex": self.subjectSex.name,
+                        "sampleInterval": self.sampleInterval,
+                        "trialCount": self.trialCount,
+                        "iti": self.iti,
+                        "itiVariance": self.itiVariance,
+                        "thresholdSD": self.thresholdSD,
+                        "thresholdMinDuration": self.thresholdMinDuration,
+
+                        "trialDuration": self.trialDuration,
+                        "baselineDuration": self.baselineDuration,
+                        "csName": self.csName,
+                        "csDuration": self.csDuration,
+                        "isi": self.interstimulusInterval,
+                        "usName": self.usName,
+                        "usDuration": self.usDuration,
+                        "usDelay": self.usDelay
+                    },
+                    "trials": [],
+                }
 
 
     #Used by the graph to convert from milliseconds to samples

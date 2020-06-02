@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1545</width>
+    <width>1560</width>
     <height>770</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>485</width>
+        <width>500</width>
         <height>0</height>
        </size>
       </property>
@@ -66,7 +66,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>466</width>
+         <width>477</width>
          <height>942</height>
         </rect>
        </property>
@@ -96,7 +96,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Session Settings</string>
+           <string>Session Params</string>
           </property>
          </widget>
         </item>
@@ -669,6 +669,22 @@
           </property>
          </widget>
         </item>
+        <item row="15" column="0">
+         <spacer name="trialSettingsSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item row="16" column="0">
          <widget class="QLabel" name="trialSettings">
           <property name="font">
@@ -679,7 +695,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Trial Settings</string>
+           <string>Trial Params</string>
           </property>
          </widget>
         </item>
@@ -799,7 +815,7 @@
            <number>0</number>
           </property>
           <property name="maximum">
-           <number>10000000</number>
+           <number>1000000</number>
           </property>
           <property name="singleStep">
            <number>500</number>
@@ -1002,7 +1018,7 @@
            <string/>
           </property>
           <property name="maximum">
-           <number>10000000</number>
+           <number>1000000</number>
           </property>
           <property name="singleStep">
            <number>100</number>
@@ -1188,22 +1204,6 @@
            <number>10000</number>
           </property>
          </widget>
-        </item>
-        <item row="15" column="0">
-         <spacer name="trialSettingsSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>10</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </widget>
@@ -1546,7 +1546,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1545</width>
+     <width>1560</width>
      <height>37</height>
     </rect>
    </property>
@@ -1562,10 +1562,12 @@
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
+    <addaction name="actionSaveParametersAs"/>
+    <addaction name="actionLoadParameters"/>
+    <addaction name="separator"/>
     <addaction name="actionCaptureGraph"/>
     <addaction name="actionCaptureWindow"/>
     <addaction name="actionCaptureScreen"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -1609,7 +1611,7 @@
   </action>
   <action name="actionCaptureWindow">
    <property name="text">
-    <string>Capture Window...</string>
+    <string>Capture Window</string>
    </property>
    <property name="statusTip">
     <string>Save a screenshot of the window</string>
@@ -1620,7 +1622,7 @@
     </font>
    </property>
    <property name="shortcut">
-    <string>Ctrl+W</string>
+    <string>Ctrl+Shift+W</string>
    </property>
   </action>
   <action name="actionDisplaySettings">
@@ -1636,15 +1638,15 @@
     </font>
    </property>
    <property name="shortcut">
-    <string>Ctrl+D</string>
+    <string>Ctrl+G</string>
    </property>
   </action>
   <action name="actionCaptureGraph">
    <property name="text">
-    <string>Capture Graph...</string>
+    <string>Capture Graph</string>
    </property>
    <property name="statusTip">
-    <string>Save a screenshot of the current graph</string>
+    <string>Save a screenshot of the trial graph (excludes the volt meter)</string>
    </property>
    <property name="font">
     <font>
@@ -1652,12 +1654,12 @@
     </font>
    </property>
    <property name="shortcut">
-    <string>Ctrl+G</string>
+    <string>Ctrl+Shift+G</string>
    </property>
   </action>
   <action name="actionCaptureScreen">
    <property name="text">
-    <string>Capture Screen...</string>
+    <string>Capture Screen</string>
    </property>
    <property name="statusTip">
     <string>Save a screenshot of the entire screen</string>
@@ -1668,7 +1670,7 @@
     </font>
    </property>
    <property name="shortcut">
-    <string>Ctrl+S</string>
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
   <action name="actionNew">
@@ -1724,7 +1726,10 @@
   </action>
   <action name="actionGoToTrial">
    <property name="text">
-    <string>Go To Trial...</string>
+    <string>Go To Trial</string>
+   </property>
+   <property name="statusTip">
+    <string>Load a trial by specifying its number</string>
    </property>
    <property name="font">
     <font>
@@ -1733,6 +1738,38 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionLoadParameters">
+   <property name="text">
+    <string>Load Parameters</string>
+   </property>
+   <property name="statusTip">
+    <string>Load in parameters from a parameter file</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionSaveParametersAs">
+   <property name="text">
+    <string>Save Parameters</string>
+   </property>
+   <property name="statusTip">
+    <string>Save current parameters to a parameter file for future use</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>

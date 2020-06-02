@@ -89,7 +89,8 @@ def analyzeTrial(minSD=4, minDuration=1, data=[]):
                 blinking = True
 
                 #+1 for index to count conversion
-                #-minDuration to go back to start of onset
+                #-minDuration to go back to sample before start of onset
+                #+1 to go from sample before start of onset to start of onset
                 onsetSamples.append(sampleIndex - minDuration + 2)
 
             #Check to see if a new offset should be registered

@@ -1,11 +1,13 @@
 """ JSONConverter.py
-    Last Modified: 5/6/2020
+    Last Modified: 6/2/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file's responsibilities are to:
     1. Save sessions as JSON files.
     2. Open the JSON saved session files.
-    3. Provide a few common functionalities related to file management.
+    3. Save parameters as JSON files.
+    4. Load parameters from JSON files.
+    5. Provide a few common functionalities related to file management.
     
     At the top layer of the dictionary structure, there are two key-value pairs. The two keys are "header" and "trials"
     The value mapped to the "header" key is another dictionary containing key-value pairs that relate to the session-specific settings 
@@ -15,6 +17,9 @@
 """
 import TheSession as ts
 import DataAnalysis as da
+import InputManager as im
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import QMessageBox
 import json
 from datetime import datetime
 import os
@@ -63,30 +68,8 @@ def startDataAcquisition():
         duplicateNumber += 1
         saveFilename = idealFilename + " (" + str(duplicateNumber) + ").json"
 
-    #Define the structure of the JSON object (and fill out the header with session info)
-    jsonObject = {
-                    "header":   
-                    {
-                        "name": name,
-                        "sex": sex,
-                        "age": age,
-                        "sampleInterval": ts.currentSession.sampleInterval,
-                        "trialCount": ts.currentSession.trialCount,
-                        "iti": ts.currentSession.iti,
-                        "itiVariance": ts.currentSession.itiVariance,
-                        "trialDuration": ts.currentSession.trialDuration,
-                        "baselineDuration": ts.currentSession.baselineDuration,
-                        "csName": ts.currentSession.csName,
-                        "csDuration": ts.currentSession.csDuration,
-                        "isi": ts.currentSession.interstimulusInterval,
-                        "usName": ts.currentSession.usName,
-                        "usDuration": ts.currentSession.usDuration,
-                        "usDelay": ts.currentSession.usDelay,
-                        "thresholdSD": ts.currentSession.thresholdSD,
-                        "thresholdMinDuration": ts.currentSession.thresholdMinDuration
-                    },
-                    "trials": [],
-                }
+    #Create the JSON object (and fill out the header with session info)
+    jsonObject = ts.currentSession.outputSettingsToJSON()
 
 
 #Called at the end of a trial to save the just-completed trial
@@ -134,16 +117,54 @@ def endDataAcquisition():
         sessionFile.close()
 
 
-#Opens JSON file, reads in JSON data, recreates session object with data
-def openSession(filename):
+def saveAsParameterFile():
+
+    #Pop up "Save As" window to retrieve file name and type to save as
+    parameterFileName = QtGui.QFileDialog.getSaveFileName(parent = mainWindow.centralwidget,
+                    caption = "Save Parameter File As",
+                    directory = getParameterFileDirectory(createIfNonexistent = True),
+                    filter = "JSON (*.json)")[0]
+
+    #Save parameter file if user didn't click cancel
+    if len(parameterFileName) > 0:
+
+        #Get parameters to save
+        #Can't use ts.acquisitionParameters b/c need to be able to save in playback as well...
+        #and ts.acquisitionParameters only updates when play mode is changed
+        toSave = ts.TheSession(mainWindow)
+
+        #Convert to JSON object
+        paramJSONObject = toSave.outputSettingsToJSON()
+
+        #Convert to string
+        jsonString = json.dumps(paramJSONObject)
+
+        #Open new file in write mode (overwrites any preexisting file with same name)
+        sessionFile = open(parameterFileName, "w")
+
+        #Write string to file
+        sessionFile.write(jsonString)
+
+        #Close file
+        sessionFile.close()
+
+
+#Opens JSON file, reads in JSON data, recreates session (or parameter) object with data
+#sessionObject = True means we're opening a saved session file
+#sessionObject = False means we're opening a parameter file
+def openJSONFile(filename, sessionObject):
 
     global jsonObject, saveFilename
 
     #Open file, extract contents into string, and close the file
     try:
         sessionFile = open(file = filename, mode = "r")
-        saveFilename = filename
+
+        if sessionObject:
+            saveFilename = filename
+
         jsonString = sessionFile.read()
+
         sessionFile.close()
 
     except Exception:
@@ -151,19 +172,34 @@ def openSession(filename):
 
     #Convert string into python dictionary
     try:
-        jsonObject = json.loads(jsonString)
+
+        theJSONObject = json.loads(jsonString)
+        
+        if sessionObject:
+            jsonObject = theJSONObject
 
     except Exception:
         return "The file is not in JSON format despite file extension."
 
-    #Recreate session object using the settings in the header of the json file
+    #Recreate session (or parameter) object using the settings in the header of the json file
     try:
-        ts.currentSession = ts.TheSession(mainWindow, jsonObject["header"])
+
+        if sessionObject:
+            ts.currentSession = ts.TheSession(mainWindow, theJSONObject["header"])
+        else:
+            loadedParameters = ts.TheSession(mainWindow, theJSONObject["header"])
+            loadedParameters.outputSettingsToGUI(mainWindow)
 
     except KeyError:
         errorMessage = "The JSON file does not have all applicable information.\n"
-        errorMessage += "Was this session created in an older version of the program?"
+        if sessionObject:
+            errorMessage += "Was this session created in an older version of the program?"
+        else:
+            errorMessage += "Was this parameter file created in an older version of the program?"
         return errorMessage
+
+    if sessionObject and len(theJSONObject["trials"]) == 0:
+        return "This appears to be a parameter file, not a session file!"
 
     #Execution is finished and error-free so return empty quotes indicating no error message
     return ""
@@ -187,6 +223,32 @@ def getOffsets():
     return jsonObject["trials"][ts.currentSession.currentTrial - 1]["stats"]["offsetSamples"]
 
 
+def LoadParameterFile():
+    
+    #Pop up "Open" window to retrieve file name
+    parameterFileName = QtGui.QFileDialog.getOpenFileName(parent = mainWindow.centralwidget,
+                            caption = "Open Parameter File",
+                            directory = getParameterFileDirectory(createIfNonexistent = True),
+                            filter = "JSON (*.json)")[0]
+
+    #Open parameter file if user didn't click cancel
+    if len(parameterFileName) > 0:
+        errorMessage = openJSONFile(parameterFileName, False)
+
+        if errorMessage:
+            #Craft error message
+            fullMessage = "Cannot read parameter file for the following reason...\n\n" + errorMessage
+
+            #Notify user
+            cannotReadSession = QMessageBox()
+            cannotReadSession.setText(fullMessage)
+            cannotReadSession.setWindowTitle("Error Opening Parameter File")
+            cannotReadSession.setStandardButtons(QMessageBox.Ok)
+            cannotReadSession.setIcon(QMessageBox.Critical)
+            cannotReadSession.setFont(im.popUpFont)
+            cannotReadSession.exec()
+
+
 #Creates a saved session directory if one doesn't exist
 def getSavedSessionDirectory(createIfNonexistent):
 
@@ -198,6 +260,19 @@ def getSavedSessionDirectory(createIfNonexistent):
         os.makedirs(savedSessionDirectory)
 
     return savedSessionDirectory
+
+
+#Creates a parameter file directory if one doesn't exist
+def getParameterFileDirectory(createIfNonexistent):
+
+    #Subfolder of current working dir
+    parameterFileDirectory = os.path.join(os.getcwd(), "Parameter Files")
+
+    #Make the directory if required to exist
+    if createIfNonexistent and (not os.path.exists(parameterFileDirectory)):
+        os.makedirs(parameterFileDirectory)
+
+    return parameterFileDirectory
 
 
 #Gets the filename of the currently open file and returns it

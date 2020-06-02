@@ -1,5 +1,5 @@
 """ __main__.py
-    Last Modified: 5/25/2020
+    Last Modified: 6/2/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     Run this file to start the program.
@@ -18,6 +18,7 @@ from traceback import format_exception
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 import MainWindow as mw
+import TheSession as ts
 import InputManager as im
 import TheGraph as tg
 import DisplaySettingsManager as dsm
@@ -60,9 +61,10 @@ if __name__ == "__main__":
     sys.excepthook = mainProcessErrorHandler
 
     #Perform all necessary set up including launching the time critical (sampling) process
+    #Comments on side indicate dependencies in ordering of start up calls
     dsm.initialSetUp()
     im.initialSetUp(ui)
-    tg.initialSetUp(ui) #Uses DSM and IM so needs to come after those two
+    tg.initialSetUp(ui) #Uses DSM and IM
     jc.initialSetUp(ui)
     tco.initialSetUp()
 
