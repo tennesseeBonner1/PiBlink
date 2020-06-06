@@ -87,7 +87,7 @@ def saveTrial(trialDataArray, previousITI):
     trialObject = {
                        "trialNumber": trialsSaved,
                        "previousITI": previousITI,
-                       "stats": da.getTrialStats(ts.currentSession.thresholdSD, ts.currentSession.thresholdMinDuration),
+                       "stats": da.getTrialStats(ts.currentSession.minVoltage, ts.currentSession.thresholdSD, ts.currentSession.thresholdMinDuration),
                        "samples": trialDataList
                   }
 

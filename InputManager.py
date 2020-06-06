@@ -345,6 +345,7 @@ def setAccessibilityOfSettings(accessible):
     mainWindow.trialCountSpinBox.setEnabled(accessible)
     mainWindow.itiSpinBox.setEnabled(accessible)
     mainWindow.itiVarianceSpinBox.setEnabled(accessible)
+    mainWindow.minVoltageSpinBox.setEnabled(accessible)
     mainWindow.thresholdSDSpinBox.setEnabled(accessible)
     mainWindow.thresholdMinDurSpinBox.setEnabled(accessible)
     mainWindow.trialDurationSpinBox.setEnabled(accessible)

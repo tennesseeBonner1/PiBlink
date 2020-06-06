@@ -1,4 +1,4 @@
-﻿""" DataAnalysis.py
+""" DataAnalysis.py
     Last Modified: 5/6/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
@@ -12,14 +12,13 @@ import TheSession as ts
 #maxArrowCount = 30
 
 #Called by JSON converter to get the stats to save for each trial(data acquisition analysis)
-def getTrialStats(minSD=4, minDuration=1, data=[]):
-
+def getTrialStats(minVoltage=0, minSD=4, minDuration=1, data=[]):
     #Fill data with the data in the graph if it is empty
     if len(data) == 0:
         data = tg.data
 
     #Compute analysis-related trial stats
-    analyzeTrial(minSD, minDuration, data)
+    analyzeTrial(minVoltage, minSD, minDuration, data)
 
     #Compute CS/US onset/offset
     csOnset = ts.currentSession.baselineDuration
@@ -37,6 +36,7 @@ def getTrialStats(minSD=4, minDuration=1, data=[]):
         "trialDuration": ts.currentSession.trialDuration,
         "baselineAvg": baselineAverage,
         "baselineSD": standardDeviation,
+        "sampleRange": sampleRange,
         "onsetSamples": onsetSamples,
         "offsetSamples": offsetSamples,
     }
@@ -46,10 +46,10 @@ def getTrialStats(minSD=4, minDuration=1, data=[]):
 
 
 #This function analyses the data to calculate the onsets and offsets of the eyeblinks
-def analyzeTrial(minSD=4, minDuration=1, data=[]):
+def analyzeTrial(minVoltage=0, minSD=4, minDuration=1, data=[]):
 
     #Initialize global variables
-    global baselineTotal, onsetSamples, offsetSamples
+    global baselineTotal, baselineAverage, standardDeviation, sampleRange, onsetSamples, offsetSamples
 
     #Initialize local variables
     baselineEnd = ts.currentSession.csStartInSamples
@@ -57,13 +57,22 @@ def analyzeTrial(minSD=4, minDuration=1, data=[]):
     count = 0
     dataSize = tg.dataSize
     baselineTotal = 0.00
+    baselineAverage = 0.00
+    standardDeviation = 0.00
+    sampleRange = 0.00
     onsetSamples = []
     offsetSamples = []
 
     #Fill data with the data in the graph if it is empty
     if len(data) == 0:
         data = tg.data
-   
+
+    #Get the range of the samples to see if it meets the minimum voltage
+    #Casting to float turns it from a numpy.float32 type to a regular float type, so it can be encoded in JSON 
+    sampleRange = float(data.max() - data.min())
+    if sampleRange < minVoltage:
+        return
+
     #Go through all samples in order
     for sampleIndex in range(dataSize):
 
@@ -88,16 +97,15 @@ def analyzeTrial(minSD=4, minDuration=1, data=[]):
             if not blinking and (count >= minDuration):
                 blinking = True
 
-                #+1 for index to count conversion
-                #-minDuration to go back to sample before start of onset
-                #+1 to go from sample before start of onset to start of onset
+                #Subtract (minDuration - 1) to go back to the first sample of the onset
+                #Add 1 to convert from array index to sample number
                 onsetSamples.append(sampleIndex - minDuration + 2)
 
             #Check to see if a new offset should be registered
             elif blinking and not overThreshold:
                 blinking = False
 
-                #+1 for index to count conversion
+                #Add 1 to convert from array index to sample number
                 offsetSamples.append(sampleIndex + 1)
 
 

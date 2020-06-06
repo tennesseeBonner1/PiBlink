@@ -37,6 +37,7 @@ class TheSession(object):
     trialCount = 25
     iti = 5
     itiVariance = 3
+    minVoltage = 500
     thresholdSD = 4
     thresholdMinDuration = 10
 
@@ -96,6 +97,7 @@ class TheSession(object):
         self.trialCount = mainWindow.trialCountSpinBox.value()
         self.iti = mainWindow.itiSpinBox.value()
         self.itiVariance = mainWindow.itiVarianceSpinBox.value()
+        self.minVoltage = mainWindow.minVoltageSpinBox.value()
         self.thresholdSD = mainWindow.thresholdSDSpinBox.value()
         self.thresholdMinDuration = mainWindow.thresholdMinDurSpinBox.value()
 
@@ -120,6 +122,7 @@ class TheSession(object):
         self.trialCount = int(jsonSettings["trialCount"])
         self.iti = int(jsonSettings["iti"])
         self.itiVariance = int(jsonSettings["itiVariance"])
+        self.minVoltage = int(jsonSettings["minVoltage"])
         self.thresholdSD = int(jsonSettings["thresholdSD"])
         self.thresholdMinDuration = int(jsonSettings["thresholdMinDuration"])
 
@@ -144,6 +147,7 @@ class TheSession(object):
         mainWindow.trialCountSpinBox.setValue(self.trialCount)
         mainWindow.itiSpinBox.setValue(self.iti)
         mainWindow.itiVarianceSpinBox.setValue(self.itiVariance)
+        mainWindow.minVoltageSpinBox.setValue(self.minVoltage)
         mainWindow.thresholdSDSpinBox.setValue(self.thresholdSD)
         mainWindow.thresholdMinDurSpinBox.setValue(self.thresholdMinDuration)
 
@@ -170,6 +174,7 @@ class TheSession(object):
                         "trialCount": self.trialCount,
                         "iti": self.iti,
                         "itiVariance": self.itiVariance,
+                        "minVoltage": self.minVoltage,
                         "thresholdSD": self.thresholdSD,
                         "thresholdMinDuration": self.thresholdMinDuration,
 

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\CsCrMachineCode\AnalysisSettingsUI.ui'
+# Form implementation generated from reading ui file 'AnalysisSettingsUI.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.0
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -13,20 +13,21 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_AnalysisSettingsWindow(object):
     def setupUi(self, AnalysisSettingsWindow):
         AnalysisSettingsWindow.setObjectName("AnalysisSettingsWindow")
-        AnalysisSettingsWindow.resize(355, 445)
+        AnalysisSettingsWindow.resize(325, 432)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(AnalysisSettingsWindow.sizePolicy().hasHeightForWidth())
         AnalysisSettingsWindow.setSizePolicy(sizePolicy)
-        AnalysisSettingsWindow.setMinimumSize(QtCore.QSize(355, 370))
-        AnalysisSettingsWindow.setMaximumSize(QtCore.QSize(355, 445))
+        AnalysisSettingsWindow.setMinimumSize(QtCore.QSize(325, 432))
+        AnalysisSettingsWindow.setMaximumSize(QtCore.QSize(325, 432))
         AnalysisSettingsWindow.setModal(False)
         self.verticalLayout = QtWidgets.QVBoxLayout(AnalysisSettingsWindow)
         self.verticalLayout.setContentsMargins(20, 15, 20, 10)
+        self.verticalLayout.setSpacing(6)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label_ThresholdSettings = QtWidgets.QLabel(AnalysisSettingsWindow)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_ThresholdSettings.sizePolicy().hasHeightForWidth())
@@ -45,7 +46,7 @@ class Ui_AnalysisSettingsWindow(object):
         self.formLayout_Threshold.setFormAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.formLayout_Threshold.setContentsMargins(10, -1, -1, 10)
         self.formLayout_Threshold.setHorizontalSpacing(20)
-        self.formLayout_Threshold.setVerticalSpacing(15)
+        self.formLayout_Threshold.setVerticalSpacing(10)
         self.formLayout_Threshold.setObjectName("formLayout_Threshold")
         self.label_StdDev = QtWidgets.QLabel(AnalysisSettingsWindow)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.MinimumExpanding)
@@ -59,7 +60,7 @@ class Ui_AnalysisSettingsWindow(object):
         self.label_StdDev.setMouseTracking(False)
         self.label_StdDev.setWordWrap(False)
         self.label_StdDev.setObjectName("label_StdDev")
-        self.formLayout_Threshold.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_StdDev)
+        self.formLayout_Threshold.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_StdDev)
         self.label_MinDuration = QtWidgets.QLabel(AnalysisSettingsWindow)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
@@ -69,10 +70,9 @@ class Ui_AnalysisSettingsWindow(object):
         font = QtGui.QFont()
         font.setPointSize(14)
         self.label_MinDuration.setFont(font)
-        self.label_MinDuration.setStatusTip("")
         self.label_MinDuration.setWordWrap(True)
         self.label_MinDuration.setObjectName("label_MinDuration")
-        self.formLayout_Threshold.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_MinDuration)
+        self.formLayout_Threshold.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_MinDuration)
         self.spinBox_MinDuration = QtWidgets.QSpinBox(AnalysisSettingsWindow)
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -83,7 +83,7 @@ class Ui_AnalysisSettingsWindow(object):
         self.spinBox_MinDuration.setSingleStep(1)
         self.spinBox_MinDuration.setProperty("value", 10)
         self.spinBox_MinDuration.setObjectName("spinBox_MinDuration")
-        self.formLayout_Threshold.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.spinBox_MinDuration)
+        self.formLayout_Threshold.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.spinBox_MinDuration)
         self.spinBox_StdDev = QtWidgets.QSpinBox(AnalysisSettingsWindow)
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -94,10 +94,27 @@ class Ui_AnalysisSettingsWindow(object):
         self.spinBox_StdDev.setMaximum(20)
         self.spinBox_StdDev.setProperty("value", 4)
         self.spinBox_StdDev.setObjectName("spinBox_StdDev")
-        self.formLayout_Threshold.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.spinBox_StdDev)
+        self.formLayout_Threshold.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.spinBox_StdDev)
+        self.label_MinVoltage = QtWidgets.QLabel(AnalysisSettingsWindow)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.label_MinVoltage.setFont(font)
+        self.label_MinVoltage.setWordWrap(True)
+        self.label_MinVoltage.setObjectName("label_MinVoltage")
+        self.formLayout_Threshold.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_MinVoltage)
+        self.spinBox_MinVoltage = QtWidgets.QSpinBox(AnalysisSettingsWindow)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.spinBox_MinVoltage.setFont(font)
+        self.spinBox_MinVoltage.setAlignment(QtCore.Qt.AlignCenter)
+        self.spinBox_MinVoltage.setMaximum(7000)
+        self.spinBox_MinVoltage.setSingleStep(10)
+        self.spinBox_MinVoltage.setProperty("value", 500)
+        self.spinBox_MinVoltage.setObjectName("spinBox_MinVoltage")
+        self.formLayout_Threshold.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.spinBox_MinVoltage)
         self.verticalLayout.addLayout(self.formLayout_Threshold)
         self.label_FileSettings = QtWidgets.QLabel(AnalysisSettingsWindow)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_FileSettings.sizePolicy().hasHeightForWidth())
@@ -164,8 +181,8 @@ class Ui_AnalysisSettingsWindow(object):
         self.lineEdit_customSaveName.setObjectName("lineEdit_customSaveName")
         self.gridLayout_File.addWidget(self.lineEdit_customSaveName, 2, 0, 1, 2)
         self.gridLayout_File.setColumnStretch(0, 5)
-        self.gridLayout_File.setRowStretch(0, 3)
-        self.gridLayout_File.setRowStretch(1, 3)
+        self.gridLayout_File.setRowStretch(0, 1)
+        self.gridLayout_File.setRowStretch(1, 1)
         self.gridLayout_File.setRowStretch(2, 1)
         self.verticalLayout.addLayout(self.gridLayout_File)
         self.line = QtWidgets.QFrame(AnalysisSettingsWindow)
@@ -192,7 +209,7 @@ class Ui_AnalysisSettingsWindow(object):
         self.verticalLayout.setStretch(0, 1)
         self.verticalLayout.setStretch(1, 3)
         self.verticalLayout.setStretch(2, 1)
-        self.verticalLayout.setStretch(3, 3)
+        self.verticalLayout.setStretch(3, 2)
         self.verticalLayout.setStretch(4, 1)
         self.verticalLayout.setStretch(5, 1)
 
@@ -202,7 +219,7 @@ class Ui_AnalysisSettingsWindow(object):
 
     def retranslateUi(self, AnalysisSettingsWindow):
         _translate = QtCore.QCoreApplication.translate
-        AnalysisSettingsWindow.setWindowTitle(_translate("AnalysisSettingsWindow", "Analysis Settings"))
+        AnalysisSettingsWindow.setWindowTitle(_translate("AnalysisSettingsWindow", "Re-Analyze Session"))
         self.label_ThresholdSettings.setText(_translate("AnalysisSettingsWindow", "Threshold Settings"))
         self.label_StdDev.setToolTip(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The number of standard deviations away from the average that the sample must be in order to be above the eyeblink threshold</span></p></body></html>"))
         self.label_StdDev.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The number of standard deviations away from the average that the sample must be in order to be above the eyeblink threshold</span></p></body></html>"))
@@ -214,6 +231,11 @@ class Ui_AnalysisSettingsWindow(object):
         self.spinBox_MinDuration.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The minimum amount of time that the signal must be above the threshold in order to register as an eyeblink onset.</span></p><p><span style=\" font-size:12pt;\">Higher values make the analysis less susceptible to noise</span></p></body></html>"))
         self.spinBox_StdDev.setToolTip(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The number of standard deviations away from the average that the sample must be in order to be above the eyeblink threshold</span></p></body></html>"))
         self.spinBox_StdDev.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">The number of standard deviations away from the average that the sample must be in order to be above the eyeblink threshold</span></p></body></html>"))
+        self.label_MinVoltage.setToolTip(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">If the range of samples (measured in millivolts) for a given trial is greater than or equal to the specified value, that trial will be re-analyzed and onset/offset values will be recalculated.</span></p><p><span style=\" font-size:12pt;\">Trials with ranges below the specified value will have their onset/offset values cleared.</span></p></body></html>"))
+        self.label_MinVoltage.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">If the range of samples (measured in millivolts) for a given trial is greater than or equal to the specified value, that trial will be re-analyzed and onset/offset values will be recalculated.</span></p><p><span style=\" font-size:12pt;\">Trials with ranges below the specified value will have their onset/offset values cleared.</span></p></body></html>"))
+        self.label_MinVoltage.setText(_translate("AnalysisSettingsWindow", "Minimum Voltage Difference (mV)"))
+        self.spinBox_MinVoltage.setToolTip(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">If the range of samples (measured in millivolts) for a given trial is greater than or equal to the specified value, that trial will be re-analyzed and onset/offset values will be recalculated.</span></p><p><span style=\" font-size:12pt;\">Trials with ranges below the specified value will have their onset/offset values cleared.</span></p></body></html>"))
+        self.spinBox_MinVoltage.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">If the range of samples (measured in millivolts) for a given trial is greater than or equal to the specified value, that trial will be re-analyzed and onset/offset values will be recalculated.</span></p><p><span style=\" font-size:12pt;\">Trials with ranges below the specified value will have their onset/offset values cleared.</span></p></body></html>"))
         self.label_FileSettings.setText(_translate("AnalysisSettingsWindow", "File Settings"))
         self.label_Overwrite.setToolTip(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">Replaces the current onset and offsest values of the file with the new ones. </span></p></body></html>"))
         self.label_Overwrite.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">Replaces the current onset and offsest values of the file with the new ones. </span></p></body></html>"))
@@ -227,13 +249,3 @@ class Ui_AnalysisSettingsWindow(object):
         self.lineEdit_customSaveName.setWhatsThis(_translate("AnalysisSettingsWindow", "<html><head/><body><p><span style=\" font-size:12pt;\">Holds the custom filename that the generated file will be saved under (if &quot;Save as Custom Name&quot; is enabled). The &quot;.json&quot; does not need to be included.</span></p><p><span style=\" font-size:12pt;\">Please note that the filename is </span><span style=\" font-size:12pt; font-weight:600;\">not</span><span style=\" font-size:12pt;\"> the same as the session name.</span></p><p><span style=\" font-size:12pt;\">May not contain any of the following characters: \\ / : * ? &quot; &lt; &gt; |</span></p></body></html>"))
         self.pushButton_ReAnalyze.setText(_translate("AnalysisSettingsWindow", "Re-Analyze"))
         self.pushButton_Cancel.setText(_translate("AnalysisSettingsWindow", "Cancel"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    AnalysisSettingsWindow = QtWidgets.QDialog()
-    ui = Ui_AnalysisSettingsWindow()
-    ui.setupUi(AnalysisSettingsWindow)
-    AnalysisSettingsWindow.show()
-    sys.exit(app.exec_())

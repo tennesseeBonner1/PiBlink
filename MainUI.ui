@@ -66,8 +66,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>477</width>
-         <height>942</height>
+         <width>481</width>
+         <height>828</height>
         </rect>
        </property>
        <layout class="QFormLayout" name="formLayout_2">
@@ -96,7 +96,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Session Params</string>
+           <string>Session Parameters</string>
           </property>
          </widget>
         </item>
@@ -552,7 +552,7 @@
           </property>
          </spacer>
         </item>
-        <item row="13" column="0">
+        <item row="14" column="0">
          <widget class="QLabel" name="thresholdSDLabel">
           <property name="font">
            <font>
@@ -570,7 +570,7 @@
           </property>
          </widget>
         </item>
-        <item row="13" column="1">
+        <item row="14" column="1">
          <widget class="QSpinBox" name="thresholdSDSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -609,7 +609,7 @@
           </property>
          </widget>
         </item>
-        <item row="14" column="0">
+        <item row="15" column="0">
          <widget class="QLabel" name="thresholdMinDurLabel">
           <property name="font">
            <font>
@@ -627,7 +627,7 @@
           </property>
          </widget>
         </item>
-        <item row="14" column="1">
+        <item row="15" column="1">
          <widget class="QSpinBox" name="thresholdMinDurSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -669,7 +669,7 @@
           </property>
          </widget>
         </item>
-        <item row="15" column="0">
+        <item row="16" column="0">
          <spacer name="trialSettingsSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -685,7 +685,7 @@
           </property>
          </spacer>
         </item>
-        <item row="16" column="0">
+        <item row="17" column="0">
          <widget class="QLabel" name="trialSettings">
           <property name="font">
            <font>
@@ -695,11 +695,11 @@
            </font>
           </property>
           <property name="text">
-           <string>Trial Params</string>
+           <string>Trial Parameters</string>
           </property>
          </widget>
         </item>
-        <item row="17" column="0">
+        <item row="18" column="0">
          <widget class="QLabel" name="trialDurationLabel">
           <property name="font">
            <font>
@@ -717,7 +717,7 @@
           </property>
          </widget>
         </item>
-        <item row="17" column="1">
+        <item row="18" column="1">
          <widget class="QSpinBox" name="trialDurationSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -762,7 +762,7 @@
           </property>
          </widget>
         </item>
-        <item row="18" column="0">
+        <item row="19" column="0">
          <widget class="QLabel" name="baselineDurationLabel">
           <property name="font">
            <font>
@@ -780,7 +780,7 @@
           </property>
          </widget>
         </item>
-        <item row="18" column="1">
+        <item row="19" column="1">
          <widget class="QSpinBox" name="baselineDurationSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -825,7 +825,7 @@
           </property>
          </widget>
         </item>
-        <item row="19" column="0">
+        <item row="20" column="0">
          <spacer name="csSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -841,7 +841,7 @@
           </property>
          </spacer>
         </item>
-        <item row="20" column="0">
+        <item row="21" column="0">
          <widget class="QLabel" name="csNameLabel">
           <property name="font">
            <font>
@@ -856,7 +856,7 @@
           </property>
          </widget>
         </item>
-        <item row="20" column="1">
+        <item row="21" column="1">
          <widget class="QLineEdit" name="csNameLineEdit">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -895,7 +895,7 @@
           </property>
          </widget>
         </item>
-        <item row="21" column="0">
+        <item row="22" column="0">
          <widget class="QLabel" name="csDurationLabel">
           <property name="font">
            <font>
@@ -910,7 +910,7 @@
           </property>
          </widget>
         </item>
-        <item row="21" column="1">
+        <item row="22" column="1">
          <widget class="QSpinBox" name="csDurationSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -952,7 +952,7 @@
           </property>
          </widget>
         </item>
-        <item row="22" column="0">
+        <item row="23" column="0">
          <spacer name="isiSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -968,7 +968,7 @@
           </property>
          </spacer>
         </item>
-        <item row="23" column="0">
+        <item row="24" column="0">
          <widget class="QLabel" name="interstimulusIntervalLabel">
           <property name="font">
            <font>
@@ -986,7 +986,7 @@
           </property>
          </widget>
         </item>
-        <item row="23" column="1">
+        <item row="24" column="1">
          <widget class="QSpinBox" name="interstimulusIntervalSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -1028,7 +1028,7 @@
           </property>
          </widget>
         </item>
-        <item row="24" column="0">
+        <item row="25" column="0">
          <spacer name="usSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -1044,7 +1044,7 @@
           </property>
          </spacer>
         </item>
-        <item row="25" column="0">
+        <item row="26" column="0">
          <widget class="QLabel" name="usNameLabel">
           <property name="font">
            <font>
@@ -1060,7 +1060,7 @@
           </property>
          </widget>
         </item>
-        <item row="25" column="1">
+        <item row="26" column="1">
          <widget class="QLineEdit" name="usNameLineEdit">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -1099,7 +1099,7 @@
           </property>
          </widget>
         </item>
-        <item row="26" column="0">
+        <item row="27" column="0">
          <widget class="QLabel" name="usDurationLabel">
           <property name="font">
            <font>
@@ -1115,7 +1115,7 @@
           </property>
          </widget>
         </item>
-        <item row="26" column="1">
+        <item row="27" column="1">
          <widget class="QSpinBox" name="usDurationSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -1157,7 +1157,7 @@
           </property>
          </widget>
         </item>
-        <item row="27" column="0">
+        <item row="28" column="0">
          <widget class="QLabel" name="usDelayLabel">
           <property name="font">
            <font>
@@ -1175,7 +1175,7 @@
           </property>
          </widget>
         </item>
-        <item row="27" column="1">
+        <item row="28" column="1">
          <widget class="QSpinBox" name="usDelaySpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -1202,6 +1202,66 @@
           </property>
           <property name="maximum">
            <number>10000</number>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="0">
+         <widget class="QLabel" name="minVoltageLabel">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="mouseTracking">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The range of the samples in a given trial must be greater than or equal to this value in order for the program to calculate onsets and offsets for the trial. Measured in millivolts.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The range of the samples in a given trial must be greater than or equal to this value in order for the program to calculate onsets and offsets for the trial. Measured in millivolts.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Min. Voltage Difference (mV)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="1">
+         <widget class="QSpinBox" name="minVoltageSpinBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>125</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;The range of the samples in a given trial must be greater than or equal to this value in order for the program to calculate onsets and offsets for the trial. Measured in millivolts.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>The range of the samples in a given trial must be greater than or equal to this value in order for the program to calculate onsets and offsets for the trial. Measured in millivolts.</string>
+          </property>
+          <property name="maximum">
+           <number>7000</number>
+          </property>
+          <property name="singleStep">
+           <number>10</number>
+          </property>
+          <property name="value">
+           <number>500</number>
           </property>
          </widget>
         </item>
@@ -1547,7 +1607,7 @@
      <x>0</x>
      <y>0</y>
      <width>1560</width>
-     <height>37</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="font">
