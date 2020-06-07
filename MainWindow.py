@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MainUI.ui'
+# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\CsCrMachineCode\MainUI.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.1
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1560, 770)
+        MainWindow.resize(1560, 800)
         font = QtGui.QFont()
         font.setFamily("MS Sans Serif")
         MainWindow.setFont(font)
@@ -22,27 +22,33 @@ class Ui_MainWindow(object):
         self.rootHorizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
         self.rootHorizontalLayout.setObjectName("rootHorizontalLayout")
         self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.scrollArea.sizePolicy().hasHeightForWidth())
         self.scrollArea.setSizePolicy(sizePolicy)
-        self.scrollArea.setMinimumSize(QtCore.QSize(500, 0))
-        self.scrollArea.setMaximumSize(QtCore.QSize(500, 16777215))
+        self.scrollArea.setMinimumSize(QtCore.QSize(2, 0))
+        self.scrollArea.setMaximumSize(QtCore.QSize(1200, 16777215))
         self.scrollArea.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.scrollArea.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.scrollArea.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.scrollArea.setLineWidth(1)
         self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.scrollArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 481, 828))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 502, 984))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.scrollAreaWidgetContents.sizePolicy().hasHeightForWidth())
+        self.scrollAreaWidgetContents.setSizePolicy(sizePolicy)
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.formLayout_2 = QtWidgets.QFormLayout(self.scrollAreaWidgetContents)
-        self.formLayout_2.setContentsMargins(10, 10, 0, 15)
-        self.formLayout_2.setHorizontalSpacing(20)
+        self.formLayout_2.setContentsMargins(10, 10, 10, 15)
+        self.formLayout_2.setHorizontalSpacing(0)
         self.formLayout_2.setObjectName("formLayout_2")
         self.sessionSettings = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         font = QtGui.QFont()
@@ -483,13 +489,6 @@ class Ui_MainWindow(object):
         self.formLayout_2.setWidget(13, QtWidgets.QFormLayout.FieldRole, self.minVoltageSpinBox)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.rootHorizontalLayout.addWidget(self.scrollArea)
-        self.middleVerticalLine = QtWidgets.QFrame(self.centralwidget)
-        self.middleVerticalLine.setFrameShape(QtWidgets.QFrame.VLine)
-        self.middleVerticalLine.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.middleVerticalLine.setLineWidth(2)
-        self.middleVerticalLine.setMidLineWidth(0)
-        self.middleVerticalLine.setObjectName("middleVerticalLine")
-        self.rootHorizontalLayout.addWidget(self.middleVerticalLine)
         self.rightSide = QtWidgets.QVBoxLayout()
         self.rightSide.setObjectName("rightSide")
         self.graphButtonLayout = QtWidgets.QHBoxLayout()
@@ -566,7 +565,7 @@ class Ui_MainWindow(object):
         self.stopButton.setIconSize(QtCore.QSize(100, 75))
         self.stopButton.setObjectName("stopButton")
         self.graphButtonLayout.addWidget(self.stopButton)
-        spacerItem9 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem9 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
         self.graphButtonLayout.addItem(spacerItem9)
         self.sessionInfoLabel = QtWidgets.QLabel(self.centralwidget)
         font = QtGui.QFont()
@@ -577,7 +576,7 @@ class Ui_MainWindow(object):
         self.sessionInfoLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.sessionInfoLabel.setObjectName("sessionInfoLabel")
         self.graphButtonLayout.addWidget(self.sessionInfoLabel)
-        spacerItem10 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem10 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
         self.graphButtonLayout.addItem(spacerItem10)
         self.trialInfoLabel = QtWidgets.QLabel(self.centralwidget)
         font = QtGui.QFont()
@@ -605,7 +604,7 @@ class Ui_MainWindow(object):
         self.graphViewLayout = QtWidgets.QHBoxLayout()
         self.graphViewLayout.setObjectName("graphViewLayout")
         self.trialGraphWidget = GraphicsLayoutWidget(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.trialGraphWidget.sizePolicy().hasHeightForWidth())
@@ -627,7 +626,7 @@ class Ui_MainWindow(object):
         self.rootHorizontalLayout.addLayout(self.rightSide)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1560, 31))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1560, 37))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.menubar.setFont(font)
@@ -727,7 +726,8 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.sampleIntervalSpinBox, self.trialCountSpinBox)
         MainWindow.setTabOrder(self.trialCountSpinBox, self.itiSpinBox)
         MainWindow.setTabOrder(self.itiSpinBox, self.itiVarianceSpinBox)
-        MainWindow.setTabOrder(self.itiVarianceSpinBox, self.thresholdSDSpinBox)
+        MainWindow.setTabOrder(self.itiVarianceSpinBox, self.minVoltageSpinBox)
+        MainWindow.setTabOrder(self.minVoltageSpinBox, self.thresholdSDSpinBox)
         MainWindow.setTabOrder(self.thresholdSDSpinBox, self.thresholdMinDurSpinBox)
         MainWindow.setTabOrder(self.thresholdMinDurSpinBox, self.trialDurationSpinBox)
         MainWindow.setTabOrder(self.trialDurationSpinBox, self.baselineDurationSpinBox)
@@ -873,3 +873,13 @@ class Ui_MainWindow(object):
         self.actionSaveParametersAs.setStatusTip(_translate("MainWindow", "Save current parameters to a parameter file for future use"))
         self.actionSaveParametersAs.setShortcut(_translate("MainWindow", "Ctrl+S"))
 from pyqtgraph import GraphicsLayoutWidget
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())

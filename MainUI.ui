@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1560</width>
-    <height>770</height>
+    <height>800</height>
    </rect>
   </property>
   <property name="font">
@@ -23,20 +23,20 @@
     <item>
      <widget class="QScrollArea" name="scrollArea">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="minimumSize">
        <size>
-        <width>500</width>
+        <width>2</width>
         <height>0</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>500</width>
+        <width>1200</width>
         <height>16777215</height>
        </size>
       </property>
@@ -58,6 +58,9 @@
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
+      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -66,13 +69,19 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>481</width>
-         <height>828</height>
+         <width>502</width>
+         <height>984</height>
         </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
        <layout class="QFormLayout" name="formLayout_2">
         <property name="horizontalSpacing">
-         <number>20</number>
+         <number>0</number>
         </property>
         <property name="leftMargin">
          <number>10</number>
@@ -81,7 +90,7 @@
          <number>10</number>
         </property>
         <property name="rightMargin">
-         <number>0</number>
+         <number>10</number>
         </property>
         <property name="bottomMargin">
          <number>15</number>
@@ -1270,22 +1279,6 @@
      </widget>
     </item>
     <item>
-     <widget class="QFrame" name="middleVerticalLine">
-      <property name="frameShape">
-       <enum>QFrame::VLine</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <property name="lineWidth">
-       <number>2</number>
-      </property>
-      <property name="midLineWidth">
-       <number>0</number>
-      </property>
-     </widget>
-    </item>
-    <item>
      <layout class="QVBoxLayout" name="rightSide">
       <item>
        <layout class="QHBoxLayout" name="graphButtonLayout">
@@ -1470,6 +1463,9 @@
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
@@ -1501,6 +1497,9 @@
          <spacer name="buttonBarHorizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -1563,7 +1562,7 @@
         <item>
          <widget class="GraphicsLayoutWidget" name="trialGraphWidget" native="true">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -1607,7 +1606,7 @@
      <x>0</x>
      <y>0</y>
      <width>1560</width>
-     <height>31</height>
+     <height>37</height>
     </rect>
    </property>
    <property name="font">
@@ -1849,6 +1848,7 @@
   <tabstop>trialCountSpinBox</tabstop>
   <tabstop>itiSpinBox</tabstop>
   <tabstop>itiVarianceSpinBox</tabstop>
+  <tabstop>minVoltageSpinBox</tabstop>
   <tabstop>thresholdSDSpinBox</tabstop>
   <tabstop>thresholdMinDurSpinBox</tabstop>
   <tabstop>trialDurationSpinBox</tabstop>

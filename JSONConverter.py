@@ -91,7 +91,7 @@ def saveTrial(trialDataArray, previousITI):
                        "samples": trialDataList
                   }
 
-    print(str(trialObject["previousITI"]))
+    #print(str(trialObject["previousITI"]))
     #Append trial (singular) object to trials (plural) array
     jsonObject["trials"].append(trialObject)
 

@@ -70,7 +70,7 @@ def analyzeTrial(minVoltage=0, minSD=4, minDuration=1, data=[]):
     #Get the range of the samples to see if it meets the minimum voltage
     #Casting to float turns it from a numpy.float32 type to a regular float type, so it can be encoded in JSON 
     sampleRange = float(max(data) - min(data))
-    if sampleRange < minVoltage:
+    if sampleRange < minVoltage / 1000:
         return
 
     #Go through all samples in order

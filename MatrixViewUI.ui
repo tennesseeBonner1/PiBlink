@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>505</width>
+    <width>562</width>
     <height>204</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Save As Image</string>
+        <string>Save Page As Image</string>
        </property>
       </widget>
      </item>

@@ -16,9 +16,9 @@ ibiMax = 1250   #Inter-blink interval, in samples
 baseAmp = np.random.uniform(0.5, 1.0)
 blinkDurMin = 200   #In samples
 blinkDurMax = 350   #In samples
-blinkAmpMin = 1.0   #Added onto base amp
-blinkAmpMax = 3.0   #Added onto base amp
-transitionDur = 100    #Must be less than ibiMin and less than blinkDurMin
+blinkAmpMin = 1.0   #Added onto base amp, in volts
+blinkAmpMax = 3.0   #Added onto base amp, in volts
+transitionDur = 100    #Must be less than ibiMin and less than blinkDurMin, in samples
 
 
 #Random initial "baseline" value

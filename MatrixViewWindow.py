@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
-""" MatrixViewWindow.py
-    Last Modified: 5/6/2020
-    Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
-    This program sets up all of the UI in the Matrix View Window
-"""
+# Form implementation generated from reading ui file 'C:\Users\colli\source\repos\CsCrMachineCode\MatrixViewUI.ui'
+#
+# Created by: PyQt5 UI code generator 5.13.0
+#
+# WARNING! All changes made in this file will be lost!
+
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_matrixViewDialog(object):
     def setupUi(self, matrixViewDialog):
         matrixViewDialog.setObjectName("matrixViewDialog")
-        matrixViewDialog.resize(505, 204)
+        matrixViewDialog.resize(562, 204)
         self.verticalLayout = QtWidgets.QVBoxLayout(matrixViewDialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.generalButtonsLayout = QtWidgets.QHBoxLayout()
@@ -110,14 +112,14 @@ class Ui_matrixViewDialog(object):
         self.nextButton.setObjectName("nextButton")
         self.pageButtonsLayout.addWidget(self.nextButton)
         self.verticalLayout.addLayout(self.pageButtonsLayout)
+
         self.retranslateUi(matrixViewDialog)
         QtCore.QMetaObject.connectSlotsByName(matrixViewDialog)
-
 
     def retranslateUi(self, matrixViewDialog):
         _translate = QtCore.QCoreApplication.translate
         matrixViewDialog.setWindowTitle(_translate("matrixViewDialog", "Matrix View of Trials"))
-        self.saveButton.setText(_translate("matrixViewDialog", "Save As Image"))
+        self.saveButton.setText(_translate("matrixViewDialog", "Save Page As Image"))
         self.regenerateButton.setText(_translate("matrixViewDialog", "Change Parameters"))
         self.closeButton.setText(_translate("matrixViewDialog", "Close"))
         self.trialNumbersLabel.setText(_translate("matrixViewDialog", "Loading..."))
