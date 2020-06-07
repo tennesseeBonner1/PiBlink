@@ -364,7 +364,7 @@ def endTrialStartITI():
     displayTimer.stop()
 
     #Save trial
-    JSONConverter.saveTrial(data, int(previousITI))
+    JSONConverter.saveTrial(data, float(previousITI))
 
     #Don't start ITI because that was the last trial we just finished
     if ts.currentSession.currentTrial >= ts.currentSession.trialCount:

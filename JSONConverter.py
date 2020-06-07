@@ -91,6 +91,7 @@ def saveTrial(trialDataArray, previousITI):
                        "samples": trialDataList
                   }
 
+    print(str(trialObject["previousITI"]))
     #Append trial (singular) object to trials (plural) array
     jsonObject["trials"].append(trialObject)
 
@@ -223,7 +224,7 @@ def getOffsets():
     return jsonObject["trials"][ts.currentSession.currentTrial - 1]["stats"]["offsetSamples"]
 
 
-def LoadParameterFile():
+def loadParameterFile():
     
     #Pop up "Open" window to retrieve file name
     parameterFileName = QtGui.QFileDialog.getOpenFileName(parent = mainWindow.centralwidget,

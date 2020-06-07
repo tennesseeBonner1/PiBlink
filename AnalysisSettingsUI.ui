@@ -251,7 +251,7 @@
         <set>Qt::AlignCenter</set>
        </property>
        <property name="maximum">
-        <number>7000</number>
+        <number>5000</number>
        </property>
        <property name="singleStep">
         <number>10</number>

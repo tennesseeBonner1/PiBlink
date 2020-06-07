@@ -80,7 +80,7 @@ def connectButtons():
     mainWindow.actionNew.triggered.connect(newSession)
     mainWindow.actionOpen.triggered.connect(lambda: openSession())
     mainWindow.actionSaveParametersAs.triggered.connect(JSONConverter.saveAsParameterFile)
-    mainWindow.actionLoadParameters.triggered.connect(JSONConverter.LoadParameterFile)
+    mainWindow.actionLoadParameters.triggered.connect(JSONConverter.loadParameterFile)
     mainWindow.actionCaptureGraph.triggered.connect(lambda: capture("Graph", False))
     mainWindow.actionCaptureWindow.triggered.connect(lambda: capture("Window", False))
     mainWindow.actionCaptureScreen.triggered.connect(lambda: capture("Screen", False))
@@ -403,6 +403,9 @@ def sessionNameIsValid():
     sessionText = mainWindow.sessionNameLineEdit.text()
     return not ("\\" in sessionText or "/" in sessionText or ":" in sessionText or "<" in sessionText or ">" in sessionText or "*" in sessionText or "?" in sessionText or "\"" in sessionText or "|" in sessionText)
 
+#FUNCTION IS CURRENTLY INCOMPLETE AND UNIMPLEMENTED
+def trialCountIsValid():
+    return MainWindow.trailCountSpinBox.value() % 2 == 0
 
 #Sets the defaults for the names if this function is called
 def assignDefaultsToEmptyFields():

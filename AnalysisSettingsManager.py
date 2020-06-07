@@ -8,7 +8,6 @@
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QDialog, QMessageBox
 import AnalysisSettingsWindow as asw
-from datetime import datetime
 import json
 import JSONConverter as jsCon
 import DataAnalysis as da
@@ -32,6 +31,7 @@ def openAnalysisSettingsWindow():
     #Set default settings to current session values
     windowWrapper.spinBox_StdDev.setValue(ts.currentSession.thresholdSD)
     windowWrapper.spinBox_MinDuration.setValue(ts.currentSession.thresholdMinDuration)
+    windowWrapper.spinBox_MinVoltage.setValue(ts.currentSession.minVoltage)
 
     #Properly set the text in the line editor
     windowWrapper.lineEdit_customSaveName.setText(jsCon.getCurrentFilename())
@@ -49,6 +49,7 @@ def reAnalyze():
     customName = windowWrapper.lineEdit_customSaveName.text()
     stdDevNumber = windowWrapper.spinBox_StdDev.value()
     minDuration = windowWrapper.spinBox_MinDuration.value()
+    minVoltage = windowWrapper.spinBox_MinVoltage.value()
 
     nameError = False
     
@@ -78,11 +79,12 @@ def reAnalyze():
     #Update the threshold parameters
     fileCopy["header"]["thresholdSD"] = stdDevNumber
     fileCopy["header"]["thresholdMinDuration"] = minDuration
+    fileCopy["header"]["minVoltage"] = minVoltage
 
     #Go through all of the trials, calculate the new stats, and store the newly generated data 
     numTrials = int(fileCopy["header"]["trialCount"])
     for x in range(numTrials):
-        fileCopy["trials"][x]["stats"] = da.getTrialStats(stdDevNumber, minDuration, fileCopy["trials"][x]["samples"])
+        fileCopy["trials"][x]["stats"] = da.getTrialStats(minVoltage, stdDevNumber, minDuration, fileCopy["trials"][x]["samples"])
 
     #Convert the saved data to a JSON readable format
     fileString = json.dumps(fileCopy)
@@ -108,7 +110,6 @@ def reAnalyze():
 #Sets the line editor to be enabled/disabled depending on the 'Save as Custom Name' option
 def setFilenameEditorEnabled():
     windowWrapper.lineEdit_customSaveName.setEnabled(windowWrapper.radioButton_GenerateNew.isChecked())
-
 
 #Close the dialog window
 def closeWindow():

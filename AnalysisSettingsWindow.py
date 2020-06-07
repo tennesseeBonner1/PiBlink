@@ -107,7 +107,7 @@ class Ui_AnalysisSettingsWindow(object):
         font.setPointSize(14)
         self.spinBox_MinVoltage.setFont(font)
         self.spinBox_MinVoltage.setAlignment(QtCore.Qt.AlignCenter)
-        self.spinBox_MinVoltage.setMaximum(7000)
+        self.spinBox_MinVoltage.setMaximum(5000)
         self.spinBox_MinVoltage.setSingleStep(10)
         self.spinBox_MinVoltage.setProperty("value", 500)
         self.spinBox_MinVoltage.setObjectName("spinBox_MinVoltage")
