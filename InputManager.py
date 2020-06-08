@@ -1,5 +1,5 @@
 """ InputManager.py
-    Last Modified: 6/2/2020
+    Last Modified: 6/7/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for handling all input from the main window. This file also controls a few high level concerns including the 
@@ -59,6 +59,9 @@ def initialSetUp(theMainWindow):
     playMode = None
     setPlayMode(PlayMode.ACQUISITION)
 
+    #Initialize visibility of paradigm parameters
+    paradigmDropdownChanged(ts.Paradigm(0))
+
     connectButtons()
 
 
@@ -95,6 +98,9 @@ def connectButtons():
 
     #Detects when user clicks on session info label
     mainWindow.sessionInfoLabel.mousePressEvent = openGoToTrialDialog
+
+    #Detects when the paradigm dropdown is changed
+    mainWindow.paradigmComboBox.currentIndexChanged.connect(paradigmDropdownChanged)
 
     #Override close event function of QMainWindow for purpose of adding "are you sure you want to quit?" prompt
     mainWindow.centralwidget.parentWidget().closeEvent = closeEvent
@@ -274,7 +280,7 @@ def setPlaying(play):
     if not ts.currentSession:
 
         #Create session
-        ts.currentSession = ts.TheSession(mainWindow)
+        ts.currentSession = ts.TheSession(mainWindow, generatePseudoOrdering = True)
         
         #Perform set up specific to data acquisition...
 
@@ -345,9 +351,8 @@ def setAccessibilityOfSettings(accessible):
     mainWindow.trialCountSpinBox.setEnabled(accessible)
     mainWindow.itiSpinBox.setEnabled(accessible)
     mainWindow.itiVarianceSpinBox.setEnabled(accessible)
-    mainWindow.minVoltageSpinBox.setEnabled(accessible)
-    mainWindow.thresholdSDSpinBox.setEnabled(accessible)
-    mainWindow.thresholdMinDurSpinBox.setEnabled(accessible)
+
+    mainWindow.paradigmComboBox.setEnabled(accessible)
     mainWindow.trialDurationSpinBox.setEnabled(accessible)
     mainWindow.baselineDurationSpinBox.setEnabled(accessible)
     mainWindow.csNameLineEdit.setEnabled(accessible)
@@ -357,6 +362,10 @@ def setAccessibilityOfSettings(accessible):
     mainWindow.usDurationSpinBox.setEnabled(accessible)
     mainWindow.usDelaySpinBox.setEnabled(accessible)
 
+    mainWindow.minVoltageSpinBox.setEnabled(accessible)
+    mainWindow.thresholdSDSpinBox.setEnabled(accessible)
+    mainWindow.thresholdMinDurSpinBox.setEnabled(accessible)
+
     #Also set accessibility of loading settings
     mainWindow.actionLoadParameters.setEnabled(accessible)
 
@@ -365,16 +374,55 @@ def setAccessibilityOfSettings(accessible):
 def verifySettingsValid():
 
     settingsValidityText = "Current settings are invalid for the following reasons:\n\n"
-    trialDurationInvalid = not trialDurationIsValid()
-    sessionNameInvalid = not sessionNameIsValid()
+    invalidSettings = False
 
-    if trialDurationInvalid:
-        settingsValidityText += "Trial duration must be greater than or equal to baseline + CS + ISI + US\n"
-    
-    if sessionNameInvalid:
+    paradigm = ts.Paradigm(mainWindow.paradigmComboBox.currentIndex())
+
+    if paradigm == ts.Paradigm.PSEUDO:
+        if not pseudoDurationIsValid():
+            invalidSettings = True
+            settingsValidityText += "Trial duration must be >= baseline + CS and baseline + US for pseudo paradigm\n"
+
+        if not (mainWindow.trialCountSpinBox.value() % 2 == 0):
+            invalidSettings = True
+            settingsValidityText += "Number of trials must be even for pseudo paradigm\n"
+
+    elif paradigm == ts.Paradigm.TRACE:
+        if not traceDurationIsValid():
+            invalidSettings = True
+            settingsValidityText += "Trial duration must be >= baseline + CS + ISI + US for trace paradigm\n"
+
+    elif paradigm == ts.Paradigm.EXTINCT:
+        if not extinctDurationIsValid():
+            invalidSettings = True
+            settingsValidityText += "Trial duration must be >= baseline + CS for extinction paradigm\n"
+
+    elif paradigm == ts.Paradigm.DELAY:
+        if not extinctDurationIsValid(): #Extinction and delay have same duration check
+            invalidSettings = True
+            settingsValidityText += "Trial duration must be >= baseline + CS for delay paradigm\n"
+
+        if mainWindow.usDurationSpinBox.value() > mainWindow.csDurationSpinBox.value():
+            invalidSettings = True
+            settingsValidityText += "US duration must be <= CS duration for delay paradigm\n"
+
+    if mainWindow.trialDurationSpinBox.value() < 100:
+        invalidSettings = True
+        settingsValidityText += "Trial duration must be >= 100 ms\n"
+
+    if mainWindow.baselineDurationSpinBox.value() < 100:
+        invalidSettings = True
+        settingsValidityText += "Baseline duration must be >= 100 ms\n"
+
+    if not usSignalStartIsValid(paradigm):
+        invalidSettings = True
+        settingsValidityText += "US start - US signal delay must be >= 0\n"
+
+    if not sessionNameIsValid():
+        invalidSettings = True
         settingsValidityText += "Session name may not contain any of the following characters: \\ / : * ? \" < > |\n"
-    
-    if trialDurationInvalid or sessionNameInvalid:
+
+    if invalidSettings:
         invalidSettingsNotice = QMessageBox()
         invalidSettingsNotice.setText(settingsValidityText)
         invalidSettingsNotice.setWindowTitle("Invalid Settings")
@@ -383,12 +431,18 @@ def verifySettingsValid():
         invalidSettingsNotice.setFont(popUpFont)
         invalidSettingsNotice.exec()
 
-    return not trialDurationInvalid and not sessionNameInvalid 
+    return not invalidSettings
 
 
-#Returns whether or not the trial duration is valid based on the various other durations
-def trialDurationIsValid():
+def pseudoDurationIsValid():
+    baselineDur = mainWindow.baselineDurationSpinBox.value()
+    usDur = mainWindow.usDurationSpinBox.value()
+    trialDur = mainWindow.trialDurationSpinBox.value()
 
+    return extinctDurationIsValid() and baselineDur + usDur <= trialDur
+
+
+def traceDurationIsValid():
     beginningToEndOfUS = mainWindow.baselineDurationSpinBox.value()
     beginningToEndOfUS += mainWindow.csDurationSpinBox.value()
     beginningToEndOfUS += mainWindow.interstimulusIntervalSpinBox.value()
@@ -397,15 +451,34 @@ def trialDurationIsValid():
     return mainWindow.trialDurationSpinBox.value() >= beginningToEndOfUS
 
 
+def extinctDurationIsValid():
+    baselineDur = mainWindow.baselineDurationSpinBox.value()
+    csDur = mainWindow.csDurationSpinBox.value()
+    trialDur = mainWindow.trialDurationSpinBox.value()
+
+    return baselineDur + csDur <= trialDur
+
+
 #Returns if the session name contains any characters that could cause problems in a file name
 def sessionNameIsValid():
-
     sessionText = mainWindow.sessionNameLineEdit.text()
     return not ("\\" in sessionText or "/" in sessionText or ":" in sessionText or "<" in sessionText or ">" in sessionText or "*" in sessionText or "?" in sessionText or "\"" in sessionText or "|" in sessionText)
 
-#FUNCTION IS CURRENTLY INCOMPLETE AND UNIMPLEMENTED
-def trialCountIsValid():
-    return MainWindow.trailCountSpinBox.value() % 2 == 0
+
+def usSignalStartIsValid(paradigm):
+    usDelay = mainWindow.usDelaySpinBox.value()
+
+    if paradigm == ts.Paradigm.EXTINCT:
+        return True
+    elif paradigm == ts.Paradigm.TRACE:
+        baselineDur = mainWindow.baselineDurationSpinBox.value()
+        csDur = mainWindow.usDurationSpinBox.value()
+        isiDur = mainWindow.interstimulusIntervalSpinBox.value()
+
+        return baselineDur + csDur + isiDur - usDelay >= 0
+    else:
+        return mainWindow.baselineDurationSpinBox.value() - usDelay >= 0
+
 
 #Sets the defaults for the names if this function is called
 def assignDefaultsToEmptyFields():
@@ -641,7 +714,6 @@ def updateSessionInfoLabel():
 '''
 #Resets all setting fields on the UI to have their default values
 def resetSettingsToDefaults():
-    #Session settings
     mainWindow.sessionNameLineEdit.setText("")
     mainWindow.subjectAgeSpinBox.setValue(30)
     mainWindow.subjectSexComboBox.setCurrentIndex(0)
@@ -649,10 +721,7 @@ def resetSettingsToDefaults():
     mainWindow.trialCountSpinBox.setValue(25)
     mainWindow.itiSpinBox.setValue(15)
     mainWindow.itiVarianceSpinBox.setValue(3)
-    mainWindow.thresholdSDSpinBox.setValue(4)
-    mainWindow.thresholdMinDurSpinBox.setValue(10)
 
-    #Trial settings
     mainWindow.trialDurationSpinBox.setValue(3000)
     mainWindow.baselineDurationSpinBox.setValue(1000)
     mainWindow.csNameLineEdit.setText("Tone")
@@ -661,7 +730,48 @@ def resetSettingsToDefaults():
     mainWindow.usNameLineEdit.setText("Air Puff")
     mainWindow.usDurationSpinBox.setValue(100)
     mainWindow.usDelaySpinBox.setValue(0)
+
+    mainWindow.thresholdSDSpinBox.setValue(4)
+    mainWindow.thresholdMinDurSpinBox.setValue(10)
 '''
+
+#Hides/shows paradigm parameters when paradigm dropdown changes
+def paradigmDropdownChanged(newParadigmIndex):
+    newParadigm = ts.Paradigm(newParadigmIndex)
+
+    #ISI only for TRACE
+    if newParadigm == ts.Paradigm.TRACE:
+        mainWindow.isiImprovSpacer.show()
+        mainWindow.interstimulusIntervalSpinBox.show()
+        mainWindow.interstimulusIntervalLabel.show()
+    else:
+        mainWindow.isiImprovSpacer.hide()
+        mainWindow.interstimulusIntervalSpinBox.hide()
+        mainWindow.interstimulusIntervalLabel.hide()
+
+    #US not part of EXTINCT
+    if newParadigm == ts.Paradigm.EXTINCT:
+        mainWindow.usImprovSpacer.hide()
+
+        mainWindow.usNameLineEdit.hide()
+        mainWindow.usNameLabel.hide()
+
+        mainWindow.usDurationSpinBox.hide()
+        mainWindow.usDurationLabel.hide()
+        
+        mainWindow.usDelaySpinBox.hide()
+        mainWindow.usDelayLabel.hide()
+    else:
+        mainWindow.usImprovSpacer.show()
+
+        mainWindow.usNameLineEdit.show()
+        mainWindow.usNameLabel.show()
+
+        mainWindow.usDurationSpinBox.show()
+        mainWindow.usDurationLabel.show()
+
+        mainWindow.usDelaySpinBox.show()
+        mainWindow.usDelayLabel.show()
 
 #Closes all windows upon crash
 def closeWindowsOnCrash():

@@ -2,9 +2,10 @@
     Last Modified: 6/6/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
-    Returns random noise to act as a substitute for getNextSample in Data Wizard.
-    This is used on projects that run outside of the Pi that still need some kind of data...
-    to be plot on the graph for debugging purposes.
+    Returns quazi-random emulated eyeblinks as a substitute for getNextSample in Data Wizard.
+    Like NoiseWizard, this is run on computers that do not have data collection abilities but
+    still need to debug the program. SuperNoiseWizard is used in place of NoiseWizard when
+    you need sample data that acts like real data such as when testing analysis capabilities.
 """
 import numpy as np
 import timeit

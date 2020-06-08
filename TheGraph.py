@@ -68,7 +68,7 @@ def setPlaying(play):
 
     #During data acquisition...
     if im.playMode == im.PlayMode.ACQUISITION:
-        #Synch time critical process to be in same play state
+        #Sync time critical process to be in same play state
         tco.orderToSetPlaying(play)
 
         #When we press play and the session has not yet started, start it
@@ -153,12 +153,13 @@ def createBarGraph():
 
 
 #Resets the graph (clears display and status; afterwards is ready for new call to createTrialGraph)
-def resetTrialGraph():
+def resetTrialGraph(pauseOnReset = True):
 
     global playing, graphInitialized, duringITI, done
 
     #Reset variables
-    playing = False
+    if pauseOnReset:
+        setPlaying(False)
     graphInitialized = False
     done = False
 
@@ -227,25 +228,39 @@ def createTrialGraph(editStatus = True):
     #Disables the context menu you see when right-clicking on the graph
     trialGraph.setMenuEnabled(False)
 
+    #Determine what stimuli (CS and/or US) the trial has
+    if ts.currentSession.paradigm == ts.Paradigm.PSEUDO:
+        hasCS = ts.currentSession.pseudoTrialOrdering[ts.currentSession.currentTrial - 1]
+        hasUS = not hasCS
+    else:
+        hasCS = True
+        hasUS = ts.currentSession.usStartInSamples >= 0
+
     #Create CS lines and shaded area between lines
-    csStart = ts.currentSession.csStartInSamples
-    csEnd = ts.currentSession.csEndInSamples
-    csRegion = pg.LinearRegionItem(values = [csStart, csEnd], brush = stimulusColor, movable = False)
-    csRegion.lines[0].setPen(stimulusColor)
-    csRegion.lines[1].setPen(stimulusColor)
-    trialGraph.addItem(csRegion)
+    if hasCS:
+        csStart = ts.currentSession.csStartInSamples
+        csEnd = ts.currentSession.csEndInSamples
+        csRegion = pg.LinearRegionItem(values = [csStart, csEnd], brush = stimulusColor, movable = False)
+        csRegion.lines[0].setPen(stimulusColor)
+        csRegion.lines[1].setPen(stimulusColor)
+        trialGraph.addItem(csRegion)
 
     #Same for US
-    usStart = ts.currentSession.usStartInSamples
-    usEnd = ts.currentSession.usEndInSamples
-    usRegion = pg.LinearRegionItem(values = [usStart, usEnd], brush = stimulusColor, movable = False)
-    usRegion.lines[0].setPen(stimulusColor)
-    usRegion.lines[1].setPen(stimulusColor)
-    trialGraph.addItem(usRegion)
+    if hasUS:
+        usStart = ts.currentSession.usStartInSamples
+        usEnd = ts.currentSession.usEndInSamples
+        usRegion = pg.LinearRegionItem(values = [usStart, usEnd], brush = stimulusColor, movable = False)
+        usRegion.lines[0].setPen(stimulusColor)
+        usRegion.lines[1].setPen(stimulusColor)
+        trialGraph.addItem(usRegion)
 
     #Add CS and US text labels
-    stimulusTicks = [[((csStart + csEnd) / 2, "CS"), ((usStart + usEnd) / 2, "US")]]
-    trialGraph.getAxis('top').setTicks(stimulusTicks)
+    stimulusTicks = []
+    if hasCS:
+        stimulusTicks.append(((csStart + csEnd) / 2, "CS"))
+    if hasUS:
+        stimulusTicks.append(((usStart + usEnd) / 2, "US"))
+    trialGraph.getAxis('top').setTicks([stimulusTicks])
     trialGraph.getAxis('top').setTickFont(im.popUpFont)
     trialGraph.getAxis('top').setHeight(-5)
     trialGraph.showAxis('top', True)
@@ -389,13 +404,15 @@ def endTrialStartITI():
     itiCountdown = tco.itiQueue.get(timeout = 3)
     previousITI = itiCountdown
 
-    #Create countdown label "Next trial in... X.X"
-    mainWindow.trialInfoLabel.setText("NEXT TRIAL IN...\n\n{:5.1f}".format(itiCountdown))
+    if itiCountdown > 0:
+        #Create countdown label "Next trial in... X.X"
+        mainWindow.trialInfoLabel.setText("NEXT TRIAL IN...\n\n{:5.1f}".format(itiCountdown))
 
-    #Begin ITI
-    duringITI = True
-    setPlaying(True)
-    itiTimer.start(100) #Parameter is millisecond interval between updates
+        #Begin ITI
+        duringITI = True
+        itiTimer.start(100) #Parameter is millisecond interval between updates
+    else:
+        endITIStartTrial()
 
 
 #Update the iti for the countdown
@@ -412,6 +429,11 @@ def itiUpdate():
     #so just empty out queue and set countdown to latest push
     while not tco.itiQueue.empty():
         itiCountdown = tco.itiQueue.get(block = False)
+
+        #The exception is when ITI is 0, stop taking from queue b/c next samples are...
+        #for next ITI
+        if itiCountdown == 0:
+            break
 
     #Display updated countdown (format countdown from int to string with 1 decimal point precision)
     mainWindow.trialInfoLabel.setText("NEXT TRIAL IN...\n\n{:5.1f}".format(itiCountdown))
@@ -430,7 +452,7 @@ itiTimer.setTimerType(QtCore.Qt.PreciseTimer)
 #Stop the ITI and begin the next trial
 def endITIStartTrial():
     #Stop ITI (does the following: clears previous trial graph, duringITI = False, itiTimer.stop())
-    resetTrialGraph()
+    resetTrialGraph(pauseOnReset = False)
 
     #Update trial info label
     mainWindow.trialInfoLabel.setText("RUNNING TRIAL")
@@ -439,7 +461,6 @@ def endITIStartTrial():
     ts.currentSession.currentTrial += 1
 
     #Begin new trial
-    setPlaying(True)
     createTrialGraph()
 
 

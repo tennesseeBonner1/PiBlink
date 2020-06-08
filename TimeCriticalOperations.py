@@ -73,7 +73,9 @@ def orderToStartSession():
     while not itiQueue.empty():
         itiQueue.get(block = False)
 
-    commandQueue.put((Command.START_SESSION, ts.currentSession))
+    #Have to pass trial ordering as third parameter because only "top-level attributes"...
+    #of objects are pickled to be sent across the pipe/queue
+    commandQueue.put((Command.START_SESSION, ts.currentSession, ts.currentSession.pseudoTrialOrdering))
 
 
 #Control play status, i.e. True = play, False = pause
@@ -144,16 +146,16 @@ def mainLoop():
 
 
 #Begins running data acquisition session according to session settings passed in
-def runSession(sessionObject):
+def runSession(sessionObject, thePseudoTrialOrdering):
 
     recordSessionStart()
     
-    initializeSession(sessionObject)
+    initializeSession(sessionObject, thePseudoTrialOrdering)
 
     #Session loop
     for trial in range(1, trialCount + 1):
         #Run trial
-        runTrial()
+        runTrial(trial)
         if stopSession or stopProcess:
             break
 
@@ -169,10 +171,10 @@ def runSession(sessionObject):
 
 
 #Runs a single data acquisition trial
-def runTrial():
+def runTrial(trialNumber):
 
     #Start data acquisition trial
-    initializeTrial()
+    initializeTrial(trialNumber)
 
     #Used to implement sample interval parameter (see loop below for usage)
     msLeftInCurrentInterval = sampleIntervalInMS
@@ -281,14 +283,19 @@ def pauseLoop():
     recordPauseEnd()
 
 #Initialize a session
-def initializeSession(sessionObject):
+def initializeSession(sessionObject, thePseudoTrialOrdering):
 
-    global stopSession
+    global stopSession, paradigm, pseudoTrialOrdering
     global sampleIntervalInMS, trialCount, baseITI, itiVariance
-    global csStart, csEnd, usStart, usEnd, trialDurationInMS, trialLengthInSamples
+    global sessionCSStart, sessionCSEnd, sessionUSStart, sessionUSEnd
+    global trialDurationInMS, trialLengthInSamples
 
     #Only set to true when session execution needs to be terminated (i.e. stop button pressed)
     stopSession = False
+
+    #Needed to determine when to start/stop CS/US signals
+    paradigm = sessionObject.paradigm
+    pseudoTrialOrdering = thePseudoTrialOrdering
 
     #Get sample interval
     sampleIntervalInMS = sessionObject.sampleInterval
@@ -301,10 +308,10 @@ def initializeSession(sessionObject):
     itiVariance = sessionObject.itiVariance
 
     #Get CS/US start/end
-    csStart = sessionObject.csStartInSamples
-    csEnd = sessionObject.csEndInSamples
-    usStart = sessionObject.usSignalStartInSamples
-    usEnd = sessionObject.usSignalEndInSamples
+    sessionCSStart = sessionObject.csStartInSamples
+    sessionCSEnd = sessionObject.csEndInSamples
+    sessionUSStart = sessionObject.usSignalStartInSamples
+    sessionUSEnd = sessionObject.usSignalEndInSamples
 
     #Get trial length in samples
     trialLengthInSamples = sessionObject.trialLengthInSamples
@@ -324,7 +331,25 @@ def initializeSession(sessionObject):
     trialDurationInMS = sessionObject.trialDuration
 
 #Initializes a trial
-def initializeTrial():
+def initializeTrial(trialNumber):
+
+    #Determine the stimuli (CS/US) start/end samples...
+    global csStart, csEnd, usStart, usEnd
+
+    #Start by assuming both CS and US are present for trial
+    csStart = sessionCSStart
+    csEnd = sessionCSEnd
+    usStart = sessionUSStart
+    usEnd = sessionUSEnd
+
+    #Remove CS or US if needed
+    if paradigm == ts.Paradigm.PSEUDO:
+        if pseudoTrialOrdering[trialNumber - 1]:
+            usStart = -100000
+            usEnd = -100000
+        else:
+            csStart = -100000
+            csEnd = -100000 
 
     #Prepare ADC library for sampling
     dw.onTrialStart()
@@ -338,13 +363,12 @@ def processCommand(currentlyIn):
     #Extract the command
     fullCommand = commandQueue.get(block = False)
     command = fullCommand[0]
-    commandArguments = fullCommand[1]
 
     breakOnReturn = False
 
     #Identify the command and process it if applicable to current situation
     if command == Command.START_SESSION and currentlyIn == CurrentlyIn.MAIN_LOOP:
-        runSession(commandArguments)
+        runSession(fullCommand[1], fullCommand[2])
 
     elif command == Command.PAUSE_SESSION and currentlyIn == CurrentlyIn.RUNNING_SESSION:
 

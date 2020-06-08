@@ -68,9 +68,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
-         <width>502</width>
-         <height>984</height>
+         <y>-388</y>
+         <width>472</width>
+         <height>1102</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -81,7 +81,10 @@
        </property>
        <layout class="QFormLayout" name="formLayout_2">
         <property name="horizontalSpacing">
-         <number>0</number>
+         <number>10</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>7</number>
         </property>
         <property name="leftMargin">
          <number>10</number>
@@ -96,9 +99,10 @@
          <number>15</number>
         </property>
         <item row="0" column="0">
-         <widget class="QLabel" name="sessionSettings">
+         <widget class="QLabel" name="sessionParametersHeader">
           <property name="font">
            <font>
+            <family>Franklin Gothic Medium Cond</family>
             <pointsize>22</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -245,12 +249,12 @@
           </property>
           <item>
            <property name="text">
-            <string>MALE</string>
+            <string>Male</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>FEMALE</string>
+            <string>Female</string>
            </property>
           </item>
          </widget>
@@ -545,8 +549,8 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="0">
-         <spacer name="ThresholdSpacer">
+        <item row="15" column="0">
+         <spacer name="paradigmSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -561,125 +565,64 @@
           </property>
          </spacer>
         </item>
-        <item row="14" column="0">
-         <widget class="QLabel" name="thresholdSDLabel">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program determines the threshold by calculating the average and standard deviation of the values recorded during the initial &lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;baseline&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; portion of the trial. The threshold is then set to be however many standard deviations specified away from the average.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The threshold determines the minimum amplitude required for the signal to register as an eyeblink.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="whatsThis">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program determines the threshold by calculating the average and standard deviation of the values recorded during the initial &lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;baseline&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; portion of the trial. The threshold is then set to be however many standard deviations specified away from the average.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The threshold determines the minimum amplitude required for the signal to register as an eyeblink.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="text">
-           <string>Threshold Std. Deviations</string>
-          </property>
-         </widget>
-        </item>
-        <item row="14" column="1">
-         <widget class="QSpinBox" name="thresholdSDSpinBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>125</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::StrongFocus</enum>
-          </property>
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;The number of standard deviations from the average the threshold is set to&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="whatsThis">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program determines the threshold by calculating the average and standard deviation of the values recorded during the initial baseline portion of the trial. The threshold is then set to be however many standard deviations specified away from the average.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The threshold determines the minimum amplitude required for the signal to register as an eyeblink.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>20</number>
-          </property>
-          <property name="value">
-           <number>4</number>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="0">
-         <widget class="QLabel" name="thresholdMinDurLabel">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This variable determines how long the signal must stay above the threshold in order for an eyeblink onset to be recorded. If the signal registers as an eyeblink, the program will record the &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;first&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; sample of the eyeblink that was above the threshold.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Example:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;f samples 20 - 90 were above the threshold and the minimum duration were 10 ms, sample 20 would be marked as the onset, not sample 30.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="whatsThis">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This variable determines how long the signal must stay above the threshold in order for an eyeblink onset to be recorded. If the signal registers as an eyeblink, the program will record the &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;first&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; sample of the eyeblink that was above the threshold.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Example:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;f samples 20 - 90 were above the threshold and the minimum duration were 10 ms, sample 20 would be marked as the onset, not sample 30.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="text">
-           <string>Threshold Min. Duration (ms)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="1">
-         <widget class="QSpinBox" name="thresholdMinDurSpinBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>125</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::StrongFocus</enum>
-          </property>
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;How long the signal must stay over the threshold to record an onset&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="whatsThis">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This variable determines how long the signal must stay above the threshold in order for an eyeblink onset to be recorded. If the signal registers as an eyeblink, the program will record the &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;first&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; sample of the eyeblink that was above the threshold.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Example:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;f samples 20 - 90 were above the threshold and the minimum duration were 10 ms, sample 20 would be marked as the onset, not sample 30.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="suffix">
-           <string/>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>1000</number>
-          </property>
-          <property name="value">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
         <item row="16" column="0">
-         <spacer name="trialSettingsSpacer">
+         <widget class="QLabel" name="paradigmParametersHeader">
+          <property name="font">
+           <font>
+            <family>Franklin Gothic Medium Cond</family>
+            <pointsize>22</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Paradigm Parameters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="0">
+         <widget class="QLabel" name="paradigmLabel">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Paradigm</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="1">
+         <widget class="QComboBox" name="paradigmComboBox">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <item>
+           <property name="text">
+            <string>Pseudo</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Trace</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Extinct</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Delay</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="18" column="0">
+         <spacer name="durationSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -689,26 +632,12 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>10</height>
+            <height>5</height>
            </size>
           </property>
          </spacer>
         </item>
-        <item row="17" column="0">
-         <widget class="QLabel" name="trialSettings">
-          <property name="font">
-           <font>
-            <pointsize>22</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Trial Parameters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="18" column="0">
+        <item row="19" column="0">
          <widget class="QLabel" name="trialDurationLabel">
           <property name="font">
            <font>
@@ -726,7 +655,7 @@
           </property>
          </widget>
         </item>
-        <item row="18" column="1">
+        <item row="19" column="1">
          <widget class="QSpinBox" name="trialDurationSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -771,7 +700,7 @@
           </property>
          </widget>
         </item>
-        <item row="19" column="0">
+        <item row="20" column="0">
          <widget class="QLabel" name="baselineDurationLabel">
           <property name="font">
            <font>
@@ -789,7 +718,7 @@
           </property>
          </widget>
         </item>
-        <item row="19" column="1">
+        <item row="20" column="1">
          <widget class="QSpinBox" name="baselineDurationSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -834,7 +763,7 @@
           </property>
          </widget>
         </item>
-        <item row="20" column="0">
+        <item row="21" column="0">
          <spacer name="csSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -850,7 +779,7 @@
           </property>
          </spacer>
         </item>
-        <item row="21" column="0">
+        <item row="22" column="0">
          <widget class="QLabel" name="csNameLabel">
           <property name="font">
            <font>
@@ -865,7 +794,7 @@
           </property>
          </widget>
         </item>
-        <item row="21" column="1">
+        <item row="22" column="1">
          <widget class="QLineEdit" name="csNameLineEdit">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -904,7 +833,7 @@
           </property>
          </widget>
         </item>
-        <item row="22" column="0">
+        <item row="23" column="0">
          <widget class="QLabel" name="csDurationLabel">
           <property name="font">
            <font>
@@ -919,7 +848,7 @@
           </property>
          </widget>
         </item>
-        <item row="22" column="1">
+        <item row="23" column="1">
          <widget class="QSpinBox" name="csDurationSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -961,23 +890,29 @@
           </property>
          </widget>
         </item>
-        <item row="23" column="0">
-         <spacer name="isiSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+        <item row="24" column="0">
+         <widget class="Line" name="isiImprovSpacer">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
+          <property name="minimumSize">
            <size>
-            <width>20</width>
+            <width>0</width>
             <height>5</height>
            </size>
           </property>
-         </spacer>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
         </item>
-        <item row="24" column="0">
+        <item row="25" column="0">
          <widget class="QLabel" name="interstimulusIntervalLabel">
           <property name="font">
            <font>
@@ -995,7 +930,7 @@
           </property>
          </widget>
         </item>
-        <item row="24" column="1">
+        <item row="25" column="1">
          <widget class="QSpinBox" name="interstimulusIntervalSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -1037,23 +972,7 @@
           </property>
          </widget>
         </item>
-        <item row="25" column="0">
-         <spacer name="usSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>5</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="26" column="0">
+        <item row="27" column="0">
          <widget class="QLabel" name="usNameLabel">
           <property name="font">
            <font>
@@ -1069,7 +988,7 @@
           </property>
          </widget>
         </item>
-        <item row="26" column="1">
+        <item row="27" column="1">
          <widget class="QLineEdit" name="usNameLineEdit">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -1108,7 +1027,7 @@
           </property>
          </widget>
         </item>
-        <item row="27" column="0">
+        <item row="28" column="0">
          <widget class="QLabel" name="usDurationLabel">
           <property name="font">
            <font>
@@ -1124,7 +1043,7 @@
           </property>
          </widget>
         </item>
-        <item row="27" column="1">
+        <item row="28" column="1">
          <widget class="QSpinBox" name="usDurationSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -1166,7 +1085,7 @@
           </property>
          </widget>
         </item>
-        <item row="28" column="0">
+        <item row="29" column="0">
          <widget class="QLabel" name="usDelayLabel">
           <property name="font">
            <font>
@@ -1184,7 +1103,7 @@
           </property>
          </widget>
         </item>
-        <item row="28" column="1">
+        <item row="29" column="1">
          <widget class="QSpinBox" name="usDelaySpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -1214,7 +1133,38 @@
           </property>
          </widget>
         </item>
-        <item row="13" column="0">
+        <item row="30" column="0">
+         <spacer name="analysisSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>5</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="31" column="0">
+         <widget class="QLabel" name="analysisParametersHeader">
+          <property name="font">
+           <font>
+            <family>Franklin Gothic Medium Cond</family>
+            <pointsize>22</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Analysis Parameters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="32" column="0">
          <widget class="QLabel" name="minVoltageLabel">
           <property name="font">
            <font>
@@ -1235,7 +1185,7 @@
           </property>
          </widget>
         </item>
-        <item row="13" column="1">
+        <item row="32" column="1">
          <widget class="QSpinBox" name="minVoltageSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -1271,6 +1221,145 @@
           </property>
           <property name="value">
            <number>500</number>
+          </property>
+         </widget>
+        </item>
+        <item row="33" column="0">
+         <widget class="QLabel" name="thresholdSDLabel">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program determines the threshold by calculating the average and standard deviation of the values recorded during the initial &lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;baseline&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; portion of the trial. The threshold is then set to be however many standard deviations specified away from the average.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The threshold determines the minimum amplitude required for the signal to register as an eyeblink.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program determines the threshold by calculating the average and standard deviation of the values recorded during the initial &lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;baseline&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; portion of the trial. The threshold is then set to be however many standard deviations specified away from the average.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The threshold determines the minimum amplitude required for the signal to register as an eyeblink.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Threshold Std. Deviations</string>
+          </property>
+         </widget>
+        </item>
+        <item row="33" column="1">
+         <widget class="QSpinBox" name="thresholdSDSpinBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>125</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;The number of standard deviations from the average the threshold is set to&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The program determines the threshold by calculating the average and standard deviation of the values recorded during the initial baseline portion of the trial. The threshold is then set to be however many standard deviations specified away from the average.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The threshold determines the minimum amplitude required for the signal to register as an eyeblink.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>20</number>
+          </property>
+          <property name="value">
+           <number>4</number>
+          </property>
+         </widget>
+        </item>
+        <item row="34" column="0">
+         <widget class="QLabel" name="thresholdMinDurLabel">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This variable determines how long the signal must stay above the threshold in order for an eyeblink onset to be recorded. If the signal registers as an eyeblink, the program will record the &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;first&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; sample of the eyeblink that was above the threshold.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Example:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;f samples 20 - 90 were above the threshold and the minimum duration were 10 ms, sample 20 would be marked as the onset, not sample 30.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This variable determines how long the signal must stay above the threshold in order for an eyeblink onset to be recorded. If the signal registers as an eyeblink, the program will record the &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;first&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; sample of the eyeblink that was above the threshold.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Example:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;f samples 20 - 90 were above the threshold and the minimum duration were 10 ms, sample 20 would be marked as the onset, not sample 30.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Threshold Min. Duration (ms)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="34" column="1">
+         <widget class="QSpinBox" name="thresholdMinDurSpinBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>125</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;How long the signal must stay over the threshold to record an onset&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This variable determines how long the signal must stay above the threshold in order for an eyeblink onset to be recorded. If the signal registers as an eyeblink, the program will record the &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;first&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; sample of the eyeblink that was above the threshold.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Example:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;f samples 20 - 90 were above the threshold and the minimum duration were 10 ms, sample 20 would be marked as the onset, not sample 30.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="suffix">
+           <string/>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+          <property name="value">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item row="26" column="0">
+         <widget class="Line" name="usImprovSpacer">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>5</height>
+           </size>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -1848,9 +1937,7 @@
   <tabstop>trialCountSpinBox</tabstop>
   <tabstop>itiSpinBox</tabstop>
   <tabstop>itiVarianceSpinBox</tabstop>
-  <tabstop>minVoltageSpinBox</tabstop>
-  <tabstop>thresholdSDSpinBox</tabstop>
-  <tabstop>thresholdMinDurSpinBox</tabstop>
+  <tabstop>paradigmComboBox</tabstop>
   <tabstop>trialDurationSpinBox</tabstop>
   <tabstop>baselineDurationSpinBox</tabstop>
   <tabstop>csNameLineEdit</tabstop>
@@ -1859,6 +1946,9 @@
   <tabstop>usNameLineEdit</tabstop>
   <tabstop>usDurationSpinBox</tabstop>
   <tabstop>usDelaySpinBox</tabstop>
+  <tabstop>minVoltageSpinBox</tabstop>
+  <tabstop>thresholdSDSpinBox</tabstop>
+  <tabstop>thresholdMinDurSpinBox</tabstop>
   <tabstop>lockButton</tabstop>
   <tabstop>playButton</tabstop>
   <tabstop>scrollArea</tabstop>
