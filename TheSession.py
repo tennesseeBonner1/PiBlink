@@ -149,6 +149,8 @@ class TheSession(object):
         self.usDuration = int(jsonSettings["usDuration"])
         self.usDelay = int(jsonSettings["usDelay"])
 
+        self.pseudoTrialOrdering = jsonSettings["pseudoTrialOrdering"]
+
         self.minVoltage = int(jsonSettings["minVoltage"])
         self.thresholdSD = int(jsonSettings["thresholdSD"])
         self.thresholdMinDuration = int(jsonSettings["thresholdMinDuration"])
@@ -202,6 +204,8 @@ class TheSession(object):
                         "usName": self.usName,
                         "usDuration": self.usDuration,
                         "usDelay": self.usDelay,
+
+                        "pseudoTrialOrdering": self.pseudoTrialOrdering,
 
                         "minVoltage": self.minVoltage,
                         "thresholdSD": self.thresholdSD,
