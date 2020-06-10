@@ -1,7 +1,7 @@
 # PiBlink
 **Link:** [github.com/tennesseeBonner1/PiBlink](https://github.com/tennesseeBonner1/PiBlink)
 
-As of 5/8/2020, the project is comprised of the files listed below.\
+As of 6/10/2020, the project is comprised of the files listed below.\
 The general categories of files are:
 - Main Files
 - Reference Files
@@ -26,10 +26,6 @@ files for viewing.
 - **DataWizard.py**:
     Handles all of the analog input and outputs.
 
-- **ElectronicBrilliance.py**:
-    Contains a few lines of code that are added to a .py file after it is converted from a 
-    .ui file.
-
 - **GraphExporter.py**:
     Exports a screenshot of the graph as an image file.
 
@@ -41,7 +37,8 @@ files for viewing.
 - **JSONConverter.py**:
     Used to save sessions as JSON files and open them back up for playback. TheGraph.py 
     uses this file to save/read trials and InputManager.py uses this file to save/read
-	session settings and start/end the save/read process for the whole session.
+    session settings and start/end the save/read process for the whole session. This
+    file is also responsible for saving/loading parameter files.
 
 - **MainWindow.py**:
     All of the settings for the main window are initialized and all of the various text 
@@ -49,22 +46,39 @@ files for viewing.
 
 - **NoiseWizard.py**:
     Used instead of DataWizard to generate a set of random data to test the program 
-	without the use of the data read from the DAC and DAC converter.
+	without the use of the data read from the ADC and DAC converter.
+
+- **ParameterValidator.py**:
+    Used to determine whether the parameters currently in the GUI panel are valid.
+    When the user attempts to lock the settings, InputManager.py calls the verifySettingsValid
+    function in this file which uses the rest of the functions in this file to check validity,
+    prompt the user of any problems, and return the answer to the caller.
+
+- **SuperNoiseWizard.py**:
+    Same thing as NoiseWizard.py except it attempts to emulate real eye blinks instead of
+    generate random noise. This is useful when trying to debug analysis functionalities.
 
 - **TheGraph.py**:
-    This file controls all of the visuals in the graph and displays the information as it 
-    updates.
+    This file controls all of the visuals for both the trial graph and real-time voltage bar graph
+    and displays the information as it updates. It is the place in the main process where samples
+    are received from the sampling process.
 
 - **TheSession.py**:
-    This session file is a singleton instance that saves all of the settings for 
-	the session (the series of trials). The file also has the initial constructor for a 
-	new session (which reads in the settings from the GUI and coverts all mesurements from 
-	seconds and milliseconds to samples).
+    Contains TheSession class which is used to encapsulate session information. Various instances
+    of this class are made throughout the program for different purposes. The most common instance
+    is the singleton "currentSession", used to represent the currently running data acquisition
+    session or loaded playback session (if applicable). This singleton is stored at the top of this
+    file as a global variable. This file contains the constructors/functions for reading from/writing
+    to both the GUI parameter panel and JSON files. Both saved session files and parameter files
+    use this class.
 
 - **TimeCriticalOperations.py**:
     The file that has all the code for managing/running the sampling/time-critical process.
     This process controls the timing of data acquisition trials. So it runs both trials and ITIs.
     This does not include the act of retrieving the sample, that is done in DataWizard.py.
+    Also responsible for sending samples at all times to the main process, regardless of if a trial
+    is running, to update the real-time voltage bar.
+    
 ---	
 ## Reference Files
 These files are listed separately from the main files as they come directly from an 
@@ -129,10 +143,15 @@ These files hold session information (i.e. trial data, session settings, etc). T
 files are *The* session files, as all other files in this category are a subset of and/or 
 are generated from a JSON file. They hold all session information.
 
-- **JSON files**:
-    These are the saved session files. If the user tries to save a session with the same name as
-	an already saved session, a numbering scheme will ensure the new session is given a new name
-	and the old one is not overwritten.
-
+- **Saved Session Files**:
+    These files save the entirety of a single session as one JSON file. If the user tries to save a
+    session with the same name as an already saved session, a numbering scheme will ensure the new
+    session is given a new name and the old one is not overwritten.
+    
+- **Parameter Files**:
+    These files save whatever is in the GUI parameter panel for later use. They are JSON files
+    identical to saved session files except the trial data list is blank. These files are not
+    required to reopen saved sessions. They are provided as a mere option for convenience.
+    
 - **Capture & Matrix View Files**
     These are simple PNG or JPG/JPEG files of the item in question.
