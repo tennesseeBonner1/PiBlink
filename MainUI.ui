@@ -68,7 +68,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-388</y>
+         <y>0</y>
          <width>472</width>
          <height>1102</height>
         </rect>
@@ -677,9 +677,6 @@
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Must be greater than or equal to baseline + CS + ISI + US&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
           <property name="whatsThis">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the total duration of the trial, including baseline, conditioned stimulus (CS), interstimulus interval, and unconditioned stimulus (US). The program will check before the settings are locked to ensure that the trial duration is sufficient given the other durations set.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
@@ -741,7 +738,7 @@
            <enum>Qt::StrongFocus</enum>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Duration before start of CS&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Duration before the first stimulus&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="whatsThis">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This is the duration before the conditioned stimulus. The samples collected during this portion of the trial will be used to determine where the eyeblink threshold is for all other parts of the trial.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1093,13 +1090,13 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The US delay represents how long it takes for the actual, physical administering of the unconditioned stimulus after the signal has been sent. It thus represents how many milliseconds &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-style:italic;&quot;&gt;before&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; the start of the US section that the signal will be sent to account for the delay.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The US signal delay represents how long it takes for the actual, physical administering of the unconditioned stimulus after the signal has been sent. It thus represents how many milliseconds &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-style:italic;&quot;&gt;before&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; the start of the US section that the signal will be sent to account for the delay.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="whatsThis">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The US delay represents how long it takes for the actual, physical administering of the unconditioned stimulus after the signal has been sent. It thus represents how many milliseconds &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-style:italic;&quot;&gt;before&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; the start of the US section that the signal will be sent to account for the delay.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The US signal delay represents how long it takes for the actual, physical administering of the unconditioned stimulus after the signal has been sent. It thus represents how many milliseconds &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-style:italic;&quot;&gt;before&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; the start of the US section that the signal will be sent to account for the delay.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
-           <string>US Delay (ms)</string>
+           <string>US Signal Delay (ms)</string>
           </property>
          </widget>
         </item>

@@ -22,7 +22,7 @@ import timeit
 import numpy as np
 from enum import Enum
 import TheSession as ts
-import NoiseWizard as dw
+import DataWizard as dw
 
 #Set this to false to eliminate performance print outs
 printPerformanceMeasurements = False

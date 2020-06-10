@@ -62,10 +62,10 @@ def startDataAcquisition():
 
     #Define ideal filename
     if name:
-        baseName = name + " (" + sex + " " + age + pd +") " + date
+        baseName = name + " (" + sex + age + pd +") " + date
 
     else:
-        baseName = "(" + sex + " " + age + pd + ") " + date
+        baseName = "(" + sex + age + pd + ") " + date
 
     #Put filename, location and '.json' together
     idealFilename = os.path.join(desiredLocation, baseName)
@@ -132,7 +132,7 @@ def saveAsParameterFile():
 
     #Pop up "Save As" window to retrieve file name and type to save as
     parameterFileName = QtGui.QFileDialog.getSaveFileName(parent = mainWindow.centralwidget,
-                    caption = "Save Parameter File As",
+                    caption = "Save As Parameter File",
                     directory = getParameterFileDirectory(createIfNonexistent = True),
                     filter = "JSON (*.json)")[0]
 

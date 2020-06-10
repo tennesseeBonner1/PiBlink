@@ -1,5 +1,5 @@
 """ InputManager.py
-    Last Modified: 6/7/2020
+    Last Modified: 6/10/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
 
     This file is responsible for handling all input from the main window. This file also controls a few high level concerns including the 
@@ -17,6 +17,7 @@ import JSONConverter
 import TimeCriticalOperations as tco
 import MatrixManager as mm
 import AnalysisSettingsManager as asm
+import ParameterValidator as pv
 from enum import Enum
 
 #PlayMode options enumerator
@@ -114,7 +115,7 @@ def lockButtonPressed():
         setLockModeForSettings(False)
     
     #Otherwise try and lock, verifying that the settings are valid
-    elif verifySettingsValid():
+    elif pv.verifySettingsValid():
         setLockModeForSettings(True)
     
 
@@ -368,116 +369,6 @@ def setAccessibilityOfSettings(accessible):
 
     #Also set accessibility of loading settings
     mainWindow.actionLoadParameters.setEnabled(accessible)
-
-
-#Checks the current settings and brings up a message box if anything is invalid as well as return a boolean based on the validity
-def verifySettingsValid():
-
-    settingsValidityText = "Current settings are invalid for the following reasons:\n\n"
-    invalidSettings = False
-
-    paradigm = ts.Paradigm(mainWindow.paradigmComboBox.currentIndex())
-
-    if paradigm == ts.Paradigm.PSEUDO:
-        if not pseudoDurationIsValid():
-            invalidSettings = True
-            settingsValidityText += "Trial duration must be >= baseline + CS and baseline + US for pseudo paradigm\n"
-
-        if not (mainWindow.trialCountSpinBox.value() % 2 == 0):
-            invalidSettings = True
-            settingsValidityText += "Number of trials must be even for pseudo paradigm\n"
-
-    elif paradigm == ts.Paradigm.TRACE:
-        if not traceDurationIsValid():
-            invalidSettings = True
-            settingsValidityText += "Trial duration must be >= baseline + CS + ISI + US for trace paradigm\n"
-
-    elif paradigm == ts.Paradigm.EXTINCT:
-        if not extinctDurationIsValid():
-            invalidSettings = True
-            settingsValidityText += "Trial duration must be >= baseline + CS for extinction paradigm\n"
-
-    elif paradigm == ts.Paradigm.DELAY:
-        if not extinctDurationIsValid(): #Extinction and delay have same duration check
-            invalidSettings = True
-            settingsValidityText += "Trial duration must be >= baseline + CS for delay paradigm\n"
-
-        if mainWindow.usDurationSpinBox.value() > mainWindow.csDurationSpinBox.value():
-            invalidSettings = True
-            settingsValidityText += "US duration must be <= CS duration for delay paradigm\n"
-
-    if mainWindow.trialDurationSpinBox.value() < 100:
-        invalidSettings = True
-        settingsValidityText += "Trial duration must be >= 100 ms\n"
-
-    if mainWindow.baselineDurationSpinBox.value() < 100:
-        invalidSettings = True
-        settingsValidityText += "Baseline duration must be >= 100 ms\n"
-
-    if not usSignalStartIsValid(paradigm):
-        invalidSettings = True
-        settingsValidityText += "US start - US signal delay must be >= 0\n"
-
-    if not sessionNameIsValid():
-        invalidSettings = True
-        settingsValidityText += "Session name may not contain any of the following characters: \\ / : * ? \" < > |\n"
-
-    if invalidSettings:
-        invalidSettingsNotice = QMessageBox()
-        invalidSettingsNotice.setText(settingsValidityText)
-        invalidSettingsNotice.setWindowTitle("Invalid Settings")
-        invalidSettingsNotice.setStandardButtons(QMessageBox.Ok)
-        invalidSettingsNotice.setIcon(QMessageBox.Warning)
-        invalidSettingsNotice.setFont(popUpFont)
-        invalidSettingsNotice.exec()
-
-    return not invalidSettings
-
-
-def pseudoDurationIsValid():
-    baselineDur = mainWindow.baselineDurationSpinBox.value()
-    usDur = mainWindow.usDurationSpinBox.value()
-    trialDur = mainWindow.trialDurationSpinBox.value()
-
-    return extinctDurationIsValid() and baselineDur + usDur <= trialDur
-
-
-def traceDurationIsValid():
-    beginningToEndOfUS = mainWindow.baselineDurationSpinBox.value()
-    beginningToEndOfUS += mainWindow.csDurationSpinBox.value()
-    beginningToEndOfUS += mainWindow.interstimulusIntervalSpinBox.value()
-    beginningToEndOfUS += mainWindow.usDurationSpinBox.value()
-
-    return mainWindow.trialDurationSpinBox.value() >= beginningToEndOfUS
-
-
-def extinctDurationIsValid():
-    baselineDur = mainWindow.baselineDurationSpinBox.value()
-    csDur = mainWindow.csDurationSpinBox.value()
-    trialDur = mainWindow.trialDurationSpinBox.value()
-
-    return baselineDur + csDur <= trialDur
-
-
-#Returns if the session name contains any characters that could cause problems in a file name
-def sessionNameIsValid():
-    sessionText = mainWindow.sessionNameLineEdit.text()
-    return not ("\\" in sessionText or "/" in sessionText or ":" in sessionText or "<" in sessionText or ">" in sessionText or "*" in sessionText or "?" in sessionText or "\"" in sessionText or "|" in sessionText)
-
-
-def usSignalStartIsValid(paradigm):
-    usDelay = mainWindow.usDelaySpinBox.value()
-
-    if paradigm == ts.Paradigm.EXTINCT:
-        return True
-    elif paradigm == ts.Paradigm.TRACE:
-        baselineDur = mainWindow.baselineDurationSpinBox.value()
-        csDur = mainWindow.usDurationSpinBox.value()
-        isiDur = mainWindow.interstimulusIntervalSpinBox.value()
-
-        return baselineDur + csDur + isiDur - usDelay >= 0
-    else:
-        return mainWindow.baselineDurationSpinBox.value() - usDelay >= 0
 
 
 #Sets the defaults for the names if this function is called
