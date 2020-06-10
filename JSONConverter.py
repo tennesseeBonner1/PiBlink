@@ -43,6 +43,16 @@ def startDataAcquisition():
 
     name = str(ts.currentSession.sessionName)
     sex = str(ts.currentSession.subjectSex.name)
+
+    if sex == "MALE":
+        sex = "M"
+    else:
+        sex = "F"
+
+    paradigms = { "Paradigm.PSEUDO" : "P", "Paradigm.TRACE" : "T", "Paradigm.EXTINCT" : "E", "Paradigm.DELAY" : "D" }
+
+    pd = paradigms.get(str(ts.currentSession.paradigm), "ERROR ADDING PARADIGM TO JSON FILENAME")
+
     age = str(ts.currentSession.subjectAge)
     now = datetime.now()
     date = str(now.strftime("%m-%d-%Y"))
@@ -52,10 +62,10 @@ def startDataAcquisition():
 
     #Define ideal filename
     if name:
-        baseName = name + " (" + sex + " " + age + ") " + date
+        baseName = name + " (" + sex + " " + age + pd +") " + date
 
     else:
-        baseName = "(" + sex + " " + age + ") " + date
+        baseName = "(" + sex + " " + age + pd + ") " + date
 
     #Put filename, location and '.json' together
     idealFilename = os.path.join(desiredLocation, baseName)
