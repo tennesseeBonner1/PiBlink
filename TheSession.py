@@ -10,6 +10,7 @@
 """
 from enum import Enum
 import random
+from math import ceil
 
 
 #Singleton instance of session
@@ -258,43 +259,59 @@ class TheSession(object):
 
     #Populates pseudoTrialOrdering list with new randomized generation
     def generatePseudoTrialOrdering(self):
+        #The comments for this function will use "1" to refer to True and "0" to refer to False
+        #NOTE: This algorithm is not perfect; though it can generate many valid orderings, it cannot
+        # generate something like "111000100011" due to only expanding a string of "10" pairings
 
-        #Populate list with alternating True/False so there's an equal number of each
-        for x in range(self.trialCount):
-            self.pseudoTrialOrdering.append(x % 2 == 0)
+        #Generate the number of "10" pairings to start the list out with
+        #the bounds are based on the fact that a single pairing could be short like "10" or long like "111000"
+        pairs = random.randint(ceil(self.trialCount/6.0), self.trialCount/2)
 
-        #Randomize ordering
-        random.shuffle(self.pseudoTrialOrdering)
+        #Add "pairs" number of "10" pairings to the list
+        self.pseudoTrialOrdering = [x % 2 == 0 for x in range(2*pairs)]
 
-        #Ensure no more than X in a row are the same value
-        maxConsecutive = 3
-        trialIndex = 1
-        consecutiveCount = 1
-        previousValue = self.pseudoTrialOrdering[0]
-        while trialIndex < self.trialCount:
+        #Now "inflate" the pairings by one repeatedly until the list is the right length
+        while(len(self.pseudoTrialOrdering) < self.trialCount):
             
-            if previousValue == self.pseudoTrialOrdering[trialIndex]:
-                
-                consecutiveCount += 1
-
-                #Reached consecutive limit
-                if consecutiveCount == maxConsecutive:
-                    
-                    #Find random other index that has opposite value
-                    swapIndex = random.randint(0, self.trialCount - 1)
-
-                    #Swap with index
-                    values = self.pseudoTrialOrdering[swapIndex], self.pseudoTrialOrdering[trialIndex]
-                    self.pseudoTrialOrdering[trialIndex], self.pseudoTrialOrdering[swapIndex] = values
-
-            else:
-
-                consecutiveCount = 1
+            #Randomly choose a "1" that is not part of a "111"
+            indexList = self.findValidIndeces(True)
+            index = indexList[random.randint(0, len(indexList) - 1)]
             
-            #No issues, move onto next trial
-            previousValue = self.pseudoTrialOrdering[trialIndex]
-            trialIndex += 1
+            #Insert a "1" right before it
+            self.pseudoTrialOrdering.insert(index, True)
 
+            #Randomly choose a "0" that is not part of a "000"
+            indexList = self.findValidIndeces(False)
+            index = indexList[random.randint(0, len(indexList) - 1)]
+
+            #Insert a "0" right before it
+            self.pseudoTrialOrdering.insert(index, False)
+
+        #Shift the list forward a random number of times 
+        shifts = random.randint(0, len(self.pseudoTrialOrdering) - 1)
+        for x in range(shifts):
+            self.pseudoTrialOrdering.insert(0, self.pseudoTrialOrdering.pop())
+
+        print([("1" if self.pseudoTrialOrdering[x] else "0") for x in range(len(self.pseudoTrialOrdering))])
+
+    #Helper function for generatePseudoTrialOrderings
+    #Takes boolean value sought for and returns list of valid indeces (ie indeces where another boolean value can be inserted)
+    def findValidIndeces(self, value):
+        #Generate list of indeces where value is found in pseudoTrialOrdering
+        bList = [x for x in range(len(self.pseudoTrialOrdering)) if self.pseudoTrialOrdering[x] == value]
+
+        #Now generate a list of tuples containing indeces where triplets are found
+        triList = [(b-1, b, b+1) for b in range(1, len(bList) - 1) if (bList[b] - bList[b-1]) * (bList[b+1] - bList[b]) == 1]
+
+        #Use triList to remove all invalid indeces from bList
+        for x in range(len(triList)):
+            a, b, c = triList[len(triList) - 1 - x]
+            bList.pop(c)
+            bList.pop(b)
+            bList.pop(a)
+
+        #bList should now only contain valid indeces
+        return bList
 
     #Returns "TRIAL [X] / [Y]"
     def getTrialProgressString(self):
