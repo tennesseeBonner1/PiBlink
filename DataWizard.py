@@ -1,6 +1,6 @@
 
 """ DataWizard.py
-    Last Modified: 5/25/2020
+    Last Modified: 6/13/2020
     Taha Arshad, Tennessee Bonner, Devin Mensah, Khalid Shaik, Collin Vaille
     
     This file provides the code for interfacing with the analog I/O libraries.
@@ -79,10 +79,9 @@ def onTrialStart():
 #Return the next sample (i.e. current amplitude of eyeblink)
 #Waits until data is ready to read and return value (new sample every ~1 ms)
 def getNextSample():
-    #Wait until data is ready to be read
-    #Data is ready when DRDY (data ready) pin is in "active low"
-
     #Read in the sample from PiPyADC
+    #This will implicitly wait until data is ready to be read
+    #Data is ready when DRDY (data ready) pin is in "active low"
     '''
         This is the fastest of the read commands from the library because it just reads,
         it doesn't have any unnecessary implicit commands like sync.
@@ -136,7 +135,12 @@ def setUSAmplitude(high):
     else:
         dac.power_down(DAC_B, MODE_POWER_DOWN_100K)
 
-#Doesn't get called for some reason
+'''
+Doesn't get called for some reason
+No more than one can ever be created so next run of the program will just use same daemon
+Unfortunately this means daemon will be running even when program is not, but couldn't
+figure out how to fix it. Can manually "sudo killall pigpiod" for persistent daemon hunters.
+'''
 #Clean up: kill the pigpio daemon since we're done using it
 #def onSystemExit():
 #    subprocess.run(["sudo", "killall", "pigpiod"])
