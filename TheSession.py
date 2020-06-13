@@ -292,26 +292,27 @@ class TheSession(object):
         for x in range(shifts):
             self.pseudoTrialOrdering.insert(0, self.pseudoTrialOrdering.pop())
 
-        print([("1" if self.pseudoTrialOrdering[x] else "0") for x in range(len(self.pseudoTrialOrdering))])
-
     #Helper function for generatePseudoTrialOrderings
     #Takes boolean value sought for and returns list of valid indeces (ie indeces where another boolean value can be inserted)
     def findValidIndeces(self, value):
         #Generate list of indeces where value is found in pseudoTrialOrdering
-        bList = [x for x in range(len(self.pseudoTrialOrdering)) if self.pseudoTrialOrdering[x] == value]
+        iList = [x for x in range(len(self.pseudoTrialOrdering)) if self.pseudoTrialOrdering[x] == value]
 
         #Now generate a list of tuples containing indeces where triplets are found
-        triList = [(b-1, b, b+1) for b in range(1, len(bList) - 1) if (bList[b] - bList[b-1]) * (bList[b+1] - bList[b]) == 1]
+        #This line essentially looks at 3 index values at a time and tests if they only differ by 1, indicating the same values side-by-side 
+        triList = [(b-1, b, b+1) for b in range(1, len(iList) - 1) if (iList[b] - iList[b-1]) * (iList[b+1] - iList[b]) == 1]
 
-        #Use triList to remove all invalid indeces from bList
+        #Use triList to remove all invalid indeces from iList
+        triList.reverse()
         for x in range(len(triList)):
-            a, b, c = triList[len(triList) - 1 - x]
-            bList.pop(c)
-            bList.pop(b)
-            bList.pop(a)
+            #pop from end to start of list to avoid messing up the ordering
+            a, b, c = triList[x]
+            iList.pop(c)
+            iList.pop(b)
+            iList.pop(a)
 
-        #bList should now only contain valid indeces
-        return bList
+        #iList should now only contain valid indeces
+        return iList
 
     #Returns "TRIAL [X] / [Y]"
     def getTrialProgressString(self):
